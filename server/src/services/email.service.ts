@@ -1,27 +1,61 @@
+/* eslint-disable no-console */
 import nodemailer from 'nodemailer';
 import { env } from '../config/env';
 import logger from '../utils/logger';
 
-// Email transporter configuration using values from env
-const transporter = nodemailer.createTransport({
-    host: env.SMTP_HOST,
-    port: env.SMTP_PORT,
-    secure: env.SMTP_SECURE,
-    auth: {
-        user: env.SMTP_USER,
-        pass: env.SMTP_PASS,
-    },
-    tls: {
-        rejectUnauthorized: false
+// Initialize transporter conditionally
+let transporter: nodemailer.Transporter | null = null;
+
+async function getTransporter() {
+    if (transporter) return transporter;
+
+    if (env.SMTP_USER && env.SMTP_PASS) {
+        // Use real credentials
+        transporter = nodemailer.createTransport({
+            host: env.SMTP_HOST,
+            port: env.SMTP_PORT,
+            secure: env.SMTP_SECURE,
+            auth: {
+                user: env.SMTP_USER,
+                pass: env.SMTP_PASS,
+            },
+            tls: {
+                rejectUnauthorized: false
+            }
+        });
+        logger.info(`Using SMTP configured for ${env.SMTP_USER}`);
+    } else {
+        // Mock email using ethereal
+        const testAccount = await nodemailer.createTestAccount();
+        transporter = nodemailer.createTransport({
+            host: 'smtp.ethereal.email',
+            port: 587,
+            secure: false, // true for 465, false for other ports
+            auth: {
+                user: testAccount.user, // generated ethereal user
+                pass: testAccount.pass, // generated ethereal password
+            },
+        });
+        logger.info('Using Ethereal mock email for development');
     }
-});
+
+    return transporter;
+}
 
 export async function sendVerificationEmail(email: string, fullName: string, token: string) {
     const verificationUrl = `${env.CORS_ORIGIN}/verify?token=${token}`;
 
+    logger.info(`\n==============================================`);
+    logger.info(`📧 VERIFICATION EMAIL FOR: ${email}`);
+    logger.info(`🔗 CLICK HERE TO VERIFY: ${verificationUrl}`);
+    logger.info(`==============================================\n`);
+
     try {
-        await transporter.sendMail({
-            from: `"Frotex" <${env.SMTP_USER}>`,
+        const mailTransporter = await getTransporter();
+        const fromEmail = env.SMTP_USER || '"Frotex" <no-reply@frotex.com>';
+
+        const info = await mailTransporter.sendMail({
+            from: `"Frotex" <${fromEmail}>`,
             to: email,
             subject: 'Confirme seu e-mail - Frotex',
             html: `
@@ -40,6 +74,10 @@ export async function sendVerificationEmail(email: string, fullName: string, tok
                 </div>
             `,
         });
+
+        if (!env.SMTP_USER) {
+            logger.info(`📧 Ethereal URL: ${nodemailer.getTestMessageUrl(info)}`);
+        }
     } catch (error) {
         logger.error('Error sending verification email:', error);
     }
@@ -48,9 +86,17 @@ export async function sendVerificationEmail(email: string, fullName: string, tok
 export async function sendPasswordResetEmail(email: string, fullName: string, token: string) {
     const resetUrl = `${env.CORS_ORIGIN}/reset-password?token=${token}`;
 
+    logger.info(`\n==============================================`);
+    logger.info(`🔑 PASSWORD RESET FOR: ${email}`);
+    logger.info(`🔗 CLICK HERE TO RESET: ${resetUrl}`);
+    logger.info(`==============================================\n`);
+
     try {
-        await transporter.sendMail({
-            from: `"Frotex" <${env.SMTP_USER}>`,
+        const mailTransporter = await getTransporter();
+        const fromEmail = env.SMTP_USER || '"Frotex" <no-reply@frotex.com>';
+
+        const info = await mailTransporter.sendMail({
+            from: `"Frotex" <${fromEmail}>`,
             to: email,
             subject: 'Recupere sua senha - Frotex',
             html: `
@@ -70,6 +116,10 @@ export async function sendPasswordResetEmail(email: string, fullName: string, to
                 </div>
             `,
         });
+
+        if (!env.SMTP_USER) {
+            logger.info(`📧 Ethereal URL: ${nodemailer.getTestMessageUrl(info)}`);
+        }
     } catch (error) {
         logger.error('Error sending password reset email:', error);
     }
