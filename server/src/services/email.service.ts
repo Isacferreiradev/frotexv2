@@ -61,14 +61,73 @@ async function getTransporter(): Promise<nodemailer.Transporter> {
     return transporter as nodemailer.Transporter;
 }
 
+async function sendEmailViaResend(to: string, subject: string, html: string) {
+    if (!env.RESEND_API_KEY) return false;
+
+    try {
+        logger.info(`📧 [RESEND] Attempting API delivery to ${to}...`);
+
+        // Use onboarding@resend.dev if domain not verified, otherwise use SMTP_USER if it looks professional
+        const fromEmail = "onboarding@resend.dev";
+
+        const response = await fetch('https://api.resend.com/emails', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${env.RESEND_API_KEY}`,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                from: `Frotex <${fromEmail}>`,
+                to,
+                subject,
+                html,
+            }),
+        });
+
+        const data: any = await response.json();
+
+        if (response.ok) {
+            logger.info(`✅ [RESEND] Success! MessageId: ${data.id}`);
+            return true;
+        } else {
+            logger.error(`❌ [RESEND] API Error:`, data);
+            return false;
+        }
+    } catch (error) {
+        logger.error(`❌ [RESEND] Network Error:`, error);
+        return false;
+    }
+}
+
 export async function sendVerificationEmail(email: string, fullName: string, token: string) {
     const verificationUrl = `${env.CORS_ORIGIN}/verify?token=${token}`;
+    const subject = 'Confirme seu e-mail - Frotex';
+    const html = `
+        <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px;">
+            <h2 style="color: #7c3aed;">Bem-vindo ao Frotex, ${fullName}!</h2>
+            <p>Ficamos felizes em ter você conosco. Para começar a gerenciar sua locadora, precisamos apenas que você confirme seu e-mail.</p>
+            <div style="margin: 30px 0; text-align: center;">
+                <a href="${verificationUrl}" style="background-color: #7c3aed; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">
+                    Confirmar E-mail
+                </a>
+            </div>
+            <p style="color: #64748b; font-size: 14px;">Se o botão acima não funcionar, copie e cole o link abaixo no seu navegador:</p>
+            <p style="color: #64748b; font-size: 12px; word-break: break-all;">${verificationUrl}</p>
+            <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 20px 0;" />
+            <p style="color: #94a3b8; font-size: 12px;">Você recebeu este e-mail porque se cadastrou no Frotex. Se não foi você, pode ignorar esta mensagem.</p>
+        </div>
+    `;
 
     logger.info(`\n==============================================`);
     logger.info(`📧 VERIFICATION EMAIL FOR: ${email}`);
     logger.info(`🔗 CLICK HERE TO VERIFY: ${verificationUrl}`);
     logger.info(`==============================================\n`);
 
+    // Try Resend first
+    const resendSuccess = await sendEmailViaResend(email, subject, html);
+    if (resendSuccess) return;
+
+    // Fallback to SMTP
     try {
         logger.info(`📧 [SMTP-DEBUG] Step 1: Getting Transporter in sendVerificationEmail...`);
         const mailTransporter = await getTransporter();
@@ -79,22 +138,8 @@ export async function sendVerificationEmail(email: string, fullName: string, tok
         const info = await mailTransporter.sendMail({
             from: `"${fromName}" <${fromEmail}>`,
             to: email,
-            subject: 'Confirme seu e-mail - Frotex',
-            html: `
-                <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px;">
-                    <h2 style="color: #7c3aed;">Bem-vindo ao Frotex, ${fullName}!</h2>
-                    <p>Ficamos felizes em ter você conosco. Para começar a gerenciar sua locadora, precisamos apenas que você confirme seu e-mail.</p>
-                    <div style="margin: 30px 0; text-align: center;">
-                        <a href="${verificationUrl}" style="background-color: #7c3aed; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">
-                            Confirmar E-mail
-                        </a>
-                    </div>
-                    <p style="color: #64748b; font-size: 14px;">Se o botão acima não funcionar, copie e cole o link abaixo no seu navegador:</p>
-                    <p style="color: #64748b; font-size: 12px; word-break: break-all;">${verificationUrl}</p>
-                    <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 20px 0;" />
-                    <p style="color: #94a3b8; font-size: 12px;">Você recebeu este e-mail porque se cadastrou no Frotex. Se não foi você, pode ignorar esta mensagem.</p>
-                </div>
-            `,
+            subject,
+            html,
         });
 
         logger.info(`✅ Verification email delivered to ${email}. MessageId: ${info.messageId}`);
@@ -103,17 +148,38 @@ export async function sendVerificationEmail(email: string, fullName: string, tok
             logger.info(`📧 Ethereal URL: ${nodemailer.getTestMessageUrl(info)}`);
         }
     } catch (error) {
-        logger.error('Error sending verification email:', error);
+        logger.error('Error sending verification email via SMTP:', error);
     }
 }
 
 export async function sendPasswordResetEmail(email: string, fullName: string, token: string) {
     const resetUrl = `${env.CORS_ORIGIN}/reset-password?token=${token}`;
+    const subject = 'Recupere sua senha - Frotex';
+    const html = `
+        <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px;">
+            <h2 style="color: #7c3aed;">Recuperação de Senha</h2>
+            <p>Olá ${fullName}, recebemos uma solicitação para redefinir a sua senha no Frotex.</p>
+            <p>Clique no botão abaixo para escolher uma nova senha. Este link expira em 1 hora.</p>
+            <div style="margin: 30px 0; text-align: center;">
+                <a href="${resetUrl}" style="background-color: #7c3aed; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">
+                    Redefinir Senha
+                </a>
+            </div>
+            <p style="color: #64748b; font-size: 14px;">Se o botão acima não funcionar, copie e cole o link abaixo no seu navegador:</p>
+            <p style="color: #64748b; font-size: 12px; word-break: break-all;">${resetUrl}</p>
+            <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 20px 0;" />
+            <p style="color: #94a3b8; font-size: 12px;">Se você não solicitou a alteração da senha, pode ignorar este e-mail com segurança. Sua senha não será alterada até que você acesse o link acima.</p>
+        </div>
+    `;
 
     logger.info(`\n==============================================`);
     logger.info(`🔑 PASSWORD RESET FOR: ${email}`);
     logger.info(`🔗 CLICK HERE TO RESET: ${resetUrl}`);
     logger.info(`==============================================\n`);
+
+    // Try Resend first
+    const resendSuccess = await sendEmailViaResend(email, subject, html);
+    if (resendSuccess) return;
 
     try {
         logger.info(`📧 [SMTP-DEBUG] Step 1: Getting Transporter in sendPasswordResetEmail...`);
@@ -125,23 +191,8 @@ export async function sendPasswordResetEmail(email: string, fullName: string, to
         const info = await mailTransporter.sendMail({
             from: `"${fromName}" <${fromEmail}>`,
             to: email,
-            subject: 'Recupere sua senha - Frotex',
-            html: `
-                <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px;">
-                    <h2 style="color: #7c3aed;">Recuperação de Senha</h2>
-                    <p>Olá ${fullName}, recebemos uma solicitação para redefinir a sua senha no Frotex.</p>
-                    <p>Clique no botão abaixo para escolher uma nova senha. Este link expira em 1 hora.</p>
-                    <div style="margin: 30px 0; text-align: center;">
-                        <a href="${resetUrl}" style="background-color: #7c3aed; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">
-                            Redefinir Senha
-                        </a>
-                    </div>
-                    <p style="color: #64748b; font-size: 14px;">Se o botão acima não funcionar, copie e cole o link abaixo no seu navegador:</p>
-                    <p style="color: #64748b; font-size: 12px; word-break: break-all;">${resetUrl}</p>
-                    <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 20px 0;" />
-                    <p style="color: #94a3b8; font-size: 12px;">Se você não solicitou a alteração da senha, pode ignorar este e-mail com segurança. Sua senha não será alterada até que você acesse o link acima.</p>
-                </div>
-            `,
+            subject,
+            html,
         });
 
         logger.info(`✅ Reset email delivered to ${email}. MessageId: ${info.messageId}`);
@@ -150,6 +201,6 @@ export async function sendPasswordResetEmail(email: string, fullName: string, to
             logger.info(`📧 Ethereal URL: ${nodemailer.getTestMessageUrl(info)}`);
         }
     } catch (error) {
-        logger.error('Error sending password reset email:', error);
+        logger.error('Error sending password reset email via SMTP:', error);
     }
 }

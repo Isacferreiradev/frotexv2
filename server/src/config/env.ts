@@ -21,6 +21,7 @@ const envSchema = z.object({
     STRIPE_PRICE_PRO_ID: z.string().min(1).default('price_placeholder'),
     STRIPE_PRICE_SCALE_ID: z.string().min(1).default('price_placeholder'),
     STRIPE_WEBHOOK_SECRET: z.string().min(1).default('whsec_placeholder'),
+    RESEND_API_KEY: z.string().optional(),
 });
 
 const parsed = envSchema.safeParse(process.env);
