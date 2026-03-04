@@ -20,6 +20,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
 import { Skeleton, SkeletonCard, SkeletonList } from '@/components/shared/SkeletonLoader';
 import { EmptyState } from '@/components/shared/EmptyState';
+import { DataTable } from '@/components/shared/DataTable';
+import { motion } from 'framer-motion';
+import { Button } from '@/components/ui/button';
 
 const STATUS_OPTIONS = [
     { value: '', label: 'Todos' },
@@ -364,115 +367,132 @@ export default function FerramentasPage() {
                     </div>
                 ) : viewMode === 'grid' ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 mt-8">
-                        {data.map((tool: any) => (
-                            <ToolCard
+                        {data.map((tool: any, index: number) => (
+                            <motion.div
                                 key={tool.id}
-                                tool={tool}
-                                onEdit={(t) => {
-                                    setEditingTool(t);
-                                    setIsSheetOpen(true);
-                                }}
-                                onStatusChange={(id, status) => quickStatusMutation.mutate({ id, status })}
-                                onShowQR={(t) => {
-                                    setQrTool(t);
-                                    setIsQrOpen(true);
-                                }}
-                                onCheckout={(t) => {
-                                    setCheckoutTool(t);
-                                    setIsCheckoutOpen(true);
-                                }}
-                            />
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: index * 0.05 }}
+                            >
+                                <ToolCard
+                                    tool={tool}
+                                    onEdit={(t) => {
+                                        setEditingTool(t);
+                                        setIsSheetOpen(true);
+                                    }}
+                                    onStatusChange={(id, status) => quickStatusMutation.mutate({ id, status })}
+                                    onShowQR={(t) => {
+                                        setQrTool(t);
+                                        setIsQrOpen(true);
+                                    }}
+                                    onCheckout={(t) => {
+                                        setCheckoutTool(t);
+                                        setIsCheckoutOpen(true);
+                                    }}
+                                />
+                            </motion.div>
                         ))}
                     </div>
                 ) : (
-                    <div className="bg-white rounded-2xl border border-border/40 shadow-soft overflow-hidden mt-8">
-                        <div className="overflow-x-auto">
-                            <table className="w-full">
-                                <thead>
-                                    <tr className="border-b border-border/40 bg-muted/10">
-                                        <th className="px-10 py-6 text-left text-[10px] font-semibold text-muted-foreground uppercase tracking-widest leading-none">Equipamento</th>
-                                        <th className="px-10 py-6 text-left text-[10px] font-semibold text-muted-foreground uppercase tracking-widest leading-none">Categoria</th>
-                                        <th className="px-10 py-6 text-left text-[10px] font-semibold text-muted-foreground uppercase tracking-widest leading-none">Diária</th>
-                                        <th className="px-10 py-6 text-left text-[10px] font-semibold text-muted-foreground uppercase tracking-widest leading-none">Status</th>
-                                        <th className="px-10 py-6 text-right text-[10px] font-semibold text-muted-foreground uppercase tracking-widest leading-none">Gestão</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-border/40">
-                                    {data.map((tool: any) => (
-                                        <tr key={tool.id} className="group hover:bg-muted/30 transition-all duration-300">
-                                            <td className="px-10 py-6">
-                                                <div className="flex items-center gap-5">
-                                                    <div className="w-11 h-11 bg-secondary/30 rounded-xl flex items-center justify-center text-primary/60 group-hover:bg-primary group-hover:text-white transition-all duration-500 shadow-sm">
-                                                        <Wrench className="w-5 h-5" />
-                                                    </div>
-                                                    <div>
-                                                        <p className="font-semibold text-[14px] text-foreground group-hover:text-primary transition-colors tracking-tight">{tool.name}</p>
-                                                        <p className="text-muted-foreground text-[10px] font-medium uppercase tracking-tight mt-0.5">{tool.brand} • {tool.assetTag}</p>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td className="px-10 py-6">
-                                                <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest bg-muted/50 px-3 py-1.5 rounded-lg border border-border/40">
-                                                    {tool.categoryName || 'Universal'}
-                                                </span>
-                                            </td>
-                                            <td className="px-10 py-6">
-                                                <p className="text-[14px] font-semibold text-foreground tabular-nums tracking-tight">{formatCurrency(tool.dailyRate)}</p>
-                                            </td>
-                                            <td className="px-10 py-6">
-                                                <StatusBadge status={tool.status} />
-                                            </td>
-                                            <td className="px-10 py-6 text-right">
-                                                <div className="flex items-center justify-end gap-3 translate-x-2 opacity-0 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300">
-                                                    <button
-                                                        onClick={() => {
-                                                            setQrTool(tool);
-                                                            setIsQrOpen(true);
-                                                        }}
-                                                        className="w-10 h-10 flex items-center justify-center bg-white rounded-xl border border-border/40 text-muted-foreground hover:text-primary hover:border-primary/20 hover:shadow-premium transition-all"
-                                                        title="QR Code"
-                                                    >
-                                                        <QrCode className="w-4 h-4" />
-                                                    </button>
-                                                    {tool.status === 'available' && (
-                                                        <button
-                                                            onClick={() => {
-                                                                setCheckoutTool(tool);
-                                                                setIsCheckoutOpen(true);
-                                                            }}
-                                                            className="h-10 px-5 flex items-center justify-center bg-primary text-white rounded-xl font-semibold text-[10px] uppercase tracking-widest hover:bg-primary/90 transition-all shadow-premium"
-                                                            title="Alugar"
-                                                        >
-                                                            <Zap className="w-4 h-4 mr-2" />
-                                                            Alugar
-                                                        </button>
-                                                    )}
-                                                    <button
-                                                        onClick={() => {
-                                                            setEditingTool(tool);
-                                                            setIsSheetOpen(true);
-                                                        }}
-                                                        className="w-10 h-10 flex items-center justify-center bg-white rounded-xl border border-border/40 text-muted-foreground hover:text-primary hover:border-primary/20 hover:shadow-premium transition-all"
-                                                    >
-                                                        <Pencil className="w-4 h-4" />
-                                                    </button>
-                                                    <button
-                                                        onClick={() => {
-                                                            if (confirm(`Excluir "${tool.name}"?`)) {
-                                                                deleteMutation.mutate(tool.id);
-                                                            }
-                                                        }}
-                                                        className="w-10 h-10 flex items-center justify-center bg-white rounded-xl border border-border/40 text-muted-foreground hover:text-red-500 hover:border-red-100 hover:shadow-premium transition-all"
-                                                    >
-                                                        <Trash2 className="w-4 h-4" />
-                                                    </button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
+                    <div className="mt-8">
+                        <DataTable
+                            data={data}
+                            isLoading={isLoading}
+                            onSearchChange={(val) => setSearch(val)}
+                            columns={[
+                                {
+                                    header: "Equipamento",
+                                    accessorKey: "name",
+                                    cell: (tool: any) => (
+                                        <div className="flex items-center gap-4">
+                                            <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary shadow-sm">
+                                                <Wrench className="w-5 h-5" />
+                                            </div>
+                                            <div>
+                                                <p className="font-bold text-foreground tracking-tight">{tool.name}</p>
+                                                <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-tight">{tool.brand} • {tool.assetTag}</p>
+                                            </div>
+                                        </div>
+                                    )
+                                },
+                                {
+                                    header: "Categoria",
+                                    accessorKey: "categoryName",
+                                    cell: (tool: any) => (
+                                        <span className="text-[10px] font-bold text-primary/80 uppercase tracking-widest bg-primary/5 px-2.5 py-1 rounded-lg border border-primary/10">
+                                            {tool.categoryName || 'Geral'}
+                                        </span>
+                                    )
+                                },
+                                {
+                                    header: "Diária",
+                                    accessorKey: "dailyRate",
+                                    cell: (tool: any) => formatCurrency(tool.dailyRate)
+                                },
+                                {
+                                    header: "Status",
+                                    accessorKey: "status",
+                                    cell: (tool: any) => <StatusBadge status={tool.status} />
+                                },
+                                {
+                                    header: "Gestão",
+                                    accessorKey: "id",
+                                    className: "text-right",
+                                    cell: (tool: any) => (
+                                        <div className="flex items-center justify-end gap-2">
+                                            <Button
+                                                variant="outline"
+                                                size="icon-xs"
+                                                onClick={() => {
+                                                    setQrTool(tool);
+                                                    setIsQrOpen(true);
+                                                }}
+                                                className="rounded-lg"
+                                            >
+                                                <QrCode className="w-3.5 h-3.5" />
+                                            </Button>
+                                            {tool.status === 'available' && (
+                                                <Button
+                                                    variant="default"
+                                                    size="xs"
+                                                    onClick={() => {
+                                                        setCheckoutTool(tool);
+                                                        setIsCheckoutOpen(true);
+                                                    }}
+                                                    className="rounded-lg h-7 px-3 text-[9px] uppercase font-bold tracking-widest"
+                                                >
+                                                    <Zap className="w-3 h-3 mr-1" />
+                                                    Alugar
+                                                </Button>
+                                            )}
+                                            <Button
+                                                variant="outline"
+                                                size="icon-xs"
+                                                onClick={() => {
+                                                    setEditingTool(tool);
+                                                    setIsSheetOpen(true);
+                                                }}
+                                                className="rounded-lg"
+                                            >
+                                                <Pencil className="w-3.5 h-3.5" />
+                                            </Button>
+                                            <Button
+                                                variant="outline"
+                                                size="icon-xs"
+                                                onClick={() => {
+                                                    if (confirm(`Excluir "${tool.name}"?`)) {
+                                                        deleteMutation.mutate(tool.id);
+                                                    }
+                                                }}
+                                                className="hover:text-red-500 hover:border-red-200 rounded-lg"
+                                            >
+                                                <Trash2 className="w-3.5 h-3.5" />
+                                            </Button>
+                                        </div>
+                                    )
+                                }
+                            ]}
+                        />
                     </div>
                 )
             }

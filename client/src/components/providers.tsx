@@ -14,6 +14,8 @@ const queryClient = new QueryClient({
     },
 });
 
+import { PageTransition } from './shared/page-transition';
+
 export function Providers({ children }: { children: React.ReactNode }) {
     const hydrate = useAuthStore((s) => s.hydrate);
     const [mounted, setMounted] = useState(false);
@@ -27,7 +29,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
 
     return (
         <QueryClientProvider client={queryClient}>
-            {children}
+            <PageTransition>
+                {children}
+            </PageTransition>
         </QueryClientProvider>
     );
 }

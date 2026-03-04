@@ -1,13 +1,21 @@
 import * as React from "react"
-
+import { motion, HTMLMotionProps } from "framer-motion"
 import { cn } from "@/lib/utils"
 
-function Card({ className, ...props }: React.ComponentProps<"div">) {
+interface CardProps extends HTMLMotionProps<"div"> {
+  glass?: boolean
+}
+
+function Card({ className, glass, ...props }: CardProps) {
   return (
-    <div
+    <motion.div
       data-slot="card"
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
       className={cn(
         "bg-card text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm",
+        glass && "glass-v2 border-white/20 shadow-premium",
         className
       )}
       {...props}
@@ -32,7 +40,7 @@ function CardTitle({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="card-title"
-      className={cn("leading-none font-semibold", className)}
+      className={cn("leading-none font-semibold tracking-tight", className)}
       {...props}
     />
   )
