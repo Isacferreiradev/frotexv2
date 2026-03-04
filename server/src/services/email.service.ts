@@ -23,7 +23,16 @@ async function getTransporter(): Promise<nodemailer.Transporter> {
                 rejectUnauthorized: false
             }
         });
-        logger.info(`Using SMTP configured for ${env.SMTP_USER}`);
+
+        try {
+            await transporter.verify();
+            logger.info(`✅ SMTP Connection verified for ${env.SMTP_USER}`);
+        } catch (error) {
+            logger.error(`❌ SMTP Connection failed for ${env.SMTP_USER}:`, error);
+            // Fallback to null to try ethereal or just fail gracefully next time
+            transporter = null;
+            throw error;
+        }
     } else {
         // Mock email using ethereal
         const testAccount = await nodemailer.createTestAccount();
@@ -52,10 +61,11 @@ export async function sendVerificationEmail(email: string, fullName: string, tok
 
     try {
         const mailTransporter = await getTransporter();
-        const fromEmail = env.SMTP_USER || '"Frotex" <no-reply@frotex.com>';
+        const fromEmail = env.SMTP_USER || 'no-reply@frotex.com';
+        const fromName = "Frotex";
 
         const info = await mailTransporter.sendMail({
-            from: `"Frotex" <${fromEmail}>`,
+            from: `"${fromName}" <${fromEmail}>`,
             to: email,
             subject: 'Confirme seu e-mail - Frotex',
             html: `
@@ -95,10 +105,11 @@ export async function sendPasswordResetEmail(email: string, fullName: string, to
 
     try {
         const mailTransporter = await getTransporter();
-        const fromEmail = env.SMTP_USER || '"Frotex" <no-reply@frotex.com>';
+        const fromEmail = env.SMTP_USER || 'no-reply@frotex.com';
+        const fromName = "Frotex";
 
         const info = await mailTransporter.sendMail({
-            from: `"Frotex" <${fromEmail}>`,
+            from: `"${fromName}" <${fromEmail}>`,
             to: email,
             subject: 'Recupere sua senha - Frotex',
             html: `
