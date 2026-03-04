@@ -214,6 +214,37 @@ export async function checkinRental(tenantId: string, id: string, userId: string
     return updated;
 }
 
+export async function cancelRental(tenantId: string, id: string) {
+    const rental = await getRental(tenantId, id);
+    if (rental.status !== 'active' && rental.status !== 'overdue') {
+        throw new AppError(400, `Não é possível cancelar uma locação com status: ${rental.status}`);
+    }
+
+    const updated = await db.transaction(async (tx) => {
+        const [updatedRental] = await tx
+            .update(rentals)
+            .set({
+                status: 'cancelled',
+                updatedAt: new Date(),
+            })
+            .where(and(eq(rentals.tenantId, tenantId), eq(rentals.id, id)))
+            .returning();
+
+        // Update tool back to available
+        await tx.update(tools).set({ status: 'available', updatedAt: new Date() }).where(eq(tools.id, rental.toolId));
+
+        // Mark pending payments as failed
+        await tx.update(payments).set({
+            status: 'failed',
+            notes: 'Pagamento cancelado devido ao cancelamento da locação'
+        }).where(and(eq(payments.rentalId, id), eq(payments.status, 'pending')));
+
+        return updatedRental;
+    });
+
+    return updated;
+}
+
 export async function getDashboardStats(tenantId: string, period?: string) {
     const now = new Date();
     const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
