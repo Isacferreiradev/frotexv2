@@ -1,6 +1,6 @@
 import { eq, and, or, desc, sql } from 'drizzle-orm';
 import { db } from '../db';
-import { rentals, tools, customers, payments, tenants, users, toolCategories, expenses, maintenanceLogs } from '../db/schema';
+import { rentals, tools, customers, payments, tenants, users, toolCategories, expenses, maintenanceLogs, quotes } from '../db/schema';
 import { AppError } from '../middleware/error.middleware';
 import { z } from 'zod';
 import { getPlanLimits } from '../lib/plan-limits';
@@ -260,7 +260,7 @@ export async function getDashboardStats(tenantId: string, period?: string) {
     else if (period === '30d') periodStart = thirtyDaysAgo;
 
     // Get basic counts and lists for calculation
-    const [toolRows, rentalRows, paymentRows, maintenanceRows, newCustomers, expensesRows] = await Promise.all([
+    const [toolRows, rentalRows, paymentRows, maintenanceRows, newCustomers, expensesRows, quoteRows] = await Promise.all([
         db.select().from(tools).where(eq(tools.tenantId, tenantId)),
         db.query.rentals.findMany({
             where: eq(rentals.tenantId, tenantId),
@@ -272,7 +272,8 @@ export async function getDashboardStats(tenantId: string, period?: string) {
         db.select({ amount: payments.amount, status: payments.status, paymentDate: payments.paymentDate }).from(payments).where(eq(payments.tenantId, tenantId)),
         db.select({ toolId: maintenanceLogs.toolId, cost: maintenanceLogs.cost }).from(maintenanceLogs).where(eq(maintenanceLogs.tenantId, tenantId)),
         db.select({ id: customers.id }).from(customers).where(and(eq(customers.tenantId, tenantId), sql`${customers.createdAt} >= ${lastWeek}`)),
-        db.select({ amount: expenses.amount, category: expenses.category, refId: expenses.refId }).from(expenses).where(eq(expenses.tenantId, tenantId))
+        db.select({ amount: expenses.amount, category: expenses.category, refId: expenses.refId }).from(expenses).where(eq(expenses.tenantId, tenantId)),
+        db.select({ totalAmount: quotes.totalAmount, status: quotes.status }).from(quotes).where(eq(quotes.tenantId, tenantId))
     ]);
 
     const totalTools = toolRows.length;
@@ -411,6 +412,11 @@ export async function getDashboardStats(tenantId: string, period?: string) {
         count: stats.count
     })).sort((a, b) => b.value - a.value).slice(0, 5);
 
+    // Advanced Analytics: Quote Funnel
+    const pendingQuotes = quoteRows.filter((q: any) => q.status === 'draft' || q.status === 'sent');
+    const pendingQuotesCount = pendingQuotes.length;
+    const potentialRevenue = pendingQuotes.reduce((sum: number, q: any) => sum + parseFloat(q.totalAmount || '0'), 0);
+
     return {
         available: availableTools.length,
         rented: rentedTools.length,
@@ -426,7 +432,9 @@ export async function getDashboardStats(tenantId: string, period?: string) {
         maintenanceAlertsCount,
         returnsToday,
         revenueHistory,
-        categoryStats
+        categoryStats,
+        pendingQuotesCount,
+        potentialRevenue
     };
 }
 

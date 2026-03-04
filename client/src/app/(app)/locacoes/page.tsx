@@ -186,42 +186,80 @@ export default function LocacoesPage() {
                                         </select>
                                     </div>
 
-                                    {/* Real-time Calculation */}
+                                    {/* Real-time Calculation with Intelligence Breakdown */}
                                     {selectedRental && (
-                                        <div className="p-6 bg-foreground rounded-2xl text-white space-y-4 shadow-premium">
-                                            <div className="flex justify-between items-center text-[10px] uppercase font-semibold text-muted/60 tracking-widest">
-                                                <span>Dias de Locação</span>
-                                                <span className="text-white font-bold">
+                                        <div className="p-6 bg-zinc-900 rounded-3xl text-white space-y-4 shadow-premium border border-white/5 relative overflow-hidden">
+                                            {/* Decorative Background Glow */}
+                                            <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 blur-[60px] rounded-full -translate-y-1/2 translate-x-1/2" />
+
+                                            <div className="flex justify-between items-center text-[10px] uppercase font-bold text-zinc-500 tracking-[0.2em] relative z-10">
+                                                <span>Resumo do Período</span>
+                                                <span className="text-white">
                                                     {(() => {
                                                         const start = new Date(selectedRental.startDate);
                                                         const end = new Date(returnDate);
-                                                        return Math.max(1, Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)));
-                                                    })()}d
-                                                </span>
-                                            </div>
-
-                                            <div className="h-[1px] bg-white/5 w-full" />
-
-                                            <div className="flex justify-between items-center">
-                                                <span className="text-[10px] uppercase font-semibold text-primary tracking-widest">Base (diárias)</span>
-                                                <span className="text-2xl font-semibold tracking-tight tabular-nums">
-                                                    {(() => {
-                                                        const start = new Date(selectedRental.startDate);
-                                                        const actual = new Date(returnDate);
-                                                        const totalDays = Math.max(1, Math.ceil((actual.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)));
-                                                        const dailyRate = parseFloat(selectedRental.dailyRateAgreed || '0');
-                                                        return formatCurrency(totalDays * dailyRate);
+                                                        const days = Math.max(1, Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)));
+                                                        return `${days} ${days === 1 ? 'Dia' : 'Dias'}`;
                                                     })()}
                                                 </span>
                                             </div>
 
-                                            {new Date(returnDate) > new Date(selectedRental.endDateExpected) && (
-                                                <div className="pt-2">
-                                                    <p className="text-[10px] font-medium text-amber-400 uppercase tracking-tight flex items-center gap-2">
-                                                        <AlertTriangle className="w-3.5 h-3.5" /> Multa por atraso conforme contrato
-                                                    </p>
+                                            <div className="space-y-2 relative z-10">
+                                                <div className="flex justify-between text-[11px] font-medium text-zinc-400">
+                                                    <span>Subtotal (Diárias)</span>
+                                                    <span>
+                                                        {(() => {
+                                                            const start = new Date(selectedRental.startDate);
+                                                            const actual = new Date(returnDate);
+                                                            const totalDays = Math.max(1, Math.ceil((actual.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)));
+                                                            const dailyRate = parseFloat(selectedRental.dailyRateAgreed || '0');
+                                                            return formatCurrency(totalDays * dailyRate);
+                                                        })()}
+                                                    </span>
                                                 </div>
-                                            )}
+
+                                                {(() => {
+                                                    const actual = new Date(returnDate);
+                                                    const expected = new Date(selectedRental.endDateExpected);
+                                                    if (actual > expected) {
+                                                        const start = new Date(selectedRental.startDate);
+                                                        const totalDays = Math.max(1, Math.ceil((actual.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)));
+                                                        const dailyRate = parseFloat(selectedRental.dailyRateAgreed || '0');
+                                                        const subtotal = totalDays * dailyRate;
+                                                        const fine = subtotal * 0.10; // 10% fine
+                                                        return (
+                                                            <div className="flex justify-between text-[11px] font-bold text-amber-400">
+                                                                <span className="flex items-center gap-1.5 italic">
+                                                                    <AlertTriangle className="w-3 h-3" /> Multa Atraso (10%)
+                                                                </span>
+                                                                <span>+{formatCurrency(fine)}</span>
+                                                            </div>
+                                                        );
+                                                    }
+                                                    return null;
+                                                })()}
+                                            </div>
+
+                                            <div className="h-[1px] bg-white/10 w-full relative z-10" />
+
+                                            <div className="flex justify-between items-end relative z-10">
+                                                <div>
+                                                    <p className="text-[9px] font-black text-primary uppercase tracking-[0.25em] mb-1">Total Final</p>
+                                                    <p className="text-xs text-zinc-500 font-medium">Cálculo Pro Intelligence</p>
+                                                </div>
+                                                <span className="text-3xl font-bold tracking-tighter tabular-nums text-white">
+                                                    {(() => {
+                                                        const start = new Date(selectedRental.startDate);
+                                                        const actual = new Date(returnDate);
+                                                        const expected = new Date(selectedRental.endDateExpected);
+                                                        const totalDays = Math.max(1, Math.ceil((actual.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)));
+                                                        const dailyRate = parseFloat(selectedRental.dailyRateAgreed || '0');
+                                                        const subtotal = totalDays * dailyRate;
+                                                        const fine = actual > expected ? subtotal * 0.10 : 0;
+                                                        return formatCurrency(subtotal + fine);
+                                                    })()}
+                                                </span>
+                                            </div>
                                         </div>
                                     )}
                                 </div>

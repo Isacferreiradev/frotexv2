@@ -163,6 +163,8 @@ export const quotes = pgTable('quotes', {
     startDate: timestamp('start_date', { withTimezone: true }).notNull(),
     endDateExpected: timestamp('end_date_expected', { withTimezone: true }).notNull(),
     totalAmount: numeric('total_amount', { precision: 10, scale: 2 }).notNull().default('0.00'),
+    validUntil: timestamp('valid_until', { withTimezone: true }),
+    notes: text('notes'),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 });

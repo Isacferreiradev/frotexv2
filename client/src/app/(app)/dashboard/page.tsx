@@ -103,7 +103,7 @@ function ROIRow({ tool, rank }: { tool: any; rank: number }) {
                 </div>
             </div>
             <div className="text-right shrink-0">
-                <p className="text-sm font-black text-foreground font-jakarta">{formatCurrency(tool.profit)}</p>
+                <p className="text-sm font-black text-foreground font-jakarta">{formatCurrency(tool.netProfit)}</p>
                 <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-tighter">{tool.roi.toFixed(1)}% ROI</p>
             </div>
         </div>
@@ -227,7 +227,7 @@ export default function DashboardPage() {
                 </div>
             </div>
 
-            {/* ── Primary Analytics ── */}
+            {/* ── Primary Analytics (Metric Cards) ── */}
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
                 <MetricCard
                     title="Faturamento Bruto"
@@ -258,6 +258,77 @@ export default function DashboardPage() {
                     variant={stats?.overdueRentalsCount > 0 ? 'critical' : 'default'}
                     subtitle="Recuperação de Ativos"
                 />
+            </div>
+
+            {/* ── Pro Intelligence & Pending Budgets ── */}
+            <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+                <Card glass className="xl:col-span-2 border-none bg-zinc-900 text-white overflow-hidden relative group">
+                    <div className="absolute top-0 right-0 w-64 h-64 bg-primary/20 blur-[100px] rounded-full -translate-y-1/2 translate-x-1/2 group-hover:bg-primary/30 transition-all duration-700" />
+                    <CardHeader className="flex flex-row items-center justify-between relative z-10">
+                        <div className="flex items-center gap-3">
+                            <Crown className="w-5 h-5 text-primary" />
+                            <CardTitle className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400">Pro Fleet Intelligence</CardTitle>
+                        </div>
+                        <Button variant="ghost" size="sm" className="text-[10px] font-black uppercase tracking-widest text-zinc-500 hover:text-white">
+                            Relatório Completo <ArrowUpRight className="ml-2 w-3 h-3" />
+                        </Button>
+                    </CardHeader>
+                    <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-8 relative z-10 py-6">
+                        <div className="space-y-2">
+                            <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">ROI Médio Real</p>
+                            <p className="text-4xl font-black font-jakarta text-emerald-400">
+                                {stats?.total > 0 ? (stats.topToolsByROI?.reduce((sum: number, t: any) => sum + t.roi, 0) / stats.topToolsByROI?.length || 0).toFixed(1) : 0}%
+                            </p>
+                            <p className="text-[10px] text-zinc-500 leading-relaxed font-medium">Contabilizando depreciação de 20%/ano e custos de manutenção.</p>
+                        </div>
+                        <div className="space-y-2">
+                            <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Capital em Risco</p>
+                            <p className="text-4xl font-black font-jakarta text-red-500">
+                                {formatCurrency(stats?.zombieEquipment?.reduce((sum: number, t: any) => sum + parseFloat(t.acquisition || '0'), 0) || 0)}
+                            </p>
+                            <p className="text-[10px] text-zinc-500 leading-relaxed font-medium">Investimento em equipamentos com ROI negativo ou fim de vida.</p>
+                        </div>
+                        <div className="space-y-2">
+                            <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Saúde da Operação</p>
+                            <div className="flex items-end gap-3 mb-2">
+                                <p className="text-4xl font-black font-jakarta text-white">
+                                    {(stats?.occupancyRate || 0)}%
+                                </p>
+                                <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest pb-1.5 ml-auto">Ocupação</span>
+                            </div>
+                            <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
+                                <div className="h-full bg-primary" style={{ width: `${stats?.occupancyRate}%` }} />
+                            </div>
+                        </div>
+                    </CardContent>
+                </Card>
+
+                <Card glass className="border-none">
+                    <CardHeader className="flex flex-row items-center justify-between">
+                        <div className="flex items-center gap-3">
+                            <Target className="w-5 h-5 text-primary" />
+                            <CardTitle className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400">Fluxo de Demanda</CardTitle>
+                        </div>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <p className="text-2xl font-black font-jakarta">{stats?.pendingQuotesCount || 0}</p>
+                                <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Orçamentos Pendentes</p>
+                            </div>
+                            <div className="text-right">
+                                <p className="text-2xl font-black font-jakarta text-primary">{formatCurrency(stats?.potentialRevenue || 0)}</p>
+                                <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Potencial Bruto</p>
+                            </div>
+                        </div>
+                        <Button
+                            onClick={() => window.location.href = '/orcamentos'}
+                            className="w-full bg-primary/10 hover:bg-primary/20 text-primary border-none shadow-none text-[10px] font-black uppercase tracking-widest py-6 rounded-2xl"
+                        >
+                            Ver Todos os Orçamentos
+                        </Button>
+                    </CardContent>
+                </Card>
             </div>
 
             {/* ── Main Charts Row ── */}
