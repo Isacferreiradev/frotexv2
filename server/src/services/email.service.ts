@@ -75,6 +75,8 @@ export async function sendVerificationEmail(email: string, fullName: string, tok
             `,
         });
 
+        logger.info(`✅ Verification email delivered to ${email}. MessageId: ${info.messageId}`);
+
         if (!env.SMTP_USER) {
             logger.info(`📧 Ethereal URL: ${nodemailer.getTestMessageUrl(info)}`);
         }
@@ -116,6 +118,8 @@ export async function sendPasswordResetEmail(email: string, fullName: string, to
                 </div>
             `,
         });
+
+        logger.info(`✅ Reset email delivered to ${email}. MessageId: ${info.messageId}`);
 
         if (!env.SMTP_USER) {
             logger.info(`📧 Ethereal URL: ${nodemailer.getTestMessageUrl(info)}`);
