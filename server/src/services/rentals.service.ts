@@ -4,6 +4,7 @@ import { rentals, tools, customers, payments, tenants, users, toolCategories, ex
 import { AppError } from '../middleware/error.middleware';
 import { z } from 'zod';
 import { getPlanLimits } from '../lib/plan-limits';
+import logger from '../utils/logger';
 
 export const createRentalSchema = z.object({
     toolId: z.string().uuid('Ferramenta inválida'),
