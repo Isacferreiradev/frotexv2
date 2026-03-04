@@ -16,8 +16,17 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { useAuthStore } from '@/store/authStore';
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { RevenueChart } from "@/components/dashboard/RevenueChart";
-import { ROIChart } from "@/components/dashboard/ROIChart";
+import dynamic from 'next/dynamic';
+
+const RevenueChart = dynamic(() => import("@/components/dashboard/RevenueChart").then(mod => mod.RevenueChart), {
+    ssr: false,
+    loading: () => <div className="h-[300px] w-full bg-muted/20 animate-pulse rounded-2xl" />
+});
+
+const ROIChart = dynamic(() => import("@/components/dashboard/ROIChart").then(mod => mod.ROIChart), {
+    ssr: false,
+    loading: () => <div className="h-[300px] w-full bg-muted/20 animate-pulse rounded-2xl" />
+});
 
 // ─── Metric Card (Premium & Refined) ─────────────────────────────────────────
 const MetricCard = memo(({
