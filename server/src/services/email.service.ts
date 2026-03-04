@@ -67,8 +67,8 @@ async function sendEmailViaResend(to: string, subject: string, html: string) {
     try {
         logger.info(`📧 [RESEND] Attempting API delivery to ${to}...`);
 
-        // Use onboarding@resend.dev if domain not verified, otherwise use SMTP_USER if it looks professional
-        const fromEmail = "onboarding@resend.dev";
+        // Use the verified domain email address
+        const fromEmail = env.SMTP_USER || "onboarding@resend.dev";
 
         const response = await fetch('https://api.resend.com/emails', {
             method: 'POST',
