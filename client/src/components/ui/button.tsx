@@ -40,10 +40,11 @@ const buttonVariants = cva(
   }
 )
 
-type ButtonProps = HTMLMotionProps<"button"> &
-  VariantProps<typeof buttonVariants> & {
-    asChild?: boolean
-  }
+interface ButtonProps
+  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
+  VariantProps<typeof buttonVariants> {
+  asChild?: boolean
+}
 
 function Button({
   className,
@@ -52,18 +53,27 @@ function Button({
   asChild = false,
   ...props
 }: ButtonProps) {
-  const Comp = asChild ? Slot.Root : motion.button
+  if (asChild) {
+    return (
+      <Slot.Root
+        data-slot="button"
+        data-variant={variant}
+        data-size={size}
+        className={cn(buttonVariants({ variant, size, className }))}
+        {...props}
+      />
+    )
+  }
 
   return (
-    <Comp
+    <motion.button
       data-slot="button"
       data-variant={variant}
       data-size={size}
       whileHover={{ scale: 1.02, translateY: -1 }}
       whileTap={{ scale: 0.98 }}
       className={cn(buttonVariants({ variant, size, className }))}
-      // @ts-ignore - Comp will handle motion props if it's motion.button
-      {...props}
+      {...(props as any)}
     />
   )
 }
