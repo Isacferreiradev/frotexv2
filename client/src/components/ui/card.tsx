@@ -2,24 +2,24 @@ import * as React from "react"
 import { motion, HTMLMotionProps } from "framer-motion"
 import { cn } from "@/lib/utils"
 
-interface CardProps extends HTMLMotionProps<"div"> {
+interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
   glass?: boolean
+  children?: React.ReactNode
 }
 
-function Card({ className, glass, ...props }: CardProps) {
+function Card({ className, glass, children, ...props }: CardProps) {
   return (
-    <motion.div
+    <div
       data-slot="card"
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
       className={cn(
         "bg-card text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm",
         glass && "glass-v2 border-white/20 shadow-premium",
         className
       )}
       {...props}
-    />
+    >
+      {children}
+    </div>
   )
 }
 

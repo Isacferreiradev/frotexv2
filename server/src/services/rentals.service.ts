@@ -343,6 +343,43 @@ export async function getDashboardStats(tenantId: string, period?: string) {
         .filter(t => t.recommendation === 'sell' || (t.roi < 0 && t.acquisition > 0))
         .map(t => ({ id: t.id, name: t.name, roi: t.roi.toFixed(1), reason: t.recommendation }));
 
+    // Advanced Analytics: Revenue History (Last 30 Days)
+    const revenueHistoryMap: Record<string, number> = {};
+    for (let i = 29; i >= 0; i--) {
+        const d = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
+        const dateStr = d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+        revenueHistoryMap[dateStr] = 0;
+    }
+
+    completedPayments.forEach((p: any) => {
+        const d = new Date(p.paymentDate);
+        const dateStr = d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+        if (revenueHistoryMap[dateStr] !== undefined) {
+            revenueHistoryMap[dateStr] += parseFloat(p.amount || '0');
+        }
+    });
+
+    const revenueHistory = Object.entries(revenueHistoryMap).map(([date, amount]) => ({
+        date,
+        amount
+    }));
+
+    // Advanced Analytics: Category ROI
+    const categoryStatsMap: Record<string, { revenue: number, count: number }> = {};
+    rentalRows.forEach((r: any) => {
+        const cat = r.tool?.categoryName || 'Geral';
+        const amount = parseFloat(r.totalAmountActual || r.totalAmountExpected || '0');
+        if (!categoryStatsMap[cat]) categoryStatsMap[cat] = { revenue: 0, count: 0 };
+        categoryStatsMap[cat].revenue += amount;
+        categoryStatsMap[cat].count += 1;
+    });
+
+    const categoryStats = Object.entries(categoryStatsMap).map(([name, stats]) => ({
+        name,
+        value: stats.revenue,
+        count: stats.count
+    })).sort((a, b) => b.value - a.value).slice(0, 5);
+
     return {
         available: availableTools.length,
         rented: rentedTools.length,
@@ -356,7 +393,9 @@ export async function getDashboardStats(tenantId: string, period?: string) {
         zombieEquipment,
         occupancyRate: occupancyRate.toFixed(1),
         maintenanceAlertsCount,
-        returnsToday
+        returnsToday,
+        revenueHistory,
+        categoryStats
     };
 }
 
