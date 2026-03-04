@@ -7,9 +7,12 @@ import logger from '../utils/logger';
 let transporter: nodemailer.Transporter | null = null;
 
 async function getTransporter(): Promise<nodemailer.Transporter> {
+    logger.info(`📧 [SMTP-DEBUG] IngetTransporter: Singleton Check...`);
     if (transporter) return transporter;
 
+    logger.info(`📧 [SMTP-DEBUG] Checking Credentials...`);
     if (env.SMTP_USER && env.SMTP_PASS) {
+        logger.info(`📧 [SMTP-DEBUG] Config: ${env.SMTP_USER} via ${env.SMTP_HOST}:${env.SMTP_PORT}`);
         // Use real credentials
         transporter = nodemailer.createTransport({
             host: env.SMTP_HOST,
@@ -21,19 +24,26 @@ async function getTransporter(): Promise<nodemailer.Transporter> {
             },
             tls: {
                 rejectUnauthorized: false
-            }
+            },
+            connectionTimeout: 10000,
+            greetingTimeout: 10000,
+            socketTimeout: 10000
         });
 
         try {
+            logger.info(`📧 [SMTP-DEBUG] Verifying Connection (10s timeout)...`);
             await transporter.verify();
-            logger.info(`✅ SMTP Connection verified for ${env.SMTP_USER}`);
-        } catch (error) {
-            logger.error(`❌ SMTP Connection failed for ${env.SMTP_USER}:`, error);
-            // Fallback to null to try ethereal or just fail gracefully next time
+            logger.info(`✅ [SMTP-DEBUG] Verified for ${env.SMTP_USER}`);
+        } catch (error: any) {
+            logger.error(`❌ [SMTP-DEBUG] Verification FAILED for ${env.SMTP_USER}:`, {
+                message: error.message,
+                code: error.code
+            });
             transporter = null;
             throw error;
         }
     } else {
+        logger.warn(`📧 [SMTP-DEBUG] No Credentials! Falling back to Ethereal...`);
         // Mock email using ethereal
         const testAccount = await nodemailer.createTestAccount();
         transporter = nodemailer.createTransport({
@@ -60,10 +70,12 @@ export async function sendVerificationEmail(email: string, fullName: string, tok
     logger.info(`==============================================\n`);
 
     try {
+        logger.info(`📧 [SMTP-DEBUG] Step 1: Getting Transporter in sendVerificationEmail...`);
         const mailTransporter = await getTransporter();
         const fromEmail = env.SMTP_USER || 'no-reply@frotex.com';
         const fromName = "Frotex";
 
+        logger.info(`📧 [SMTP-DEBUG] Step 2: Sending mail to ${email}...`);
         const info = await mailTransporter.sendMail({
             from: `"${fromName}" <${fromEmail}>`,
             to: email,
@@ -104,10 +116,12 @@ export async function sendPasswordResetEmail(email: string, fullName: string, to
     logger.info(`==============================================\n`);
 
     try {
+        logger.info(`📧 [SMTP-DEBUG] Step 1: Getting Transporter in sendPasswordResetEmail...`);
         const mailTransporter = await getTransporter();
         const fromEmail = env.SMTP_USER || 'no-reply@frotex.com';
         const fromName = "Frotex";
 
+        logger.info(`📧 [SMTP-DEBUG] Step 2: Sending mail to ${email}...`);
         const info = await mailTransporter.sendMail({
             from: `"${fromName}" <${fromEmail}>`,
             to: email,
