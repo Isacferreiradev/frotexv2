@@ -27,6 +27,7 @@ export const tenants = pgTable('tenants', {
         contractTemplateId: null,
         whatsappApiKey: null,
         overdueFinePercentage: 10,
+        gracePeriodMinutes: 60,
     }),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
