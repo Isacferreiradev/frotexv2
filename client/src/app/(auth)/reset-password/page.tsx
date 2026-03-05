@@ -2,13 +2,23 @@
 
 import { useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import Link from 'next/link';
+import NextLink from 'next/link';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Eye, EyeOff, Loader2, ArrowRight, ShieldCheck, KeyRound } from 'lucide-react';
+import {
+    Eye,
+    EyeOff,
+    Loader2,
+    ArrowRight,
+    ShieldCheck,
+    KeyRound,
+    Zap,
+    Shield,
+    TrendingUp,
+    Sparkles
+} from 'lucide-react';
 import api from '@/lib/api';
-import { FrotexLogo } from '@/components/shared/FrotexLogo';
 
 const schema = z.object({
     password: z.string().min(6, 'A nova senha deve ter no mínimo 6 caracteres'),
@@ -53,108 +63,113 @@ function ResetPasswordForm() {
 
     if (!token && !isSuccess) {
         return (
-            <div className="text-center space-y-6">
-                <div className="w-16 h-16 bg-red-50 rounded-2xl flex items-center justify-center mx-auto">
-                    <ShieldCheck className="w-8 h-8 text-red-500" />
+            <div className="text-center space-y-8 animate-in fade-in duration-700">
+                <div className="w-20 h-20 bg-red-50 rounded-[2rem] flex items-center justify-center mx-auto shadow-xl shadow-red-100/50">
+                    <ShieldCheck className="w-10 h-10 text-red-500" />
                 </div>
-                <div className="space-y-2">
-                    <h2 className="text-2xl font-bold text-zinc-900">Link Inválido</h2>
-                    <p className="text-zinc-500 text-sm">Este link de recuperação é inválido ou já expirou.</p>
+                <div className="space-y-3">
+                    <h2 className="text-3xl font-black text-zinc-900 tracking-tight">Link Inválido</h2>
+                    <p className="text-zinc-500 font-medium leading-relaxed">Este link de recuperação é inválido ou já expirou.</p>
                 </div>
-                <Link
+                <NextLink
                     href="/login"
-                    className="inline-flex items-center gap-2 text-violet-600 font-bold text-xs uppercase tracking-widest hover:underline"
+                    className="inline-flex items-center gap-2 text-violet-600 font-black text-[10px] uppercase tracking-[0.2em] hover:underline"
                 >
-                    Voltar para o Login
-                </Link>
+                    Voltar para o Login <ArrowRight className="w-3 h-3" />
+                </NextLink>
             </div>
         );
     }
 
     if (isSuccess) {
         return (
-            <div className="text-center space-y-6 animate-in fade-in zoom-in-95 duration-500">
-                <div className="w-20 h-20 bg-emerald-50 rounded-[32px] flex items-center justify-center mx-auto shadow-inner">
-                    <ShieldCheck className="w-10 h-10 text-emerald-500" />
+            <div className="text-center space-y-10 animate-in fade-in zoom-in-95 duration-700">
+                <div className="w-24 h-24 bg-green-50 rounded-[2.5rem] flex items-center justify-center mx-auto shadow-xl shadow-green-100/50">
+                    <ShieldCheck className="w-12 h-12 text-green-500" />
                 </div>
-                <div className="space-y-2">
-                    <h2 className="text-2xl font-bold text-zinc-900">Senha Alterada!</h2>
-                    <p className="text-zinc-500 text-sm">Sua nova senha foi configurada com sucesso.</p>
+                <div className="space-y-4">
+                    <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-green-50 text-green-600 text-[10px] font-black uppercase tracking-widest rounded-full border border-green-100 italic">
+                        <Sparkles className="w-3 h-3" /> Sucesso
+                    </div>
+                    <h2 className="text-4xl font-black text-zinc-900 tracking-tight leading-tight">Senha <br /><span className="text-violet-600">Atualizada.</span></h2>
+                    <p className="text-zinc-500 font-medium text-lg leading-relaxed max-w-xs mx-auto">Sua nova senha foi configurada. Acesse sua conta agora.</p>
                 </div>
-                <Link
+                <NextLink
                     href="/login"
-                    className="w-full flex items-center justify-center gap-2 py-4 bg-violet-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all shadow-lg shadow-violet-100 hover:bg-violet-700 active:scale-[0.98]"
+                    className="w-full flex items-center justify-center gap-3 py-5 bg-violet-600 text-white rounded-2xl text-sm font-black uppercase tracking-[0.1em] transition-all shadow-xl shadow-violet-100 hover:bg-violet-700 active:scale-[0.98]"
                 >
-                    Fazer Login Agora <ArrowRight className="w-4 h-4" />
-                </Link>
+                    Entrar na Locadora <ArrowRight className="w-5 h-5" />
+                </NextLink>
             </div>
         );
     }
 
     return (
-        <div className="space-y-8">
-            <div className="space-y-2">
-                <h1 className="text-3xl font-bold text-zinc-900 tracking-tight">Nova Senha</h1>
-                <p className="text-zinc-400 text-sm">
-                    Crie uma senha forte e segura para sua conta.
+        <div className="space-y-10 animate-in slide-in-from-bottom-4 duration-700">
+            <div className="space-y-3 font-sans">
+                <h1 className="text-4xl font-black text-zinc-900 tracking-tight">Nova Senha.</h1>
+                <p className="text-zinc-500 text-lg font-medium leading-tight">
+                    Crie uma senha forte para proteger sua operação.
                 </p>
             </div>
 
             {serverError && (
-                <div className="p-4 bg-red-50 border border-red-100 rounded-2xl text-[11px] font-bold text-red-600 uppercase tracking-widest">
+                <div className="p-4 bg-red-50 border border-red-100 rounded-2xl text-xs font-bold text-red-600 text-center animate-in shake duration-500">
                     {serverError}
                 </div>
             )}
 
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-                <div className="space-y-1.5">
-                    <label className="text-[10px] font-black text-zinc-400 uppercase tracking-widest ml-1">
-                        Nova Senha
-                    </label>
-                    <div className="relative">
-                        <input
-                            type={showPassword ? 'text' : 'password'}
-                            {...register('password')}
-                            placeholder="Mínimo 6 caracteres"
-                            className="w-full px-5 py-4 bg-zinc-50 border border-zinc-100 rounded-2xl text-sm focus:outline-none focus:ring-4 focus:ring-violet-50 focus:border-violet-200 transition-all font-medium"
-                        />
-                        <button
-                            type="button"
-                            onClick={() => setShowPassword(!showPassword)}
-                            className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-violet-600 transition-colors"
-                        >
-                            {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                        </button>
+                <div className="space-y-5">
+                    <div className="space-y-1.5">
+                        <label className="text-[10px] font-black text-zinc-400 uppercase tracking-widest ml-1 flex items-center gap-2">
+                            <KeyRound className="w-3 h-3" /> Nova Senha
+                        </label>
+                        <div className="relative">
+                            <input
+                                type={showPassword ? 'text' : 'password'}
+                                {...register('password')}
+                                placeholder="Mínimo 6 caracteres"
+                                className="w-full px-6 py-4 bg-zinc-50 border border-zinc-100 rounded-2xl text-sm placeholder:text-zinc-400 focus:ring-4 focus:ring-violet-50 transition-all"
+                            />
+                            <button
+                                type="button"
+                                onClick={() => setShowPassword(!showPassword)}
+                                className="absolute right-5 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-violet-600 transition-colors"
+                            >
+                                {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                            </button>
+                        </div>
+                        {errors.password && (
+                            <p className="text-[10px] text-red-500 font-bold ml-1">{errors.password.message}</p>
+                        )}
                     </div>
-                    {errors.password && (
-                        <p className="text-[10px] text-red-500 font-bold uppercase ml-1">{errors.password.message}</p>
-                    )}
-                </div>
 
-                <div className="space-y-1.5">
-                    <label className="text-[10px] font-black text-zinc-400 uppercase tracking-widest ml-1">
-                        Confirmar Nova Senha
-                    </label>
-                    <input
-                        type="password"
-                        {...register('confirmPassword')}
-                        placeholder="Repita a senha"
-                        className="w-full px-5 py-4 bg-zinc-50 border border-zinc-100 rounded-2xl text-sm focus:outline-none focus:ring-4 focus:ring-violet-50 focus:border-violet-200 transition-all font-medium"
-                    />
-                    {errors.confirmPassword && (
-                        <p className="text-[10px] text-red-500 font-bold uppercase ml-1">{errors.confirmPassword.message}</p>
-                    )}
+                    <div className="space-y-1.5">
+                        <label className="text-[10px] font-black text-zinc-400 uppercase tracking-widest ml-1 flex items-center gap-2">
+                            <ShieldCheck className="w-3 h-3" /> Confirmar Senha
+                        </label>
+                        <input
+                            type="password"
+                            {...register('confirmPassword')}
+                            placeholder="Repita a nova senha"
+                            className="w-full px-6 py-4 bg-zinc-50 border border-zinc-100 rounded-2xl text-sm placeholder:text-zinc-400 focus:ring-4 focus:ring-violet-50 transition-all font-medium"
+                        />
+                        {errors.confirmPassword && (
+                            <p className="text-[10px] text-red-500 font-bold ml-1">{errors.confirmPassword.message}</p>
+                        )}
+                    </div>
                 </div>
 
                 <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="w-full py-4 bg-violet-600 hover:bg-violet-700 disabled:opacity-50 text-white font-black rounded-2xl transition-all shadow-lg shadow-violet-100 flex items-center justify-center gap-3 text-[10px] uppercase tracking-[0.2em]"
+                    className="w-full py-5 bg-violet-600 hover:bg-violet-700 disabled:opacity-50 text-white font-black rounded-2xl transition-all shadow-xl shadow-violet-100 flex items-center justify-center gap-3 text-sm uppercase tracking-widest group"
                 >
                     {isSubmitting ? (
-                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <Loader2 className="w-5 h-5 animate-spin" />
                     ) : (
-                        <>Redefinir Senha <KeyRound className="w-4 h-4" /></>
+                        <>Redefinir Senha <Sparkles className="w-4 h-4 group-hover:scale-125 transition-transform" /></>
                     )}
                 </button>
             </form>
@@ -164,31 +179,76 @@ function ResetPasswordForm() {
 
 export default function ResetPasswordPage() {
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-50 p-6">
-            <div className="w-full max-w-[440px] space-y-12">
-                <div className="flex justify-center">
-                    <FrotexLogo variant="normal" size="lg" />
+        <div className="min-h-screen bg-white flex flex-col md:flex-row font-sans text-zinc-900 overflow-hidden">
+
+            {/* PAINEL ESQUERDO: Hero */}
+            <div className="hidden lg:flex lg:w-[42%] relative bg-zinc-950 p-16 flex-col justify-between overflow-hidden border-r border-white/10">
+                <div className="absolute inset-0 z-0">
+                    <div className="absolute top-[-10%] left-[-10%] w-[80%] h-[80%] bg-violet-600/20 rounded-full blur-[120px] animate-pulse" />
+                    <div className="absolute bottom-[-20%] right-[-10%] w-[70%] h-[70%] bg-indigo-600/15 rounded-full blur-[100px]" />
+                    <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-[0.03] mix-blend-overlay" />
                 </div>
 
-                <div className="bg-white p-10 rounded-[40px] shadow-2xl shadow-zinc-200/50 border border-zinc-100 relative overflow-hidden">
-                    {/* Decorative element */}
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-violet-50 rounded-full blur-3xl -mr-16 -mt-16 opacity-50" />
+                <div className="relative z-10 space-y-24">
+                    <NextLink href="/" className="flex items-center gap-3 group">
+                        <div className="w-11 h-11 bg-white rounded-2xl flex items-center justify-center text-violet-600 font-black text-lg shadow-2xl shadow-violet-500/20 group-hover:scale-105 transition-transform duration-300">L</div>
+                        <span className="font-black text-2xl tracking-tighter text-white">Locatus</span>
+                    </NextLink>
 
-                    <div className="relative z-10">
-                        <Suspense fallback={
-                            <div className="flex flex-col items-center gap-4 py-20">
-                                <Loader2 className="w-8 h-8 text-violet-600 animate-spin" />
-                                <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Carregando...</p>
-                            </div>
-                        }>
-                            <ResetPasswordForm />
-                        </Suspense>
+                    <div className="space-y-12">
+                        <div className="space-y-6">
+                            <h1 className="text-5xl font-black text-white leading-[1.1] tracking-tight">
+                                Proteção <br />
+                                <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 via-indigo-400 to-violet-300">
+                                    da sua Identidade.
+                                </span>
+                            </h1>
+                            <p className="text-zinc-400 text-lg font-medium leading-relaxed max-w-md">
+                                Reestabeleça seu acesso à infraestrutura de gestão mais avançada do mercado.
+                            </p>
+                        </div>
+
+                        <div className="space-y-5">
+                            {[
+                                { icon: Zap, title: 'Recuperação Segura', desc: 'Processos criptografados de ponta a ponta.' },
+                                { icon: Shield, title: 'Monitoramento de Acesso', desc: 'Auditamos cada alteração de senha.' },
+                                { icon: TrendingUp, title: 'Operação Ininterrupta', desc: 'Sua locadora não pode parar.' }
+                            ].map((item, i) => (
+                                <div key={i} className="flex gap-4 items-start group">
+                                    <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-violet-400 group-hover:bg-violet-600/20 group-hover:text-violet-300 transition-all duration-300 shrink-0">
+                                        <item.icon className="w-5 h-5" />
+                                    </div>
+                                    <div className="space-y-1">
+                                        <h3 className="text-white font-bold text-sm tracking-tight">{item.title}</h3>
+                                        <p className="text-zinc-500 text-xs leading-relaxed">{item.desc}</p>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 </div>
 
-                <p className="text-center text-[10px] text-zinc-400 font-bold uppercase tracking-widest">
-                    © {new Date().getFullYear()} Frotex — Sistema de Elite
-                </p>
+                <div className="relative z-10">
+                    <p className="text-[10px] text-zinc-500 font-black uppercase tracking-widest leading-relaxed">
+                        © 2026 Locatus Intelligence Platform — Infraestrutura para o Mercado de Locação.
+                    </p>
+                </div>
+            </div>
+
+            {/* PAINEL DIREITO: Form */}
+            <div className="flex-1 flex flex-col bg-white overflow-y-auto">
+                <div className="flex-1 flex flex-col items-center justify-center p-8 md:p-16 max-w-md mx-auto w-full">
+                    <Suspense fallback={
+                        <div className="flex flex-col items-center gap-6 py-20">
+                            <div className="w-16 h-16 bg-zinc-50 rounded-3xl flex items-center justify-center animate-pulse">
+                                <Loader2 className="w-8 h-8 text-violet-600 animate-spin" />
+                            </div>
+                            <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Carregando Protocolos...</p>
+                        </div>
+                    }>
+                        <ResetPasswordForm />
+                    </Suspense>
+                </div>
             </div>
         </div>
     );
