@@ -1,4 +1,3 @@
-import { Logger } from '../utils/logger'; // Assuming there's a logger utility
 
 export async function sendWhatsAppMessage(phone: string, message: string) {
     // MOCKED: For now, we just log the message to the console.
