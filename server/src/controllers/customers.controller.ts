@@ -18,6 +18,13 @@ export async function get(req: Request, res: Response, next: NextFunction) {
     } catch (err) { next(err); }
 }
 
+export async function get360(req: Request, res: Response, next: NextFunction) {
+    try {
+        const data = await customersService.getCustomer360(req.user!.tenantId, req.params.id);
+        res.json({ success: true, data });
+    } catch (err) { next(err); }
+}
+
 export async function create(req: Request, res: Response, next: NextFunction) {
     try {
         const body = customersService.customerSchema.parse(req.body);

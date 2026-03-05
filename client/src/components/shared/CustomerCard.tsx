@@ -1,8 +1,9 @@
 'use client';
 
-import { User, Phone, Mail, FileText, MoreVertical, MessageSquare } from 'lucide-react';
+import { User, Phone, Mail, FileText, MoreVertical, MessageSquare, ExternalLink } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { StatusPulse } from './StatusPulse';
+import { useRouter } from 'next/navigation';
 
 interface CustomerCardProps {
     customer: any;
@@ -11,6 +12,7 @@ interface CustomerCardProps {
 }
 
 export function CustomerCard({ customer, onEdit, onToggleBlock }: CustomerCardProps) {
+    const router = useRouter();
     const initials = customer.fullName
         .split(' ')
         .map((n: string) => n[0])
@@ -19,10 +21,13 @@ export function CustomerCard({ customer, onEdit, onToggleBlock }: CustomerCardPr
         .substring(0, 2);
 
     return (
-        <div className={cn(
-            "group bg-white rounded-[28px] border border-violet-50 premium-shadow hover-scale overflow-hidden flex flex-col h-full",
-            customer.isBlocked && "border-red-100 opacity-90"
-        )}>
+        <div
+            onClick={() => router.push(`/clientes/${customer.id}`)}
+            className={cn(
+                "group bg-white rounded-[28px] border border-violet-50 premium-shadow hover-scale overflow-hidden flex flex-col h-full cursor-pointer",
+                customer.isBlocked && "border-red-100 opacity-90"
+            )}
+        >
             {/* Header / Avatar Section */}
             <div className="relative h-24 bg-slate-50 flex items-center justify-center border-b border-violet-50">
                 <div className="absolute top-4 left-4 z-10">
@@ -44,7 +49,10 @@ export function CustomerCard({ customer, onEdit, onToggleBlock }: CustomerCardPr
                 </div>
 
                 <button
-                    onClick={() => onEdit(customer)}
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        onEdit(customer);
+                    }}
                     className="absolute top-4 right-4 w-8 h-8 bg-white/90 backdrop-blur-sm rounded-xl border border-violet-100 flex items-center justify-center text-zinc-400 hover:text-violet-600 transition-all opacity-0 group-hover:opacity-100"
                 >
                     <MoreVertical className="w-4 h-4" />
@@ -88,17 +96,23 @@ export function CustomerCard({ customer, onEdit, onToggleBlock }: CustomerCardPr
 
                 <div className="mt-6 pt-6 border-t border-violet-50 flex items-center justify-between gap-3">
                     <button
-                        onClick={() => window.open(`https://wa.me/${customer.phoneNumber.replace(/\D/g, '')}`, '_blank')}
-                        className="flex-1 bg-emerald-50 text-emerald-600 rounded-xl py-2 flex items-center justify-center gap-2 hover:bg-emerald-100 transition-colors"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            window.open(`https://wa.me/${customer.phoneNumber.replace(/\D/g, '')}`, '_blank');
+                        }}
+                        className="flex-1 bg-emerald-50 text-emerald-600 rounded-xl py-2.5 flex items-center justify-center gap-2 hover:bg-emerald-100 transition-colors"
                     >
                         <MessageSquare className="w-3 h-3" />
                         <span className="text-[9px] font-bold uppercase tracking-widest">WhatsApp</span>
                     </button>
 
                     <button
-                        onClick={() => onToggleBlock(customer.id, !customer.isBlocked)}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            onToggleBlock(customer.id, !customer.isBlocked);
+                        }}
                         className={cn(
-                            "px-3 py-2 rounded-xl text-[9px] font-bold uppercase tracking-widest border transition-all",
+                            "px-3 py-2.5 rounded-xl text-[9px] font-bold uppercase tracking-widest border transition-all",
                             customer.isBlocked
                                 ? "bg-white border-emerald-100 text-emerald-600 hover:bg-emerald-50"
                                 : "bg-white border-red-100 text-red-500 hover:bg-red-50"

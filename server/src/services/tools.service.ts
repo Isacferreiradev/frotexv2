@@ -153,3 +153,56 @@ export async function deleteTool(tenantId: string, id: string) {
     if (!tool) throw new AppError(404, 'Ferramenta não encontrada');
     return { success: true };
 }
+
+export async function getTool360(tenantId: string, id: string) {
+    const tool = await db.query.tools.findFirst({
+        where: and(eq(tools.tenantId, tenantId), eq(tools.id, id)),
+        with: {
+            category: true,
+            maintenanceLogs: {
+                with: {
+                    performedByUser: {
+                        columns: {
+                            fullName: true
+                        }
+                    }
+                },
+                orderBy: (logs, { desc }) => [desc(logs.maintenanceDate)],
+            },
+            rentals: {
+                with: {
+                    customer: {
+                        columns: {
+                            fullName: true,
+                            id: true
+                        }
+                    }
+                },
+                orderBy: (rentals, { desc }) => [desc(rentals.createdAt)],
+                limit: 10,
+            }
+        }
+    });
+
+    if (!tool) throw new AppError(404, 'Ferramenta não encontrada');
+
+    // Calculate specific ROI for this tool
+    const totalRevenue = tool.rentals.reduce((sum, r) => sum + parseFloat(r.totalAmountActual || r.totalAmountExpected || '0'), 0);
+    const totalMaintenance = tool.maintenanceLogs.reduce((sum, m) => sum + parseFloat(m.cost || '0'), 0);
+    const acqCost = parseFloat(tool.acquisitionCost || '0');
+
+    // Simple ROI: (Revenue - Maint - Acq) / (Maint + Acq)
+    const netProfit = totalRevenue - totalMaintenance - (acqCost * 0.2); // 20% depreciation as base cost per year not implemented yet, using simple 20% flat for now
+    const totalCost = acqCost + totalMaintenance;
+    const roi = totalCost > 0 ? (netProfit / totalCost) * 100 : 0;
+
+    return {
+        ...tool,
+        metrics: {
+            totalRevenue,
+            totalMaintenance,
+            roi: roi.toFixed(1),
+            netProfit: netProfit.toFixed(2)
+        }
+    };
+}

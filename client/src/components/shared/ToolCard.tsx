@@ -5,6 +5,8 @@ import { formatCurrency } from '@/lib/utils';
 import { StatusPulse } from './StatusPulse';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 
+import { useRouter } from 'next/navigation';
+
 interface ToolCardProps {
     tool: any;
     onEdit: (tool: any) => void;
@@ -14,8 +16,13 @@ interface ToolCardProps {
 }
 
 export function ToolCard({ tool, onEdit, onStatusChange, onShowQR, onCheckout }: ToolCardProps) {
+    const router = useRouter();
+
     return (
-        <div className="group bg-white rounded-premium border border-border shadow-soft hover:shadow-premium transition-all duration-300 overflow-hidden flex flex-col h-full">
+        <div
+            onClick={() => router.push(`/ferramentas/${tool.id}`)}
+            className="group bg-white rounded-premium border border-border shadow-soft hover:shadow-premium transition-all duration-300 overflow-hidden flex flex-col h-full cursor-pointer hover:border-primary/20"
+        >
             {/* Header / Image Placeholder */}
             <div className="relative h-40 bg-muted/50 flex items-center justify-center border-b border-border overflow-hidden">
                 <div className="absolute top-4 left-4 z-10 flex gap-2">
@@ -28,7 +35,10 @@ export function ToolCard({ tool, onEdit, onStatusChange, onShowQR, onCheckout }:
 
                     {onShowQR && (
                         <button
-                            onClick={() => onShowQR(tool)}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onShowQR(tool);
+                            }}
                             className="w-8 h-8 bg-white/90 backdrop-blur-md rounded-full border border-border flex items-center justify-center text-muted-foreground hover:text-primary hover:border-primary/20 hover:shadow-sm transition-all shadow-sm"
                             title="Ver QR Code"
                         >
@@ -40,7 +50,10 @@ export function ToolCard({ tool, onEdit, onStatusChange, onShowQR, onCheckout }:
                 <Wrench className="w-10 h-10 text-primary/20 group-hover:scale-110 group-hover:text-primary/40 transition-all duration-500" />
 
                 <button
-                    onClick={() => onEdit(tool)}
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        onEdit(tool);
+                    }}
                     className="absolute top-4 right-4 w-8 h-8 bg-white rounded-button border border-border flex items-center justify-center text-muted-foreground hover:text-primary hover:border-primary/20 hover:shadow-sm transition-all opacity-0 group-hover:opacity-100"
                 >
                     <MoreVertical className="w-4 h-4" />
@@ -68,7 +81,10 @@ export function ToolCard({ tool, onEdit, onStatusChange, onShowQR, onCheckout }:
                     <div className="flex items-center gap-2">
                         {onCheckout && tool.status === 'available' && (
                             <button
-                                onClick={() => onCheckout(tool)}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    onCheckout(tool);
+                                }}
                                 className="bg-primary text-white rounded-xl px-5 py-2.5 flex items-center justify-center gap-2 hover:bg-primary/90 transition-all duration-300 shadow-premium group/btn"
                             >
                                 <Zap className="w-3.5 h-3.5 fill-current transition-transform group-hover/btn:scale-110" />
@@ -78,7 +94,10 @@ export function ToolCard({ tool, onEdit, onStatusChange, onShowQR, onCheckout }:
 
                         {onStatusChange && tool.status === 'available' && (
                             <button
-                                onClick={() => onStatusChange(tool.id, 'maintenance')}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    onStatusChange(tool.id, 'maintenance');
+                                }}
                                 className="bg-secondary/40 text-primary rounded-xl w-10 h-10 flex items-center justify-center transition-all duration-300 hover:bg-primary hover:text-white"
                                 title="Enviar para Manutenção"
                             >

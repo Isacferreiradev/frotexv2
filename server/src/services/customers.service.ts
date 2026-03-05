@@ -70,3 +70,55 @@ export async function deleteCustomer(tenantId: string, id: string) {
     if (!customer) throw new AppError(404, 'Cliente não encontrado');
     return { success: true };
 }
+
+export async function getCustomer360(tenantId: string, id: string) {
+    const customer = await db.query.customers.findFirst({
+        where: and(eq(customers.tenantId, tenantId), eq(customers.id, id)),
+        with: {
+            rentals: {
+                with: {
+                    tool: true,
+                    payments: true,
+                },
+                orderBy: (rentals, { desc }) => [desc(rentals.createdAt)],
+            },
+            quotes: {
+                with: {
+                    tool: true,
+                },
+                orderBy: (quotes, { desc }) => [desc(quotes.createdAt)],
+            },
+            clientCommunications: {
+                with: {
+                    user: {
+                        columns: {
+                            fullName: true,
+                            avatarUrl: true
+                        }
+                    }
+                },
+                orderBy: (comm, { desc }) => [desc(comm.createdAt)],
+            }
+        },
+    });
+
+    if (!customer) throw new AppError(404, 'Cliente não encontrado');
+
+    // Calculate aggregated metrics
+    const totalRentals = customer.rentals.length;
+    const activeRentals = customer.rentals.filter(r => r.status === 'active' || r.status === 'overdue').length;
+    const totalSpent = customer.rentals.reduce((sum, r) => sum + parseFloat(r.totalAmountActual || r.totalAmountExpected || '0'), 0);
+
+    // Inadimplência logic
+    const hasOverdue = customer.rentals.some(r => r.status === 'overdue');
+
+    return {
+        ...customer,
+        metrics: {
+            totalRentals,
+            activeRentals,
+            totalSpent,
+            hasOverdue,
+        }
+    };
+}
