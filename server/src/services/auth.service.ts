@@ -116,15 +116,20 @@ export async function verifyEmail(token: string) {
 
 export async function resendVerification(email: string) {
     const userEmail = email.toLowerCase().trim();
+    console.log(`📧 [AUTH-SERVICE] Looking for user with email: ${userEmail}`);
     // Use case-insensitive search
     const [user] = await db.select().from(users).where(sql`lower(${users.email}) = ${userEmail}`);
 
     if (!user) {
-        // For security, don't reveal if user doesn't exist
+        console.warn(`📧 [AUTH-SERVICE] User not found during resend for: ${userEmail}`);
+        // For security, don't reveal if user doesn't exist, but return a clear message for logs
         return { success: true, message: 'Se o e-mail estiver cadastrado, um novo link será enviado.' };
     }
 
+    console.log(`📧 [AUTH-SERVICE] User found: ${user.id} (${user.fullName}). Verified? ${user.isVerified}`);
+
     if (user.isVerified) {
+        console.warn(`📧 [AUTH-SERVICE] User ${userEmail} is already verified.`);
         throw new AppError(400, 'Este e-mail já foi verificado.');
     }
 

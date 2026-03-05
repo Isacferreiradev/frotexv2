@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import * as authService from '../services/auth.service';
 import { AppError } from '../middleware/error.middleware';
+import logger from '../utils/logger';
 import fs from 'fs';
 
 // Local debug log removed for production compatibility
@@ -67,14 +68,20 @@ export async function verify(req: Request, res: Response, next: NextFunction) {
 }
 
 export async function resendVerification(req: Request, res: Response, next: NextFunction) {
+    logger.info(`📧 [AUTH-CONTROLLER] Resend verification requested for: ${req.body.email}`);
     try {
         const { email } = req.body;
         if (!email) {
+            logger.warn(`📧 [AUTH-CONTROLLER] Resend failed: Email is missing`);
             throw new AppError(400, 'E-mail obrigatório');
         }
         const result = await authService.resendVerification(email);
+        logger.info(`📧 [AUTH-CONTROLLER] Resend service completed for ${email}`);
         res.json({ success: true, data: result });
-    } catch (err) { next(err); }
+    } catch (err) {
+        logger.error(`📧 [AUTH-CONTROLLER] Resend error:`, err);
+        next(err);
+    }
 }
 
 export async function requestReset(req: Request, res: Response, next: NextFunction) {

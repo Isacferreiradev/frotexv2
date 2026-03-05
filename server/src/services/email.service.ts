@@ -68,7 +68,10 @@ async function sendEmailViaResend(to: string, subject: string, html: string) {
         logger.info(`📧 [RESEND] Attempting API delivery to ${to}...`);
 
         // Use the verified domain email address
-        const fromEmail = env.SMTP_USER || "onboarding@resend.dev";
+        let fromEmail = env.SMTP_USER || "notificacoes@locattus.com.br";
+        if (fromEmail === 'apikey' || !fromEmail.includes('@')) {
+            fromEmail = 'notificacoes@locattus.com.br';
+        }
 
         const response = await fetch('https://api.resend.com/emails', {
             method: 'POST',

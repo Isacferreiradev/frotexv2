@@ -17,14 +17,17 @@ function RegistrationSuccessContent() {
 
     const handleResend = async () => {
         if (isResending || !email) return;
+        console.log('📧 [FRONTEND] Attempting to resend verification to:', email);
         setIsResending(true);
         setResendStatus('idle');
         setErrorMessage('');
         try {
-            await api.post('/auth/resend-verification', { email });
+            const response = await api.post('/auth/resend-verification', { email });
+            console.log('✅ [FRONTEND] Resend response:', response.data);
             setResendStatus('success');
             setTimeout(() => setResendStatus('idle'), 5000);
         } catch (err: any) {
+            console.error('❌ [FRONTEND] Resend failed:', err.response?.data || err.message);
             setResendStatus('error');
             setErrorMessage(err.response?.data?.message || 'Erro ao reenviar. Tente novamente.');
             setTimeout(() => setResendStatus('idle'), 8000);
