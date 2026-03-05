@@ -183,12 +183,14 @@ function EditTenantDialog({ tenant }: { tenant: any }) {
                     <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2 col-span-2">
                             <Label className="text-[10px] uppercase font-bold text-zinc-400">Razão Social</Label>
-                            <Input {...register('name')} className="rounded-xl h-11" />
+                            <Input {...register('name')} disabled={!!tenant?.name} className="rounded-xl h-11 disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-zinc-50" />
+                            {!!tenant?.name && <p className="text-[9px] text-zinc-400">A Razão Social é definida no cadastro e não pode ser alterada aqui.</p>}
                             {errors.name && <p className="text-[10px] text-red-500 font-bold uppercase">{errors.name.message}</p>}
                         </div>
                         <div className="space-y-2">
                             <Label className="text-[10px] uppercase font-bold text-zinc-400">CNPJ / CPF</Label>
-                            <Input {...register('cnpj')} className="rounded-xl h-11" />
+                            <Input {...register('cnpj')} disabled={!!tenant?.cnpj} className="rounded-xl h-11 disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-zinc-50" />
+                            {!!tenant?.cnpj && <p className="text-[9px] text-zinc-400">Identificador imutável.</p>}
                             {errors.cnpj && <p className="text-[10px] text-red-500 font-bold uppercase">{errors.cnpj.message}</p>}
                         </div>
                         <div className="space-y-2">
@@ -373,7 +375,8 @@ export default function ConfiguracoesPage() {
                             <div className="divide-y divide-violet-50">
                                 {[
                                     { label: 'Razão Social', value: tenant?.name },
-                                    { label: 'CNPJ', value: tenant?.cnpj || '—' },
+                                    { label: 'CNPJ / CPF', value: tenant?.cnpj || '—' },
+                                    { label: 'Data de Cadastro', value: tenant?.createdAt ? formatDate(tenant.createdAt) : '—' },
                                     { label: 'E-mail Corporativo', value: tenant?.contactEmail || '—' },
                                     { label: 'Telefone Principal', value: tenant?.phoneNumber || '—' },
                                     { label: 'Endereço', value: tenant?.address || '—' },

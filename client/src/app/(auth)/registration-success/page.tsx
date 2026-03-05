@@ -1,19 +1,39 @@
 'use client';
 
-import { Suspense, useState } from 'react';
+import { Suspense, useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { Mail, ArrowLeft, Zap, Loader2, CheckCircle2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useQuery } from '@tanstack/react-query';
 import api from '@/lib/api';
 
 function RegistrationSuccessContent() {
     const searchParams = useSearchParams();
+    const router = useRouter();
     const emailParam = searchParams.get('email');
     const email = emailParam || '';
     const [isResending, setIsResending] = useState(false);
     const [resendStatus, setResendStatus] = useState<'idle' | 'success' | 'error'>('idle');
     const [errorMessage, setErrorMessage] = useState('');
+
+    // Poll verification status
+    const { data: verificationStatus } = useQuery({
+        queryKey: ['check-verification', email],
+        queryFn: async () => {
+            if (!email) return null;
+            const res = await api.get(`/auth/check-verification?email=${encodeURIComponent(email)}`);
+            return res.data.data;
+        },
+        enabled: !!email,
+        refetchInterval: 3000, // check every 3 seconds
+    });
+
+    useEffect(() => {
+        if (verificationStatus?.isVerified) {
+            router.push('/verify?verified=true');
+        }
+    }, [verificationStatus?.isVerified, router]);
 
     const handleResend = async () => {
         if (isResending || !email) return;

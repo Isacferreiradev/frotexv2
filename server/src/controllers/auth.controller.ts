@@ -67,6 +67,17 @@ export async function verify(req: Request, res: Response, next: NextFunction) {
     } catch (err) { next(err); }
 }
 
+export async function checkVerification(req: Request, res: Response, next: NextFunction) {
+    try {
+        const { email } = req.query;
+        if (!email || typeof email !== 'string') {
+            throw new AppError(400, 'E-mail obrigatório');
+        }
+        const isVerified = await authService.checkVerification(email);
+        res.json({ success: true, data: { isVerified } });
+    } catch (err) { next(err); }
+}
+
 export async function resendVerification(req: Request, res: Response, next: NextFunction) {
     logger.info(`📧 [AUTH-CONTROLLER] Resend verification requested for: ${req.body.email}`);
     try {

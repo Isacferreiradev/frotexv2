@@ -10,13 +10,14 @@ import api from '@/lib/api';
 export default function VerifyPage() {
     const searchParams = useSearchParams();
     const token = searchParams.get('token');
+    const isAlreadyVerified = searchParams.get('verified') === 'true';
 
-    const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
-    const [message, setMessage] = useState('Verificando sua identidade...');
+    const [status, setStatus] = useState<'loading' | 'success' | 'error'>(isAlreadyVerified ? 'success' : 'loading');
+    const [message, setMessage] = useState(isAlreadyVerified ? 'E-mail verificado com sucesso!' : 'Verificando sua identidade...');
     const verificationStarted = useRef(false);
 
     useEffect(() => {
-        if (!token || verificationStarted.current) {
+        if (isAlreadyVerified || !token || verificationStarted.current) {
             return;
         }
 
@@ -34,7 +35,7 @@ export default function VerifyPage() {
         };
 
         verifyEmail();
-    }, [token]);
+    }, [token, isAlreadyVerified]);
 
     return (
         <div className="min-h-screen bg-[#FDFDFD] flex flex-col items-center justify-center p-6 font-inter text-slate-900 relative overflow-hidden selection:bg-violet-100">

@@ -10,6 +10,7 @@ router.post('/login', authLimiter, authCtrl.login);
 router.post('/register', authLimiter, authCtrl.register);
 router.get('/verify', authCtrl.verify);
 router.post('/resend-verification', authLimiter, authCtrl.resendVerification);
+router.get('/check-verification', authLimiter, authCtrl.checkVerification);
 router.post('/refresh', authCtrl.refresh);
 router.post('/change-password', authenticate, authCtrl.changePassword);
 router.put('/profile', authenticate, authCtrl.updateProfile);

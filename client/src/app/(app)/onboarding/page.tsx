@@ -116,6 +116,7 @@ export default function OnboardingPage() {
     const [createdCustomer, setCreatedCustomer] = useState<any>(null);
     const [newCategoryName, setNewCategoryName] = useState('');
     const [isCreatingCategory, setIsCreatingCategory] = useState(false);
+    const [hasSynced, setHasSynced] = useState(false);
 
     // Queries
     const { data: categories } = useQuery({
@@ -157,7 +158,8 @@ export default function OnboardingPage() {
             updateStep.mutate(3);
             setStep(3);
             toast.success('Ferramenta cadastrada!');
-        }
+        },
+        onError: (err: any) => toast.error(err.response?.data?.message || 'Erro ao cadastrar ferramenta')
     });
 
     const createCustomer = useMutation({
@@ -167,7 +169,8 @@ export default function OnboardingPage() {
             updateStep.mutate(4);
             setStep(4);
             toast.success('Cliente cadastrado!');
-        }
+        },
+        onError: (err: any) => toast.error(err.response?.data?.message || 'Erro ao cadastrar cliente')
     });
 
     const createRental = useMutation({
@@ -176,7 +179,8 @@ export default function OnboardingPage() {
             updateStep.mutate(5);
             setStep(5);
             toast.success('Aluguel simulado com sucesso!');
-        }
+        },
+        onError: (err: any) => toast.error(err.response?.data?.message || 'Erro ao simular aluguel')
     });
 
     const updateStep = useMutation({
@@ -201,12 +205,13 @@ export default function OnboardingPage() {
         if (createdTool?.dailyRate) rentalForm.setValue('dailyRateAgreed', createdTool.dailyRate);
     }, [createdTool, createdCustomer, rentalForm]);
 
-    // Sync step from backend
+    // Sync step from backend only once on load
     useEffect(() => {
-        if (onboardingStatus?.onboardingStep && onboardingStatus.onboardingStep !== step) {
+        if (!hasSynced && onboardingStatus?.onboardingStep) {
             setStep(onboardingStatus.onboardingStep);
+            setHasSynced(true);
         }
-    }, [onboardingStatus, step]);
+    }, [onboardingStatus, hasSynced]);
 
     const stepsCount = 5;
 

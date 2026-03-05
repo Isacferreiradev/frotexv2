@@ -114,6 +114,15 @@ export async function verifyEmail(token: string) {
     return { success: true, message: 'E-mail verificado com sucesso' };
 }
 
+export async function checkVerification(email: string) {
+    const userEmail = email.toLowerCase().trim();
+    const [user] = await db.select({ isVerified: users.isVerified }).from(users).where(sql`lower(${users.email}) = ${userEmail}`);
+    if (!user) {
+        throw new AppError(404, 'Usuário não encontrado');
+    }
+    return user.isVerified;
+}
+
 export async function resendVerification(email: string) {
     const userEmail = email.toLowerCase().trim();
     console.log(`📧 [AUTH-SERVICE] Looking for user with email: ${userEmail}`);
