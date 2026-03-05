@@ -15,6 +15,7 @@ import { Label } from '@/components/ui/label';
 import { ConfigTabs } from '@/components/shared/ConfigTabs';
 import { formatDate, cn } from '@/lib/utils';
 import { Skeleton } from '@/components/shared/SkeletonLoader';
+import { AutomationsSettings } from '@/components/shared/AutomationsSettings';
 
 const changePasswordSchema = z.object({
     currentPassword: z.string().min(1, 'Senha atual obrigatória'),
@@ -411,6 +412,10 @@ export default function ConfiguracoesPage() {
                             <PasswordDialog />
                         </div>
                     </div>
+                )}
+
+                {activeTab === 'automacao' && (
+                    <AutomationsSettings />
                 )}
 
                 {activeTab === 'assinatura' && (

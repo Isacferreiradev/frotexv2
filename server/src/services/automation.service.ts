@@ -98,8 +98,8 @@ export async function checkOverdueRentals() {
 
                 // Send WhatsApp
                 try {
-                    if (config.whatsappEnabled) {
-                        await sendWhatsAppMessage(rental.customer.phoneNumber, message);
+                    if (config.whatsappEnabled && config.whatsappInstanceName) {
+                        await sendWhatsAppMessage(rental.customer.phoneNumber, message, config.whatsappInstanceName);
                     }
 
                     // Update lastNotificationDate to avoid duplication

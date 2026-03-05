@@ -121,13 +121,13 @@ export default function LoginPage() {
                 <div className="w-full max-w-sm relative z-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
 
                     {/* Mobile logo */}
-                    <div className="flex items-center gap-2 mb-16 lg:hidden">
+                    <div className="flex items-center gap-2 mb-24 lg:hidden">
                         <div className="w-10 h-10 bg-zinc-950 rounded-xl flex items-center justify-center text-white font-extrabold shadow-lg">L</div>
                         <span className="text-2xl font-extrabold italic tracking-tight text-zinc-950 font-outfit">Locattus<span className="text-violet-600 not-italic">.</span></span>
                     </div>
 
-                    <div className="space-y-3 mb-12">
-                        <h2 className="text-4xl font-extrabold text-slate-950 tracking-tight font-outfit leading-none">Bem-vindo <br /><span className="text-violet-600 italic">de volta.</span></h2>
+                    <div className="space-y-4 mb-12">
+                        <h2 className="text-4xl font-extrabold text-slate-950 tracking-tight font-outfit leading-none mt-8">Bem-vindo <br /><span className="text-violet-600 italic">de volta.</span></h2>
                         <p className="text-slate-500 font-medium">Acesse seu cockpit administrativo.</p>
                     </div>
 
