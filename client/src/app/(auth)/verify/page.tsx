@@ -2,12 +2,12 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import NextLink from 'next/link';
-import { CheckCircle2, XCircle, Loader2, ArrowRight, ShieldCheck, Sparkles } from 'lucide-react';
+import Link from 'next/link';
+import { CheckCircle2, XCircle, Loader2, ArrowRight, ShieldCheck, Sparkles, AlertCircle, Zap } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import api from '@/lib/api';
 
 export default function VerifyPage() {
-    const router = useRouter();
     const searchParams = useSearchParams();
     const token = searchParams.get('token');
 
@@ -37,101 +37,139 @@ export default function VerifyPage() {
     }, [token]);
 
     return (
-        <div className="min-h-screen bg-white flex flex-col items-center justify-center p-6 font-sans text-zinc-900 relative overflow-hidden">
-            {/* Background Blobs */}
+        <div className="min-h-screen bg-[#FDFDFD] flex flex-col items-center justify-center p-6 font-inter text-slate-900 relative overflow-hidden selection:bg-violet-100">
+            {/* Premium Background Grid & Blobs */}
             <div className="absolute inset-0 z-0">
-                <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-violet-600/10 rounded-full blur-[120px]" />
-                <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-indigo-600/10 rounded-full blur-[120px]" />
+                <div
+                    className="absolute inset-0 opacity-[0.03] pointer-events-none"
+                    style={{ backgroundImage: 'radial-gradient(#7c3aed 1px, transparent 1px)', backgroundSize: '40px 40px' }}
+                />
+                <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-violet-600/5 rounded-full blur-[120px]" />
+                <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-indigo-600/5 rounded-full blur-[120px]" />
             </div>
 
-            <div className="w-full max-w-md space-y-12 text-center relative z-10 animate-in fade-in zoom-in-95 duration-700">
-                {/* Logo */}
-                <div className="flex flex-col items-center gap-3">
-                    <div className="w-16 h-16 bg-zinc-950 rounded-3xl flex items-center justify-center text-white font-black text-2xl shadow-2xl shadow-violet-500/20">
-                        L
-                    </div>
-                </div>
+            <div className="w-full max-w-md space-y-10 text-center relative z-10">
+                {/* Brand Logo */}
+                <motion.div
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="flex justify-center mb-12"
+                >
+                    <Link href="/">
+                        <div className="flex items-center gap-2 group cursor-pointer animate-in fade-in duration-1000">
+                            <div className="w-10 h-10 bg-zinc-950 rounded-xl flex items-center justify-center text-white font-black shadow-lg">L</div>
+                            <span className="text-2xl font-black italic tracking-tighter font-outfit">Locatus<span className="text-violet-600 not-italic">.</span></span>
+                        </div>
+                    </Link>
+                </motion.div>
 
-                <div className="space-y-8">
+                <AnimatePresence mode="wait">
                     {status === 'loading' && (
-                        <div className="space-y-6">
+                        <motion.div
+                            key="loading"
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.95 }}
+                            className="space-y-8"
+                        >
                             <div className="flex justify-center">
-                                <div className="w-20 h-20 bg-zinc-50 rounded-3xl flex items-center justify-center animate-pulse">
-                                    <Loader2 className="w-10 h-10 text-violet-600 animate-spin" />
+                                <div className="w-24 h-24 bg-white shadow-2xl shadow-violet-100 rounded-[2.5rem] flex items-center justify-center border border-slate-50 relative overflow-hidden">
+                                    <div className="absolute inset-0 bg-violet-50 animate-pulse" />
+                                    <Loader2 className="w-10 h-10 text-violet-600 animate-spin relative z-10 stroke-[1.5px]" />
                                 </div>
                             </div>
-                            <div className="space-y-2">
-                                <h1 className="text-3xl font-black tracking-tight">Verificando...</h1>
-                                <p className="text-zinc-500 font-medium">Validando suas credenciais Locatus.</p>
+                            <div className="space-y-4">
+                                <h1 className="text-4xl font-black tracking-tighter text-slate-950 font-outfit">Autenticando...</h1>
+                                <p className="text-slate-500 font-medium text-lg leading-relaxed max-w-xs mx-auto">
+                                    Sua identidade está sendo processada através dos nossos protocolos de segurança.
+                                </p>
                             </div>
-                        </div>
+                        </motion.div>
                     )}
 
                     {status === 'success' && (
-                        <div className="space-y-10">
-                            <div className="space-y-4">
+                        <motion.div
+                            key="success"
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            className="space-y-8"
+                        >
+                            <div className="space-y-6">
                                 <div className="flex justify-center">
-                                    <div className="w-20 h-20 bg-green-50 rounded-3xl flex items-center justify-center shadow-xl shadow-green-100/50">
-                                        <ShieldCheck className="w-10 h-10 text-green-500" />
+                                    <div className="w-24 h-24 bg-white shadow-2xl shadow-emerald-100 rounded-[2.5rem] flex items-center justify-center border border-slate-50">
+                                        <ShieldCheck className="w-12 h-12 text-emerald-500 stroke-[1.5px]" />
                                     </div>
                                 </div>
-                                <div className="space-y-3">
-                                    <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-green-50 text-green-600 text-[10px] font-black uppercase tracking-widest rounded-full border border-green-100 italic">
-                                        <Sparkles className="w-3 h-3" /> Sucesso
+                                <div className="space-y-4">
+                                    <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-emerald-500 text-white text-[10px] font-black uppercase tracking-[0.2em] rounded-full shadow-lg shadow-emerald-100 italic">
+                                        <Sparkles className="w-3 h-3" /> Verificado
                                     </div>
-                                    <h1 className="text-4xl font-black tracking-tight text-zinc-900 leading-tight">
+                                    <h1 className="text-5xl font-black tracking-tighter text-slate-950 leading-[0.9] font-outfit">
                                         Identidade <br />
-                                        <span className="text-violet-600">Confirmada.</span>
+                                        <span className="text-violet-600 italic">Confirmada.</span>
                                     </h1>
-                                    <p className="text-zinc-500 font-medium text-lg leading-relaxed max-w-xs mx-auto">
-                                        {message}
+                                    <p className="text-slate-500 font-medium text-lg leading-relaxed max-w-xs mx-auto">
+                                        Sua jornada na Locatus começa agora. Tudo pronto para escalar.
                                     </p>
                                 </div>
                             </div>
 
-                            <NextLink
+                            <Link
                                 href="/login"
-                                className="w-full py-5 bg-violet-600 hover:bg-violet-700 text-white font-black rounded-2xl transition-all shadow-xl shadow-violet-100 flex items-center justify-center gap-2 group text-sm uppercase tracking-widest"
+                                className="w-full py-6 bg-slate-950 hover:bg-violet-700 text-white font-black rounded-3xl transition-all shadow-2xl shadow-slate-200 flex items-center justify-center gap-3 group text-xs uppercase tracking-[0.2em] animate-in slide-in-from-bottom-4 duration-700"
                             >
                                 Acessar Plataforma <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                            </NextLink>
-                        </div>
+                            </Link>
+                        </motion.div>
                     )}
 
                     {status === 'error' && (
-                        <div className="space-y-10">
-                            <div className="space-y-4">
+                        <motion.div
+                            key="error"
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            className="space-y-8"
+                        >
+                            <div className="space-y-6">
                                 <div className="flex justify-center">
-                                    <div className="w-20 h-20 bg-red-50 rounded-3xl flex items-center justify-center shadow-xl shadow-red-100/50">
-                                        <XCircle className="w-10 h-10 text-red-500" />
+                                    <div className="w-24 h-24 bg-white shadow-2xl shadow-red-100 rounded-[2.5rem] flex items-center justify-center border border-slate-50">
+                                        <AlertCircle className="w-12 h-12 text-red-500 stroke-[1.5px]" />
                                     </div>
                                 </div>
-                                <div className="space-y-3">
-                                    <h1 className="text-4xl font-black tracking-tight text-zinc-900 leading-tight">
-                                        Oops! Algo deu <br />
-                                        <span className="text-red-600">errado.</span>
+                                <div className="space-y-4">
+                                    <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-red-50 text-red-600 text-[10px] font-black uppercase tracking-[0.2em] rounded-full border border-red-100">
+                                        FALLBACK
+                                    </div>
+                                    <h1 className="text-5xl font-black tracking-tighter text-slate-950 leading-[0.9] font-outfit">
+                                        Erro de <br />
+                                        <span className="text-red-600 italic">Verificação.</span>
                                     </h1>
-                                    <p className="text-zinc-500 font-medium text-lg leading-relaxed max-w-xs mx-auto">
+                                    <p className="text-slate-500 font-medium text-lg leading-relaxed max-w-xs mx-auto">
                                         {message}
                                     </p>
                                 </div>
                             </div>
 
-                            <NextLink
-                                href="/register"
-                                className="w-full py-5 bg-zinc-950 hover:bg-zinc-800 text-white font-black rounded-2xl transition-all shadow-xl flex items-center justify-center gap-2 group text-sm uppercase tracking-widest"
-                            >
-                                Tentar novamente <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                            </NextLink>
-                        </div>
+                            <div className="space-y-4">
+                                <Link
+                                    href="/register"
+                                    className="w-full py-6 bg-slate-950 hover:bg-slate-800 text-white font-black rounded-3xl transition-all shadow-2xl flex items-center justify-center gap-3 group text-xs uppercase tracking-[0.2em]"
+                                >
+                                    Solicitar Novo Link <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                                </Link>
+                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                                    Tokens de segurança expiram em 24h
+                                </p>
+                            </div>
+                        </motion.div>
                     )}
-                </div>
+                </AnimatePresence>
             </div>
 
             {/* Micro branding */}
-            <div className="absolute bottom-10 text-center w-full">
-                <p className="text-[10px] text-zinc-300 font-black uppercase tracking-widest">
-                    Locatus Security Protocols © 2026
+            <div className="absolute bottom-10 text-center w-full opacity-30">
+                <p className="text-[10px] text-slate-400 font-black uppercase tracking-[0.4em]">
+                    LOCATUS SECURITY PROTOCOLS © 2026
                 </p>
             </div>
         </div>

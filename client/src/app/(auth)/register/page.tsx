@@ -13,9 +13,13 @@ import {
     ArrowLeft,
     ChevronRight,
     Check,
+    Sparkles,
+    Shield,
+    Zap,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import api from '@/lib/api';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const registerSchema = z.object({
     // Step 1: Account
@@ -81,268 +85,286 @@ export default function RegisterPage() {
     const password = watch('password') || '';
     const strength = [password.length >= 8, /[A-Z]/.test(password), /[0-9]/.test(password)].filter(Boolean).length;
     const strengthLabels = ['', 'Fraca', 'Média', 'Forte'];
-    const strengthColors = ['', 'bg-red-400', 'bg-amber-400', 'bg-green-500'];
+    const strengthColors = ['', 'bg-red-400', 'bg-amber-400', 'bg-violet-500'];
 
     const [toolRange, setToolRange] = useState('');
     const [method, setMethod] = useState('');
     const [rentalRange, setRentalRange] = useState('');
 
     return (
-        <div className="min-h-screen bg-white flex flex-col selection:bg-violet-100 selection:text-violet-900">
+        <div className="min-h-screen bg-[#FDFDFD] flex flex-col font-inter selection:bg-violet-100 relative overflow-hidden">
+            {/* Background pattern */}
+            <div className="absolute inset-0 z-0 opacity-[0.03] pointer-events-none"
+                style={{ backgroundImage: 'radial-gradient(#7c3aed 1px, transparent 1px)', backgroundSize: '40px 40px' }}
+            />
 
             {/* Top Bar */}
-            <header className="flex items-center justify-between px-8 py-5 border-b border-zinc-100">
-                <Link href="/" className="flex items-center gap-2">
-                    <div className="w-8 h-8 bg-violet-500 rounded-lg flex items-center justify-center text-white font-bold text-sm">L</div>
-                    <span className="font-bold text-lg text-zinc-900 font-heading">Locatus</span>
+            <header className="flex items-center justify-between px-10 py-6 border-b border-slate-50 relative z-10 bg-white/50 backdrop-blur-md">
+                <Link href="/">
+                    <div className="flex items-center gap-2 group cursor-pointer transition-transform active:scale-95">
+                        <div className="w-10 h-10 bg-zinc-950 rounded-xl flex items-center justify-center text-white font-black shadow-lg">L</div>
+                        <span className="text-2xl font-black italic tracking-tighter text-zinc-950 font-outfit">Locatus<span className="text-violet-600 not-italic">.</span></span>
+                    </div>
                 </Link>
-                <span className="text-sm text-zinc-500">
-                    Já tem conta?{' '}
-                    <Link href="/login" className="text-violet-500 font-semibold hover:text-violet-600 transition-colors">Entrar</Link>
-                </span>
+                <div className="flex items-center gap-4">
+                    <span className="text-sm text-slate-400 font-medium hidden sm:inline">
+                        Já possui acesso?
+                    </span>
+                    <Link href="/login" className="px-6 py-2.5 bg-violet-50 text-violet-600 font-black text-[10px] uppercase tracking-widest rounded-full hover:bg-violet-100 transition-colors">
+                        Fazer Login
+                    </Link>
+                </div>
             </header>
 
-            {/* Progress Bar */}
-            <div className="h-1 bg-zinc-100">
-                <div
-                    className="h-full bg-violet-500 transition-all duration-500"
-                    style={{ width: `${(step / 3) * 100}%` }}
-                />
-            </div>
-
             {/* Main Content */}
-            <div className="flex-1 flex flex-col items-center justify-center px-6 py-12">
-                <div className="w-full max-w-md">
+            <div className="flex-1 flex flex-col items-center justify-center px-6 py-12 relative z-10">
+                <div className="w-full max-w-lg">
 
-                    {/* Step Indicators */}
-                    <div className="flex items-center gap-3 mb-8">
+                    {/* Step Indicators - Premium style */}
+                    <div className="flex items-center justify-between mb-16 relative px-4">
+                        <div className="absolute top-1/2 left-0 w-full h-px bg-slate-100 -translate-y-1/2 z-0" />
                         {STEPS.map((s, i) => (
-                            <div key={s.id} className="flex items-center gap-3">
+                            <div key={s.id} className="relative z-10 flex flex-col items-center gap-3">
                                 <div className={cn(
-                                    "w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300",
-                                    step > s.id ? "bg-violet-500 text-white" :
-                                        step === s.id ? "bg-violet-500 text-white ring-4 ring-violet-100" :
-                                            "bg-zinc-100 text-zinc-400"
+                                    "w-10 h-10 rounded-2xl flex items-center justify-center text-sm font-black transition-all duration-500 shadow-sm border",
+                                    step > s.id ? "bg-violet-600 border-violet-600 text-white" :
+                                        step === s.id ? "bg-white border-violet-600 text-violet-600 ring-4 ring-violet-50" :
+                                            "bg-white border-slate-200 text-slate-300"
                                 )}>
-                                    {step > s.id ? <Check className="w-3.5 h-3.5" /> : s.id}
+                                    {step > s.id ? <Check className="w-5 h-5 stroke-[3px]" /> : s.id}
                                 </div>
                                 <span className={cn(
-                                    "text-sm font-medium",
-                                    step >= s.id ? "text-zinc-900" : "text-zinc-400"
+                                    "text-[10px] uppercase font-black tracking-[0.2em] absolute -bottom-8 whitespace-nowrap",
+                                    step >= s.id ? "text-slate-900" : "text-slate-300"
                                 )}>{s.label}</span>
-                                {i < STEPS.length - 1 && (
-                                    <div className={cn(
-                                        "flex-1 h-px w-8",
-                                        step > s.id ? "bg-violet-300" : "bg-zinc-200"
-                                    )} />
-                                )}
                             </div>
                         ))}
                     </div>
 
-                    {serverError && (
-                        <div className="mb-6 p-3.5 bg-red-50 border border-red-100 rounded-xl">
-                            <p className="text-red-600 text-sm font-medium text-center">{serverError}</p>
+                    <div className="bg-white border border-slate-100 rounded-[3rem] p-10 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.06)] relative overflow-hidden min-h-[500px] flex flex-col">
+
+                        {/* Status decoration */}
+                        <div className="absolute top-0 right-0 p-8 opacity-10">
+                            <Sparkles className="w-12 h-12 text-violet-600" />
                         </div>
-                    )}
 
-                    {/* ─── STEP 1: Conta ─── */}
-                    {step === 1 && (
-                        <div className="space-y-5 animate-in fade-in slide-in-from-right-4 duration-300">
-                            <div className="mb-7">
-                                <h1 className="text-2xl font-bold text-zinc-900 font-heading tracking-tight">Crie sua conta</h1>
-                                <p className="text-zinc-500 text-[15px] mt-1">Seus dados de acesso ao sistema.</p>
-                            </div>
+                        {serverError && (
+                            <motion.div
+                                initial={{ opacity: 0, y: -10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                className="mb-8 p-4 bg-red-50 border border-red-100 rounded-2xl flex items-center gap-3"
+                            >
+                                <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+                                <p className="text-red-600 text-xs font-bold uppercase tracking-widest leading-tight">{serverError}</p>
+                            </motion.div>
+                        )}
 
-                            <div>
-                                <label className="label">Nome completo</label>
-                                <input {...register('fullName')} placeholder="João da Silva" className="input-field" />
-                                {errors.fullName && <p className="mt-1.5 text-sm text-red-500">{errors.fullName.message}</p>}
-                            </div>
-
-                            <div>
-                                <label className="label">Email</label>
-                                <input type="email" {...register('email')} placeholder="seu@email.com" className="input-field" />
-                                {errors.email && <p className="mt-1.5 text-sm text-red-500">{errors.email.message}</p>}
-                            </div>
-
-                            <div>
-                                <label className="label">Senha</label>
-                                <div className="relative">
-                                    <input
-                                        type={showPassword ? 'text' : 'password'}
-                                        {...register('password')}
-                                        placeholder="Mínimo 8 caracteres"
-                                        className="input-field pr-12"
-                                    />
-                                    <button
-                                        type="button"
-                                        onClick={() => setShowPassword(!showPassword)}
-                                        className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600 transition-colors"
-                                    >
-                                        {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                                    </button>
-                                </div>
-                                {errors.password && <p className="mt-1.5 text-sm text-red-500">{errors.password.message}</p>}
-                                {password.length > 0 && (
-                                    <div className="mt-2 space-y-1">
-                                        <div className="flex gap-1.5">
-                                            {[1, 2, 3].map(i => (
-                                                <div key={i} className={cn("h-1 flex-1 rounded-full transition-all", strength >= i ? strengthColors[strength] : "bg-zinc-200")} />
-                                            ))}
-                                        </div>
-                                        <p className="text-xs text-zinc-500">Força: <span className="font-semibold">{strengthLabels[strength]}</span></p>
+                        <AnimatePresence mode="wait">
+                            {/* ─── STEP 1: Conta ─── */}
+                            {step === 1 && (
+                                <motion.div
+                                    key="step1"
+                                    initial={{ opacity: 0, x: 20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    exit={{ opacity: 0, x: -20 }}
+                                    className="space-y-6 flex-1"
+                                >
+                                    <div className="mb-10">
+                                        <h1 className="text-4xl font-black text-slate-950 font-outfit tracking-tighter leading-none mb-3">Bem-vindo à <br /><span className="text-violet-600 italic">Elite Logística.</span></h1>
+                                        <p className="text-slate-500 font-medium">Inicie sua jornada configurando seu cockpit.</p>
                                     </div>
-                                )}
-                            </div>
 
-                            <button type="button" onClick={nextStep} className="btn-primary mt-2">
-                                Continuar <ChevronRight className="w-4 h-4" />
-                            </button>
-                        </div>
-                    )}
+                                    <div className="space-y-4">
+                                        <div className="space-y-2">
+                                            <label className="text-[10px] uppercase font-black text-slate-400 tracking-[0.2em] ml-1">Nome completo</label>
+                                            <input {...register('fullName')} placeholder="João da Silva" className="w-full h-14 px-6 bg-slate-50/50 border border-slate-100 rounded-2xl text-sm font-bold text-slate-950 focus:outline-none focus:ring-4 focus:ring-violet-500/5 focus:border-violet-600 transition-all" />
+                                            {errors.fullName && <p className="text-[10px] text-red-500 font-black uppercase tracking-widest ml-1">{errors.fullName.message}</p>}
+                                        </div>
 
-                    {/* ─── STEP 2: Empresa ─── */}
-                    {step === 2 && (
-                        <div className="space-y-5 animate-in fade-in slide-in-from-right-4 duration-300">
-                            <div className="mb-7">
-                                <h1 className="text-2xl font-bold text-zinc-900 font-heading tracking-tight">Sua empresa</h1>
-                                <p className="text-zinc-500 text-[15px] mt-1">Dados da sua locadora.</p>
-                            </div>
+                                        <div className="space-y-2">
+                                            <label className="text-[10px] uppercase font-black text-slate-400 tracking-[0.2em] ml-1">Email profissional</label>
+                                            <input type="email" {...register('email')} placeholder="seu@email.com" className="w-full h-14 px-6 bg-slate-50/50 border border-slate-100 rounded-2xl text-sm font-bold text-slate-950 focus:outline-none focus:ring-4 focus:ring-violet-500/5 focus:border-violet-600 transition-all" />
+                                            {errors.email && <p className="text-[10px] text-red-500 font-black uppercase tracking-widest ml-1">{errors.email.message}</p>}
+                                        </div>
 
-                            <div>
-                                <label className="label">Nome da locadora</label>
-                                <input {...register('tenantName')} placeholder="Locadora Silva & Filhos" className="input-field" />
-                                {errors.tenantName && <p className="mt-1.5 text-sm text-red-500">{errors.tenantName.message}</p>}
-                            </div>
-
-                            <div>
-                                <label className="label">CPF ou CNPJ</label>
-                                <input {...register('documentNumber')} placeholder="00.000.000/0001-00" className="input-field" />
-                                {errors.documentNumber && <p className="mt-1.5 text-sm text-red-500">{errors.documentNumber.message}</p>}
-                            </div>
-
-                            <div>
-                                <label className="label">WhatsApp / Telefone</label>
-                                <input {...register('phoneNumber')} placeholder="(11) 99999-9999" className="input-field" />
-                                {errors.phoneNumber && <p className="mt-1.5 text-sm text-red-500">{errors.phoneNumber.message}</p>}
-                            </div>
-
-                            <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label className="label">Cidade</label>
-                                    <input {...register('city')} placeholder="São Paulo" className="input-field" />
-                                    {errors.city && <p className="mt-1.5 text-sm text-red-500">{errors.city.message}</p>}
-                                </div>
-                                <div>
-                                    <label className="label">UF</label>
-                                    <input {...register('state')} placeholder="SP" maxLength={2} className="input-field uppercase" />
-                                    {errors.state && <p className="mt-1.5 text-sm text-red-500">{errors.state.message}</p>}
-                                </div>
-                            </div>
-
-                            <div className="flex gap-3 pt-1">
-                                <button type="button" onClick={() => setStep(1)} className="btn-secondary">
-                                    <ArrowLeft className="w-4 h-4" /> Voltar
-                                </button>
-                                <button type="button" onClick={nextStep} className="btn-primary">
-                                    Continuar <ChevronRight className="w-4 h-4" />
-                                </button>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* ─── STEP 3: Perfil Operacional ─── */}
-                    {step === 3 && (
-                        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
-                            <div className="mb-7">
-                                <h1 className="text-2xl font-bold text-zinc-900 font-heading tracking-tight">Seu perfil</h1>
-                                <p className="text-zinc-500 text-[15px] mt-1">Nos conte sobre sua operação (opcional).</p>
-                            </div>
-
-                            <div>
-                                <label className="label">Quantas ferramentas você tem?</label>
-                                <div className="grid grid-cols-2 gap-2">
-                                    {TOOL_RANGES.map(range => (
-                                        <button
-                                            key={range}
-                                            type="button"
-                                            onClick={() => { setToolRange(range); setValue('toolCountRange', range); }}
-                                            className={cn(
-                                                "py-2.5 px-4 rounded-xl border text-sm font-medium transition-all",
-                                                toolRange === range
-                                                    ? "border-violet-500 bg-violet-50 text-violet-700"
-                                                    : "border-zinc-200 text-zinc-600 hover:border-violet-300 hover:bg-violet-50/50"
+                                        <div className="space-y-2">
+                                            <label className="text-[10px] uppercase font-black text-slate-400 tracking-[0.2em] ml-1">Senha de acesso</label>
+                                            <div className="relative">
+                                                <input
+                                                    type={showPassword ? 'text' : 'password'}
+                                                    {...register('password')}
+                                                    placeholder="••••••••"
+                                                    className="w-full h-14 px-6 bg-slate-50/50 border border-slate-100 rounded-2xl text-sm font-bold text-slate-950 focus:outline-none focus:ring-4 focus:ring-violet-500/5 focus:border-violet-600 transition-all"
+                                                />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setShowPassword(!showPassword)}
+                                                    className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-950 transition-colors px-1"
+                                                >
+                                                    {showPassword ? <EyeOff className="w-5 h-5 stroke-[1.5px]" /> : <Eye className="w-5 h-5 stroke-[1.5px]" />}
+                                                </button>
+                                            </div>
+                                            {errors.password && <p className="text-[10px] text-red-500 font-black uppercase tracking-widest ml-1">{errors.password.message}</p>}
+                                            {password.length > 0 && (
+                                                <div className="mt-4 px-1 space-y-2">
+                                                    <div className="flex gap-1.5">
+                                                        {[1, 2, 3].map(i => (
+                                                            <div key={i} className={cn("h-1.5 flex-1 rounded-full transition-all", strength >= i ? strengthColors[strength] : "bg-slate-100")} />
+                                                        ))}
+                                                    </div>
+                                                    <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest">Segurança: <span className={cn("font-black", strength === 3 ? "text-violet-600" : "text-slate-600")}>{strengthLabels[strength]}</span></p>
+                                                </div>
                                             )}
-                                        >
-                                            {range}
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
+                                        </div>
+                                    </div>
 
-                            <div>
-                                <label className="label">Como você controla hoje?</label>
-                                <div className="grid grid-cols-2 gap-2">
-                                    {METHODS.map(m => (
+                                    <div className="pt-6">
+                                        <button type="button" onClick={nextStep} className="w-full h-16 bg-slate-950 hover:bg-violet-700 text-white font-black rounded-2xl transition-all shadow-xl flex items-center justify-center gap-3 text-xs uppercase tracking-[0.2em] group">
+                                            Continuar Próxima Etapa <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                                        </button>
+                                    </div>
+                                </motion.div>
+                            )}
+
+                            {/* ─── STEP 2: Empresa ─── */}
+                            {step === 2 && (
+                                <motion.div
+                                    key="step2"
+                                    initial={{ opacity: 0, x: 20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    exit={{ opacity: 0, x: -20 }}
+                                    className="space-y-6 flex-1"
+                                >
+                                    <div className="mb-10">
+                                        <h1 className="text-4xl font-black text-slate-950 font-outfit tracking-tighter leading-none mb-3">Sua Locadora <br /><span className="text-violet-600 italic">em Detalhes.</span></h1>
+                                        <p className="text-slate-500 font-medium">Configure as informações da sua frota.</p>
+                                    </div>
+
+                                    <div className="space-y-4">
+                                        <div className="space-y-2">
+                                            <label className="text-[10px] uppercase font-black text-slate-400 tracking-[0.2em] ml-1">Nome Comercial</label>
+                                            <input {...register('tenantName')} placeholder="Elite Locações" className="w-full h-14 px-6 bg-slate-50/50 border border-slate-100 rounded-2xl text-sm font-bold text-slate-950 focus:outline-none focus:ring-4 focus:ring-violet-500/5 focus:border-violet-600 transition-all" />
+                                            {errors.tenantName && <p className="text-[10px] text-red-500 font-black uppercase tracking-widest ml-1">{errors.tenantName.message}</p>}
+                                        </div>
+
+                                        <div className="space-y-2">
+                                            <label className="text-[10px] uppercase font-black text-slate-400 tracking-[0.2em] ml-1">CPF ou CNPJ</label>
+                                            <input {...register('documentNumber')} placeholder="00.000.000/0001-00" className="w-full h-14 px-6 bg-slate-50/50 border border-slate-100 rounded-2xl text-sm font-bold text-slate-950 focus:outline-none focus:ring-4 focus:ring-violet-500/5 focus:border-violet-600 transition-all" />
+                                            {errors.documentNumber && <p className="text-[10px] text-red-500 font-black uppercase tracking-widest ml-1">{errors.documentNumber.message}</p>}
+                                        </div>
+
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div className="space-y-2">
+                                                <label className="text-[10px] uppercase font-black text-slate-400 tracking-[0.2em] ml-1">Cidade</label>
+                                                <input {...register('city')} placeholder="São Paulo" className="w-full h-14 px-6 bg-slate-50/50 border border-slate-100 rounded-2xl text-sm font-bold text-slate-950 focus:outline-none focus:ring-4 focus:ring-violet-500/5 focus:border-violet-600 transition-all" />
+                                                {errors.city && <p className="text-[10px] text-red-500 font-black uppercase tracking-widest ml-1">{errors.city.message}</p>}
+                                            </div>
+                                            <div className="space-y-2">
+                                                <label className="text-[10px] uppercase font-black text-slate-400 tracking-[0.2em] ml-1">UF</label>
+                                                <input {...register('state')} placeholder="SP" maxLength={2} className="w-full h-14 px-6 bg-slate-50/50 border border-slate-100 rounded-2xl text-sm font-bold text-slate-950 uppercase focus:outline-none focus:ring-4 focus:ring-violet-500/5 focus:border-violet-600 transition-all" />
+                                                {errors.state && <p className="text-[10px] text-red-500 font-black uppercase tracking-widest ml-1">{errors.state.message}</p>}
+                                            </div>
+                                        </div>
+
+                                        <div className="space-y-2">
+                                            <label className="text-[10px] uppercase font-black text-slate-400 tracking-[0.2em] ml-1">WhatsApp / Telefone</label>
+                                            <input {...register('phoneNumber')} placeholder="(11) 99999-9999" className="w-full h-14 px-6 bg-slate-50/50 border border-slate-100 rounded-2xl text-sm font-bold text-slate-950 focus:outline-none focus:ring-4 focus:ring-violet-500/5 focus:border-violet-600 transition-all" />
+                                            {errors.phoneNumber && <p className="text-[10px] text-red-500 font-black uppercase tracking-widest ml-1">{errors.phoneNumber.message}</p>}
+                                        </div>
+                                    </div>
+
+                                    <div className="flex gap-4 pt-6">
+                                        <button type="button" onClick={() => setStep(1)} className="w-20 h-16 bg-slate-50 hover:bg-slate-100 text-slate-400 hover:text-slate-950 rounded-2xl transition-all border border-slate-100 flex items-center justify-center shrink-0 group">
+                                            <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+                                        </button>
+                                        <button type="button" onClick={nextStep} className="flex-1 h-16 bg-slate-950 hover:bg-violet-700 text-white font-black rounded-2xl transition-all shadow-xl flex items-center justify-center gap-3 text-xs uppercase tracking-[0.2em] group">
+                                            Avançar para Operação <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                                        </button>
+                                    </div>
+                                </motion.div>
+                            )}
+
+                            {/* ─── STEP 3: Perfil Operacional ─── */}
+                            {step === 3 && (
+                                <motion.div
+                                    key="step3"
+                                    initial={{ opacity: 0, x: 20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    exit={{ opacity: 0, x: -20 }}
+                                    className="space-y-6 flex-1"
+                                >
+                                    <div className="mb-10">
+                                        <h1 className="text-4xl font-black text-slate-950 font-outfit tracking-tighter leading-none mb-3">Última Etapa: <br /><span className="text-violet-600 italic">Operação.</span></h1>
+                                        <p className="text-slate-500 font-medium">Personalizaremos sua interface com base nesses dados.</p>
+                                    </div>
+
+                                    <div className="space-y-6">
+                                        <div className="space-y-3">
+                                            <label className="text-[10px] uppercase font-black text-slate-400 tracking-[0.2em] ml-1">Volume de Equipamentos</label>
+                                            <div className="grid grid-cols-2 gap-3">
+                                                {TOOL_RANGES.map(range => (
+                                                    <button
+                                                        key={range}
+                                                        type="button"
+                                                        onClick={() => { setToolRange(range); setValue('toolCountRange', range); }}
+                                                        className={cn(
+                                                            "h-14 px-4 rounded-2xl border text-xs font-black transition-all uppercase tracking-widest",
+                                                            toolRange === range
+                                                                ? "border-violet-600 bg-violet-600 text-white shadow-lg shadow-violet-100"
+                                                                : "border-slate-100 bg-slate-50 text-slate-400 hover:border-violet-200"
+                                                        )}
+                                                    >
+                                                        {range}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </div>
+
+                                        <div className="space-y-3">
+                                            <label className="text-[10px] uppercase font-black text-slate-400 tracking-[0.2em] ml-1">Método de Controle Atual</label>
+                                            <div className="grid grid-cols-2 gap-3">
+                                                {METHODS.map(m => (
+                                                    <button
+                                                        key={m}
+                                                        type="button"
+                                                        onClick={() => { setMethod(m); setValue('currentControlMethod', m); }}
+                                                        className={cn(
+                                                            "h-14 px-4 rounded-2xl border text-[10px] font-black transition-all uppercase tracking-tight leading-none text-left",
+                                                            method === m
+                                                                ? "border-violet-600 bg-violet-600 text-white shadow-lg shadow-violet-100"
+                                                                : "border-slate-100 bg-slate-50 text-slate-400 hover:border-violet-200"
+                                                        )}
+                                                    >
+                                                        {m}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex gap-4 pt-10">
+                                        <button type="button" onClick={() => setStep(2)} className="w-20 h-16 bg-slate-50 hover:bg-slate-100 text-slate-400 hover:text-slate-950 rounded-2xl transition-all border border-slate-100 flex items-center justify-center shrink-0 group">
+                                            <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+                                        </button>
                                         <button
-                                            key={m}
-                                            type="button"
-                                            onClick={() => { setMethod(m); setValue('currentControlMethod', m); }}
-                                            className={cn(
-                                                "py-2.5 px-4 rounded-xl border text-sm font-medium transition-all text-left",
-                                                method === m
-                                                    ? "border-violet-500 bg-violet-50 text-violet-700"
-                                                    : "border-zinc-200 text-zinc-600 hover:border-violet-300 hover:bg-violet-50/50"
-                                            )}
+                                            onClick={handleSubmit(onSubmit)}
+                                            disabled={isSubmitting}
+                                            className="flex-1 h-16 bg-slate-950 hover:bg-violet-700 text-white font-black rounded-2xl transition-all shadow-xl flex items-center justify-center gap-3 text-xs uppercase tracking-[0.2em] group"
                                         >
-                                            {m}
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
-
-                            <div>
-                                <label className="label">Volume de locações por mês?</label>
-                                <div className="grid grid-cols-2 gap-2">
-                                    {RENTAL_RANGES.map(r => (
-                                        <button
-                                            key={r}
-                                            type="button"
-                                            onClick={() => { setRentalRange(r); setValue('activeRentalsRange', r); }}
-                                            className={cn(
-                                                "py-2.5 px-4 rounded-xl border text-sm font-medium transition-all",
-                                                rentalRange === r
-                                                    ? "border-violet-500 bg-violet-50 text-violet-700"
-                                                    : "border-zinc-200 text-zinc-600 hover:border-violet-300 hover:bg-violet-50/50"
+                                            {isSubmitting ? (
+                                                <Loader2 className="w-5 h-5 animate-spin" />
+                                            ) : (
+                                                <>Finalizar Configuração <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" /></>
                                             )}
-                                        >
-                                            {r}
                                         </button>
-                                    ))}
-                                </div>
-                            </div>
+                                    </div>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+                    </div>
 
-                            <div className="flex gap-3 pt-1">
-                                <button type="button" onClick={() => setStep(2)} className="btn-secondary">
-                                    <ArrowLeft className="w-4 h-4" /> Voltar
-                                </button>
-                                <button type="submit" disabled={isSubmitting} className="btn-primary">
-                                    {isSubmitting ? (
-                                        <Loader2 className="w-5 h-5 animate-spin" />
-                                    ) : (
-                                        <>Criar conta <ChevronRight className="w-4 h-4" /></>
-                                    )}
-                                </button>
-                            </div>
-                        </form>
-                    )}
-
-                    <p className="mt-8 text-center text-xs text-zinc-400">
-                        Ao criar sua conta, você concorda com os{' '}
-                        <a href="#" className="underline hover:text-zinc-600 transition-colors">Termos de Uso</a>
-                        {' '}e a{' '}
-                        <a href="#" className="underline hover:text-zinc-600 transition-colors">Política de Privacidade</a>.
+                    <p className="mt-12 text-center text-[10px] font-black text-slate-300 uppercase tracking-[0.4em]">
+                        LOCATUS CLOUD PROTECTION INFRASTRUCTURE
                     </p>
                 </div>
             </div>
