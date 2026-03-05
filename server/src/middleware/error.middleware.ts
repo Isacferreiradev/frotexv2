@@ -23,15 +23,6 @@ export function errorHandler(
     res: Response,
     _next: NextFunction
 ) {
-    console.error('🔥 [GLOBAL ERROR HANDLER]', {
-        path: req.path,
-        method: req.method,
-        error: err.message,
-        stack: err.stack,
-        pgCode: getPgCode(err),
-        body: req.body
-    });
-
     if (err instanceof AppError) {
         return res.status(err.statusCode).json({
             success: false,

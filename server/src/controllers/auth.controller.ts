@@ -6,16 +6,11 @@ import fs from 'fs';
 // Local debug log removed for production compatibility
 
 export async function register(req: Request, res: Response, next: NextFunction) {
-    console.log('[AUTH-CTRL] Recebida requisição de registro:', req.body?.email);
     try {
-        console.log('[AUTH-CTRL] Validando dados com Zod...');
         const data = authService.registerSchema.parse(req.body);
-        console.log('[AUTH-CTRL] Dados validados. Chamando authService.register...');
         const result = await authService.register(data);
-        console.log('[AUTH-CTRL] Registro concluído com sucesso.');
         res.status(201).json({ success: true, data: result });
     } catch (err: any) {
-        console.error('[AUTH-CTRL-ERROR] Erro no fluxo de registro:', err.message);
         next(err);
     }
 }
