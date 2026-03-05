@@ -101,7 +101,7 @@ export default function TemplatesPage() {
                             <div className="flex-1">
                                 <h3 className="font-bold text-zinc-900 text-lg tracking-tight mb-2 truncate">{template.name}</h3>
                                 <p className="text-zinc-400 text-xs line-clamp-3 leading-relaxed">
-                                    {template.content.replace(/{{.*?}}/g, '___')}
+                                    {(template.content || '').replace(/{{.*?}}/g, '___')}
                                 </p>
                             </div>
 

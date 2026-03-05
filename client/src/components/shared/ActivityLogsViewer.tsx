@@ -58,7 +58,7 @@ export function ActivityLogsViewer() {
                                 </span>
                             </div>
                             <p className="text-[10px] text-zinc-500 font-medium">
-                                {log.action.replace(/_/g, ' ')}: {log.entityType} #{log.entityId?.split('-')[0]}
+                                {(log.action || '').replace(/_/g, ' ')}: {log.entityType} #{log.entityId?.split('-')[0]}
                             </p>
                         </div>
                     </div>
