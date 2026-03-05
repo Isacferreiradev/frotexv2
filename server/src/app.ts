@@ -27,6 +27,8 @@ import quotesRoutes from './routes/quotes.routes';
 import intelligenceRoutes from './routes/intelligence.routes';
 import stripeRoutes from './routes/stripe.routes';
 import automationRoutes from './routes/automation.routes';
+import onboardingRoutes from './routes/onboarding.routes';
+
 
 import { globalLimiter } from './middleware/rate-limit.middleware';
 import hpp from 'hpp';
@@ -105,6 +107,8 @@ app.use('/api/communications', communicationsRoutes);
 app.use('/api/quotes', quotesRoutes);
 app.use('/api/intelligence', intelligenceRoutes);
 app.use('/api/automation', automationRoutes);
+app.use('/api/onboarding', onboardingRoutes);
+
 
 // Centralized error handler
 

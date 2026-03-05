@@ -72,7 +72,7 @@ export default function RegisterPage() {
         setServerError('');
         try {
             await api.post('/auth/register', data);
-            router.push('/registration-success');
+            router.push('/login'); // We need them to login so we have the JWT and user data for onboarding
         } catch (err: any) {
             setServerError(err.response?.data?.message || 'Erro ao cadastrar. Tente novamente.');
         }

@@ -45,25 +45,31 @@ export async function register(data: z.infer<typeof registerSchema>) {
     console.log(`[AUTH] Iniciando registro profissional Locatus para: ${data.email}`);
     try {
         const email = data.email.toLowerCase().trim();
+        console.log(`[AUTH-DEBUG] Verificando existência de usuário: ${email}`);
         const [existingUser] = await db.select({ id: users.id })
             .from(users)
             .where(sql`lower(${users.email}) = ${email}`);
 
         if (existingUser) {
+            console.log(`[AUTH-DEBUG] Usuário já existe: ${email}`);
             throw new AppError(409, 'Este e-mail já está cadastrado');
         }
 
         // Check for duplicate document
+        console.log(`[AUTH-DEBUG] Verificando duplicidade de documento: ${data.documentNumber}`);
         const [existingTenant] = await db.select({ id: tenants.id })
             .from(tenants)
             .where(eq(tenants.cnpj, data.documentNumber));
 
         if (existingTenant) {
+            console.log(`[AUTH-DEBUG] Documento já vinculado: ${data.documentNumber}`);
             throw new AppError(409, 'Este CPF/CNPJ já está vinculado a uma conta');
         }
 
-        const rental = await db.transaction(async (tx) => {
+        console.log(`[AUTH-DEBUG] Iniciando transação DB...`);
+        const result = await db.transaction(async (tx) => {
             // 1. Create tenant with operational profile
+            console.log(`[AUTH-DEBUG] Inserindo tenant...`);
             const [tenant] = await tx.insert(tenants).values({
                 name: data.tenantName,
                 cnpj: data.documentNumber,
@@ -76,11 +82,13 @@ export async function register(data: z.infer<typeof registerSchema>) {
                     activeRentalsRange: data.activeRentalsRange || null,
                 },
             }).returning();
+            console.log(`[AUTH-DEBUG] Tenant criado: ${tenant.id}`);
 
             // 2. Hash password and create owner user
             const verificationToken = uuidv4();
             const passwordHash = await bcrypt.hash(data.password, 12);
 
+            console.log(`[AUTH-DEBUG] Inserindo usuário dono...`);
             const [user] = await tx.insert(users).values({
                 tenantId: tenant.id,
                 email: data.email,
@@ -90,22 +98,25 @@ export async function register(data: z.infer<typeof registerSchema>) {
                 isVerified: false,
                 verificationToken: verificationToken,
             }).returning();
+            console.log(`[AUTH-DEBUG] Usuário criado: ${user.id}`);
 
             return { user, tenant };
         });
 
+        console.log(`[AUTH-DEBUG] Transação concluída com sucesso.`);
+
         // Send verification email
-        sendVerificationEmail(rental.user.email, rental.user.fullName, rental.user.verificationToken!)
+        sendVerificationEmail(result.user.email, result.user.fullName, result.user.verificationToken!)
             .catch(e => console.error('[AUTH-EMAIL-ERROR] Background email failed:', e));
 
         return {
             user: {
-                id: rental.user.id,
-                email: rental.user.email,
-                fullName: rental.user.fullName,
-                role: rental.user.role,
-                tenantId: rental.tenant.id,
-                isVerified: rental.user.isVerified
+                id: result.user.id,
+                email: result.user.email,
+                fullName: result.user.fullName,
+                role: result.user.role,
+                tenantId: result.tenant.id,
+                isVerified: result.user.isVerified
             }
         };
     } catch (error: any) {

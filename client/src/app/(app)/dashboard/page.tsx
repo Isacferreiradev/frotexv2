@@ -11,7 +11,9 @@ import {
 import { useRouter } from 'next/navigation';
 import { RentalDetailSheet } from '@/components/shared/RentalDetailSheet';
 
+import { OnboardingChecklist } from '@/components/dashboard/OnboardingChecklist';
 import { memo, useState } from 'react';
+
 import { formatCurrency, cn } from '@/lib/utils';
 import api from '@/lib/api';
 import { Skeleton } from '@/components/ui/Skeleton';
@@ -245,6 +247,8 @@ export default function DashboardPage() {
                     ))}
                 </div>
             </div>
+
+            <OnboardingChecklist />
 
             {/* ── Primary Analytics (Metric Cards) ── */}
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">

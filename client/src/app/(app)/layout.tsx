@@ -16,8 +16,15 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         // If store is ready and not authenticated, redirect
         if (!isAuthenticated) {
             router.push('/login');
+            return;
         }
-    }, [isAuthenticated, router]);
+
+        // Handle Onboarding redirection
+        // If user is authenticated, hasn't onboarded, and is NOT on the onboarding page
+        if (isAuthenticated && user && !user.hasOnboarded && window.location.pathname !== '/onboarding') {
+            router.push('/onboarding');
+        }
+    }, [isAuthenticated, user, router]);
 
     // Handle initial loading state where isAuthenticated is false but hydrate hasn't finished
     // We can check if a token exists in localStorage to decide if we wait
