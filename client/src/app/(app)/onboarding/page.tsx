@@ -31,7 +31,7 @@ import { toast } from 'sonner';
 const toolSchema = z.object({
     name: z.string().min(2, 'Nome obrigatório'),
     categoryId: z.string().uuid('Categoria obrigatória'),
-    dailyRate: z.number().min(0, 'Valor inválido'),
+    dailyRate: z.coerce.number().min(0, 'Valor inválido'),
 });
 
 const customerSchema = z.object({
@@ -45,7 +45,7 @@ const rentalSchema = z.object({
     customerId: z.string().uuid('Cliente obrigatório'),
     startDate: z.string(),
     endDateExpected: z.string(),
-    dailyRateAgreed: z.number().min(0),
+    dailyRateAgreed: z.coerce.number().min(0),
 });
 
 type ToolForm = z.infer<typeof toolSchema>;
@@ -132,10 +132,10 @@ export default function OnboardingPage() {
     });
 
     // Forms
-    const toolForm = useForm<ToolForm>({ resolver: zodResolver(toolSchema) });
-    const customerForm = useForm<CustomerForm>({ resolver: zodResolver(customerSchema) });
+    const toolForm = useForm<ToolForm>({ resolver: zodResolver(toolSchema) as any });
+    const customerForm = useForm<CustomerForm>({ resolver: zodResolver(customerSchema) as any });
     const rentalForm = useForm<RentalForm>({
-        resolver: zodResolver(rentalSchema),
+        resolver: zodResolver(rentalSchema) as any,
         defaultValues: {
             startDate: new Date().toISOString().split('T')[0],
             endDateExpected: new Date(Date.now() + 86400000 * 7).toISOString().split('T')[0]

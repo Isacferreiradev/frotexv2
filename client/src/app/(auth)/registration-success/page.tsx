@@ -1,7 +1,6 @@
 'use client';
 
-import Link from 'react-hook-form';
-import NextLink from 'next/link';
+import Link from 'next/link';
 import { Mail, ArrowLeft, CheckCircle2, Sparkles } from 'lucide-react';
 
 export default function RegistrationSuccessPage() {
@@ -68,13 +67,13 @@ export default function RegistrationSuccessPage() {
                         Algum problema? <span className="text-violet-600 font-black cursor-pointer hover:underline">Reenviar link</span>
                     </p>
 
-                    <NextLink
+                    <Link
                         href="/login"
                         className="inline-flex items-center gap-2 text-zinc-400 hover:text-zinc-900 transition-all font-black text-[10px] uppercase tracking-[0.2em] group"
                     >
                         <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
                         Voltar para o Login
-                    </NextLink>
+                    </Link>
                 </div>
             </div>
 

@@ -30,12 +30,21 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     // We can check if a token exists in localStorage to decide if we wait
     if (!isAuthenticated) {
         return (
-            <div className="h-screen w-screen flex items-center justify-center bg-gray-50">
-                <div className="flex flex-col items-center gap-4">
-                    <div className="w-10 h-10 border-4 border-violet-600/20 border-t-violet-600 rounded-full animate-spin" />
-                    <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest animate-pulse">
-                        Verificando Segurança...
-                    </p>
+            <div className="h-screen w-screen flex items-center justify-center bg-white">
+                <div className="flex flex-col items-center gap-6">
+                    <div className="w-16 h-16 bg-zinc-950 rounded-2xl flex items-center justify-center text-white font-black text-xl shadow-2xl animate-bounce">
+                        L
+                    </div>
+                    <div className="space-y-2 text-center">
+                        <p className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.3em] animate-pulse">
+                            Locatus Security Protocols
+                        </p>
+                        <div className="flex justify-center gap-1">
+                            {[0, 1, 2].map((i) => (
+                                <div key={i} className="w-1.5 h-1.5 bg-violet-600 rounded-full animate-bounce" style={{ animationDelay: `${i * 0.1}s` }} />
+                            ))}
+                        </div>
+                    </div>
                 </div>
             </div>
         );

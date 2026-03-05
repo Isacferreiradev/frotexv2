@@ -17,7 +17,7 @@ import {
     Zap,
 } from 'lucide-react';
 
-import { FrotexLogo } from '@/components/shared/FrotexLogo';
+import { LocatusLogo } from '@/components/shared/LocatusLogo';
 import { useState, useCallback } from 'react';
 import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/store/authStore';
@@ -97,7 +97,7 @@ export function Sidebar() {
             {!collapsed && (
                 <div className="px-5 py-6">
                     <Link href="/dashboard">
-                        <FrotexLogo size="lg" />
+                        <LocatusLogo size="lg" />
                     </Link>
                 </div>
             )}
