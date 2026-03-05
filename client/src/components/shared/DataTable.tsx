@@ -19,6 +19,7 @@ interface DataTableProps<T> {
     isLoading?: boolean
     searchPlaceholder?: string
     onSearchChange?: (val: string) => void
+    onRowClick?: (item: T) => void
     glass?: boolean
 }
 
@@ -28,6 +29,7 @@ export function DataTable<T extends { id: string | number }>({
     isLoading,
     searchPlaceholder = "Pesquisar...",
     onSearchChange,
+    onRowClick,
     glass = true
 }: DataTableProps<T>) {
     return (
@@ -99,7 +101,11 @@ export function DataTable<T extends { id: string | number }>({
                                             animate={{ opacity: 1, x: 0 }}
                                             exit={{ opacity: 0, x: 10 }}
                                             transition={{ delay: index * 0.05, duration: 0.3 }}
-                                            className="group hover:bg-primary/[0.02] transition-colors cursor-default"
+                                            onClick={() => onRowClick?.(item)}
+                                            className={cn(
+                                                "group hover:bg-primary/[0.02] transition-colors",
+                                                onRowClick ? "cursor-pointer" : "cursor-default"
+                                            )}
                                         >
                                             {columns.map((col, i) => (
                                                 <td

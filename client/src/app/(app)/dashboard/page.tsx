@@ -6,8 +6,10 @@ import {
     BarChart3, UserCheck, AlertTriangle, Zap, TrendingUp,
     Crown, ArrowUpRight, Percent, DollarSign, Activity, Wrench,
     Calendar, History, TrendingDown, LayoutDashboard, Target,
-    Ghost, Skull, Info, Plus
+    Ghost, Skull, Info, Plus, ExternalLink
 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { RentalDetailSheet } from '@/components/shared/RentalDetailSheet';
 
 import { memo, useState } from 'react';
 import { formatCurrency, cn } from '@/lib/utils';
@@ -30,7 +32,7 @@ const ROIChart = dynamic(() => import("@/components/dashboard/ROIChart").then(mo
 
 // ─── Metric Card (Premium & Refined) ─────────────────────────────────────────
 const MetricCard = memo(({
-    title, value, icon: Icon, loading, variant = 'default', subtitle
+    title, value, icon: Icon, loading, variant = 'default', subtitle, onClick
 }: {
     title: string;
     value: number | string;
@@ -38,6 +40,7 @@ const MetricCard = memo(({
     loading?: boolean;
     variant?: 'default' | 'warning' | 'critical';
     subtitle?: string;
+    onClick?: () => void;
 }) => {
     const iconStyles = {
         default: "bg-primary text-white shadow-lg shadow-primary/20",
@@ -46,7 +49,14 @@ const MetricCard = memo(({
     };
 
     return (
-        <Card glass className="p-8 flex flex-col gap-4 group border-none">
+        <Card
+            glass
+            onClick={onClick}
+            className={cn(
+                "p-8 flex flex-col gap-4 group border-none",
+                onClick && "cursor-pointer hover:bg-white/5 transition-all"
+            )}
+        >
             <div className="flex items-center justify-between relative z-10">
                 <span className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.25em]">{title}</span>
                 <div className={cn(
@@ -82,9 +92,12 @@ const MetricCard = memo(({
 MetricCard.displayName = 'MetricCard';
 
 // ─── ROI Row ─────────────────────────────────────────────────────────────────
-function ROIRow({ tool, rank }: { tool: any; rank: number }) {
+function ROIRow({ tool, rank, onClick }: { tool: any; rank: number; onClick?: () => void }) {
     return (
-        <div className="flex items-center gap-6 py-5 border-b border-border/50 last:border-0 group">
+        <div
+            onClick={onClick}
+            className="flex items-center gap-6 py-5 border-b border-border/50 last:border-0 group cursor-pointer"
+        >
             <div className={cn(
                 'w-10 h-10 rounded-xl flex items-center justify-center text-[11px] font-black shrink-0 transition-all border border-transparent',
                 rank === 0
@@ -111,7 +124,7 @@ function ROIRow({ tool, rank }: { tool: any; rank: number }) {
 }
 
 // ─── Billing Rule Widget ───────────────────────────────────
-const BillingRuleWidget = () => {
+const BillingRuleWidget = ({ onOpenDetail }: { onOpenDetail: (rental: any) => void }) => {
     const { data: expiring, isLoading } = useQuery({
         queryKey: ['expiring-rentals'],
         queryFn: async () => (await api.get('/rentals/expiring')).data.data,
@@ -146,8 +159,11 @@ const BillingRuleWidget = () => {
                                 <div className="p-2.5 bg-primary/5 text-primary rounded-lg border border-primary/10">
                                     <Clock className="w-4 h-4" />
                                 </div>
-                                <div className="min-w-0">
-                                    <p className="text-sm font-bold text-foreground truncate font-jakarta">{rental.customer.fullName}</p>
+                                <div
+                                    className="min-w-0 cursor-pointer flex-1"
+                                    onClick={() => onOpenDetail(rental)}
+                                >
+                                    <p className="text-sm font-bold text-foreground truncate font-jakarta group-hover:text-primary transition-colors">{rental.customer.fullName}</p>
                                     <p className="text-[10px] text-muted-foreground uppercase tracking-tight font-medium">
                                         {rental.tool.name} • Vence {new Date(rental.endDateExpected).toLocaleDateString('pt-BR')}
                                     </p>
@@ -176,8 +192,11 @@ const BillingRuleWidget = () => {
 
 // ─── Main Dashboard ──────────────────────────────────────────────────────────
 export default function DashboardPage() {
+    const router = useRouter();
     const user = useAuthStore((s) => s.user);
     const [timeRange, setTimeRange] = useState<'today' | '7d' | '30d'>('30d');
+    const [detailRental, setDetailRental] = useState<any>(null);
+    const [isDetailOpen, setIsDetailOpen] = useState(false);
 
     const { data: stats, isLoading } = useQuery({
         queryKey: ['dashboard-stats', timeRange],
@@ -257,6 +276,7 @@ export default function DashboardPage() {
                     loading={isLoading}
                     variant={stats?.overdueRentalsCount > 0 ? 'critical' : 'default'}
                     subtitle="Recuperação de Ativos"
+                    onClick={() => router.push('/locacoes?status=active')}
                 />
             </div>
 
@@ -347,13 +367,23 @@ export default function DashboardPage() {
                     <CardContent className="space-y-2">
                         {isLoading
                             ? Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="h-16 w-full rounded-xl" />)
-                            : stats?.topToolsByROI?.map((tool: any, i: number) => <ROIRow key={i} tool={tool} rank={i} />)
+                            : stats?.topToolsByROI?.map((tool: any, i: number) => (
+                                <ROIRow
+                                    key={i}
+                                    tool={tool}
+                                    rank={i}
+                                    onClick={() => router.push(`/ferramentas/${tool.id}`)}
+                                />
+                            ))
                         }
                     </CardContent>
                 </Card>
 
                 {/* Billing Rule */}
-                <BillingRuleWidget />
+                <BillingRuleWidget onOpenDetail={(r) => {
+                    setDetailRental(r);
+                    setIsDetailOpen(true);
+                }} />
 
                 {/* Health & Zombies */}
                 <div className="space-y-6">
@@ -365,7 +395,11 @@ export default function DashboardPage() {
                         <CardContent className="space-y-3">
                             {stats?.zombieEquipment?.length > 0 ? (
                                 stats.zombieEquipment.slice(0, 3).map((tool: any) => (
-                                    <div key={tool.id} className="flex items-center justify-between p-3 bg-red-500/5 rounded-xl border border-red-500/10">
+                                    <div
+                                        key={tool.id}
+                                        onClick={() => router.push(`/ferramentas/${tool.id}`)}
+                                        className="flex items-center justify-between p-3 bg-red-500/5 rounded-xl border border-red-500/10 cursor-pointer hover:bg-red-500/10 transition-colors"
+                                    >
                                         <p className="text-xs font-bold font-jakarta">{tool.name}</p>
                                         <span className="text-[9px] font-black uppercase text-red-500 tracking-tighter">Vender</span>
                                     </div>
@@ -398,6 +432,12 @@ export default function DashboardPage() {
                     </Card>
                 </div>
             </div>
+
+            <RentalDetailSheet
+                rental={detailRental}
+                isOpen={isDetailOpen}
+                onClose={() => setIsDetailOpen(false)}
+            />
         </div>
     );
 }

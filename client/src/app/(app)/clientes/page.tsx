@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Plus, Search, Pencil, Trash2, Users, ShieldAlert, Loader2, LayoutGrid, List, UserPlus } from 'lucide-react';
 import api from '@/lib/api';
@@ -24,6 +25,7 @@ const BLOCKED_FILTERS = [
 ];
 
 export default function ClientesPage() {
+    const router = useRouter();
     const [viewMode, setViewMode] = useState<'grid' | 'table'>('grid');
     const [search, setSearch] = useState('');
     const [blockedFilter, setBlockedFilter] = useState<'all' | 'active' | 'blocked'>('all');
@@ -258,10 +260,14 @@ export default function ClientesPage() {
                             </thead>
                             <tbody className="divide-y divide-violet-50">
                                 {filtered.map((customer: any) => (
-                                    <tr key={customer.id} className={cn(
-                                        "group hover:bg-violet-50/20 transition-colors",
-                                        customer.isBlocked && "bg-red-50/10"
-                                    )}>
+                                    <tr
+                                        key={customer.id}
+                                        onClick={() => router.push(`/clientes/${customer.id}`)}
+                                        className={cn(
+                                            "group hover:bg-violet-50/20 transition-colors cursor-pointer",
+                                            customer.isBlocked && "bg-red-50/10"
+                                        )}
+                                    >
                                         <td className="px-8 py-5">
                                             <div className="flex items-center gap-3">
                                                 <div className="w-9 h-9 bg-violet-50 rounded-full flex items-center justify-center border border-violet-100 text-violet-600 font-bold text-[10px] group-hover:bg-violet-600 group-hover:text-white transition-colors">

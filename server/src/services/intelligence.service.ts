@@ -11,9 +11,11 @@ export interface RoiInsight {
     acquisitionCost: number;
     roi: number; // Overall ROI
     roiPercent: number;
+    paybackProgress: number; // % of cost recovered
     utilizationRate: number; // % of days rented since acquisition
     daysOwned: number;
     daysRented: number;
+    lastRentalDate: Date | null;
     status: string;
     suggestion: {
         type: 'increase' | 'decrease' | 'maintain' | 'replace' | 'alert';
@@ -56,10 +58,21 @@ export async function getRoiInsights(tenantId: string): Promise<RoiInsight[]> {
             return acc + (r.totalDaysActual || 0);
         }, 0);
 
+        // Find last rental date
+        const lastRentalDate = tool.rentals.length > 0
+            ? new Date(Math.max(...tool.rentals.map(r => new Date(r.startDate).getTime())))
+            : null;
+
         const utilizationRate = Math.min(100, (daysRented / daysOwned) * 100);
         const totalCost = acquisitionCost + maintenanceCost;
-        const roi = totalCost > 0 ? (revenue / totalCost) : 0;
+
+        // Standard ROI: (Net Profit / Cost) * 100
+        const netProfit = revenue - totalCost;
+        const roi = totalCost > 0 ? (netProfit / totalCost) : 0;
         const roiPercent = roi * 100;
+
+        // Payback Progress: (Revenue / Total Cost) * 100
+        const paybackProgress = totalCost > 0 ? Math.min(100, (revenue / totalCost) * 100) : (revenue > 0 ? 100 : 0);
 
         // Dynamic Suggestion Logic
         let suggestion: RoiInsight['suggestion'] = {
@@ -68,29 +81,34 @@ export async function getRoiInsights(tenantId: string): Promise<RoiInsight[]> {
             action: 'Manter estratégia atual.'
         };
 
-        if (maintenanceCost > (revenue * 0.4) && daysOwned > 90) {
+        // Recency check for Zombie detection
+        const daysSinceLastRental = lastRentalDate
+            ? Math.floor((now.getTime() - lastRentalDate.getTime()) / (1000 * 60 * 60 * 24))
+            : daysOwned;
+
+        if (maintenanceCost > (revenue * 0.5) && daysOwned > 90) {
             suggestion = {
                 type: 'replace',
-                text: 'Custo de Manutenção Crítico',
-                action: 'Avaliar descarte ou substituição do ativo.'
+                text: 'Dreno de Caixa (Manutenção > 50%)',
+                action: 'Este ativo custa mais mantê-lo do que gera. Avaliar venda.'
             };
-        } else if (utilizationRate > 80 && roi > 1.5) {
+        } else if (utilizationRate > 75 && paybackProgress > 80) {
             suggestion = {
                 type: 'increase',
-                text: 'Alta Demanda e ROI',
-                action: 'Aumentar diária em 10% a 15%.'
+                text: 'Alta Demanda e Rentabilidade',
+                action: 'Aumentar diária em 15% ou adquirir nova unidade.'
             };
-        } else if (utilizationRate < 20 && daysOwned > 60) {
+        } else if (daysSinceLastRental > 45 && utilizationRate < 15 && daysOwned > 60) {
             suggestion = {
                 type: 'decrease',
-                text: 'Equipamento Zumbi (Ocioso)',
-                action: 'Aplicar promoção ou revisar visibilidade.'
+                text: 'Equipamento Zumbi (Inativo)',
+                action: 'Sem locações há 45+ dias. Aplicar promoção agressiva.'
             };
-        } else if (roi < 0.2 && daysOwned > 180) {
+        } else if (paybackProgress < 20 && daysOwned > 180) {
             suggestion = {
                 type: 'alert',
-                text: 'Retorno sobre Investimento Baixo',
-                action: 'Rever precificação ou custo de aquisição.'
+                text: 'Payback Excessivamente Lento',
+                action: 'Rever precificação ou considerar quebra de estoque.'
             };
         }
 
@@ -103,9 +121,11 @@ export async function getRoiInsights(tenantId: string): Promise<RoiInsight[]> {
             acquisitionCost,
             roi,
             roiPercent,
+            paybackProgress,
             utilizationRate,
             daysOwned,
             daysRented,
+            lastRentalDate,
             status: tool.status,
             suggestion
         };

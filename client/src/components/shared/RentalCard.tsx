@@ -8,16 +8,20 @@ interface RentalCardProps {
     rental: any;
     onReturn: (rental: any) => void;
     onCancel: (id: string) => void;
+    onDetail?: (rental: any) => void;
 }
 
-export function RentalCard({ rental, onReturn }: RentalCardProps) {
+export function RentalCard({ rental, onReturn, onDetail }: RentalCardProps) {
     const isOverdue = rental.status === 'active' && new Date(rental.endDateExpected) < new Date();
 
     return (
-        <div className={cn(
-            "group bg-white rounded-premium border border-border/40 shadow-soft hover:shadow-premium transition-all duration-300 overflow-hidden flex flex-col h-full",
-            isOverdue && "border-red-100 shadow-red-50/50"
-        )}>
+        <div
+            onClick={() => onDetail?.(rental)}
+            className={cn(
+                "group bg-white rounded-premium border border-border/40 shadow-soft hover:shadow-premium transition-all duration-300 overflow-hidden flex flex-col h-full cursor-pointer",
+                isOverdue && "border-red-100 shadow-red-50/50"
+            )}
+        >
             {/* Header Section */}
             <div className="relative h-20 bg-muted/20 flex items-center px-8 border-b border-border/40">
                 <div className="flex items-center gap-4">

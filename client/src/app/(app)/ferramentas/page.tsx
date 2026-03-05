@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Plus, Search, Pencil, Trash2, LayoutGrid, List, Wrench, Filter, QrCode, Zap, Folder } from 'lucide-react';
@@ -32,6 +33,7 @@ const STATUS_OPTIONS = [
 ];
 
 export default function FerramentasPage() {
+    const router = useRouter();
     const [viewMode, setViewMode] = useState<'grid' | 'table'>('grid');
     const [search, setSearch] = useState('');
     const [statusFilter, setStatusFilter] = useState('');
@@ -399,6 +401,7 @@ export default function FerramentasPage() {
                             data={data}
                             isLoading={isLoading}
                             onSearchChange={(val) => setSearch(val)}
+                            onRowClick={(tool) => router.push(`/ferramentas/${tool.id}`)}
                             columns={[
                                 {
                                     header: "Equipamento",

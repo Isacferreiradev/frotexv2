@@ -127,10 +127,21 @@ export async function getCustomer360(tenantId: string, id: string) {
     const hasOverdue = customer.rentals.some(r => r.status === 'overdue');
 
     // Automatic Classification Logic
-    let classification = customer.classification;
-    if (totalSpent > 10000 && !hasOverdue) classification = 'vip';
-    else if (hasOverdue || customer.isBlocked) classification = 'risk';
-    else if (totalRentals > 0) classification = 'vip'; // Assuming vip as best-case for regular or keep as is
+    const daysSinceLastRental = customer.rentals[0]
+        ? Math.floor((new Date().getTime() - new Date(customer.rentals[0].startDate).getTime()) / (1000 * 60 * 60 * 24))
+        : 999;
+
+    let classification: 'vip' | 'new' | 'risk' | 'inactive' = 'new';
+
+    if (hasOverdue || customer.isBlocked) {
+        classification = 'risk';
+    } else if (totalSpent > 5000 || totalRentals > 15) {
+        classification = 'vip';
+    } else if (daysSinceLastRental > 120 && totalRentals > 0) {
+        classification = 'inactive';
+    } else if (totalRentals < 3) {
+        classification = 'new';
+    }
 
     return {
         ...customer,

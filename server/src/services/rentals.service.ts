@@ -426,8 +426,20 @@ export async function getDashboardStats(tenantId: string, period?: string) {
         .slice(0, 5);
 
     const zombieEquipment = toolROI
-        .filter(t => t.recommendation === 'sell' || (t.roi < 0 && t.acquisition > 0))
-        .map(t => ({ id: t.id, name: t.name, roi: t.roi.toFixed(1), reason: t.recommendation }));
+        .filter(t => {
+            const daysOwned = t.purchaseDate ? daysBetween(t.purchaseDate, now) : 365;
+            const revenueRatio = t.acquisition > 0 ? (t.revenue / t.acquisition) : 0;
+            const maintenanceRatio = t.revenue > 0 ? (t.maintenance / t.revenue) : 1;
+
+            // Zombie if: Owned for > 90 days AND (Low revenue recovery OR high maintenance draine)
+            return daysOwned > 90 && (revenueRatio < 0.1 || maintenanceRatio > 0.6);
+        })
+        .map(t => ({
+            id: t.id,
+            name: t.name,
+            roi: t.roi.toFixed(1),
+            reason: (t.maintenance / (t.revenue || 1)) > 0.6 ? 'Custo Manutenção' : 'Ociosidade Crítica'
+        }));
 
     // Advanced Analytics: Revenue History (Last 30 Days)
     const revenueHistoryMap: Record<string, number> = {};

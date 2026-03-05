@@ -14,6 +14,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '
 import { RentalCheckout } from '@/components/forms/RentalCheckout';
 import { StatusPulse } from '@/components/shared/StatusPulse';
 import { RentalCard } from '@/components/shared/RentalCard';
+import { RentalDetailSheet } from '@/components/shared/RentalDetailSheet';
 
 const RENTAL_STATUS = [
     { value: '', label: 'Histórico Completo' },
@@ -28,7 +29,9 @@ export default function LocacoesPage() {
     const [statusFilter, setStatusFilter] = useState('');
     const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
     const [isReturnOpen, setIsReturnOpen] = useState(false);
+    const [isDetailOpen, setIsDetailOpen] = useState(false);
     const [selectedRental, setSelectedRental] = useState<any>(null);
+    const [detailRental, setDetailRental] = useState<any>(null);
     const [returnDate, setReturnDate] = useState(new Date().toISOString().split('T')[0]);
     const [paymentMethod, setPaymentMethod] = useState('pix');
     const queryClient = useQueryClient();
@@ -343,6 +346,10 @@ export default function LocacoesPage() {
                                 setIsReturnOpen(true);
                             }}
                             onCancel={(id) => { if (confirm('Cancelar esta locação?')) cancelMutation.mutate(id); }}
+                            onDetail={(r) => {
+                                setDetailRental(r);
+                                setIsDetailOpen(true);
+                            }}
                         />
                     ))}
                 </div>
@@ -364,7 +371,14 @@ export default function LocacoesPage() {
                                 {filtered.map((rental: any) => {
                                     const isOverdue = rental.status === 'active' && new Date(rental.endDateExpected) < new Date();
                                     return (
-                                        <tr key={rental.id} className="group hover:bg-muted/30 transition-all duration-300">
+                                        <tr
+                                            key={rental.id}
+                                            onClick={() => {
+                                                setDetailRental(rental);
+                                                setIsDetailOpen(true);
+                                            }}
+                                            className="group hover:bg-muted/30 transition-all duration-300 cursor-pointer"
+                                        >
                                             <td className="px-10 py-6">
                                                 <span className="text-[10px] font-semibold text-primary tabular-nums bg-secondary/30 px-3 py-1.5 rounded-lg border border-primary/5 uppercase tracking-widest">
                                                     #{rental.rentalCode}
@@ -431,6 +445,12 @@ export default function LocacoesPage() {
                     </div>
                 </div>
             )}
+
+            <RentalDetailSheet
+                rental={detailRental}
+                isOpen={isDetailOpen}
+                onClose={() => setIsDetailOpen(false)}
+            />
         </div>
     );
 }
