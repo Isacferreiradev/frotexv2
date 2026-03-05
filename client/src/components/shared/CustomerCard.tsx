@@ -98,7 +98,7 @@ export function CustomerCard({ customer, onEdit, onToggleBlock }: CustomerCardPr
                     <button
                         onClick={(e) => {
                             e.stopPropagation();
-                            window.open(`https://wa.me/${customer.phoneNumber.replace(/\D/g, '')}`, '_blank');
+                            window.open(`https://wa.me/${(customer.phoneNumber || '').replace(/\D/g, '')}`, '_blank');
                         }}
                         className="flex-1 bg-emerald-50 text-emerald-600 rounded-xl py-2.5 flex items-center justify-center gap-2 hover:bg-emerald-100 transition-colors"
                     >

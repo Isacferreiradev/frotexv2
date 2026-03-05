@@ -74,14 +74,14 @@ export default function AutomationPage() {
 
         setIsTestLoading(true);
         try {
-            const template = watch('messageTemplate') || '';
+            const template = String(watch('messageTemplate') || '');
             await api.post('/automation/test-message', {
                 phone,
                 message: template
                     .replace(/{{nome}}/g, 'João Cliente')
                     .replace(/{{ferramenta}}/g, 'Martelete Rompedor')
                     .replace(/{{dias}}/g, '3')
-                    .replace(/{{multa}}/g, formatCurrency(watch('finePerDay') * 3))
+                    .replace(/{{multa}}/g, formatCurrency(Number(watch('finePerDay') || 0) * 3))
                     .replace(/{{data_vencimento}}/g, new Date().toLocaleDateString('pt-BR'))
                     .replace(/{{valor_total}}/g, formatCurrency(1000))
             });
@@ -308,7 +308,7 @@ export default function AutomationPage() {
                                     <CheckCircle2 className="w-3 h-3" /> Preview da Cobrança
                                 </p>
                                 <p className="text-[11px] text-zinc-600 leading-relaxed italic pr-6 h-12 overflow-hidden overflow-ellipsis">
-                                    {(watch('messageTemplate') || '')
+                                    {String(watch('messageTemplate') || '')
                                         .replace(/{{nome}}/g, 'João Cliente')
                                         .replace(/{{ferramenta}}/g, 'Martelete')
                                         .replace(/{{dias}}/g, '3')
