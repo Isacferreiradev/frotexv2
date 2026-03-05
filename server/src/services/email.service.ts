@@ -131,8 +131,14 @@ export async function sendVerificationEmail(email: string, fullName: string, tok
     try {
         logger.info(`📧 [SMTP-DEBUG] Step 1: Getting Transporter in sendVerificationEmail...`);
         const mailTransporter = await getTransporter();
-        const fromEmail = env.SMTP_USER || 'no-reply@frotex.com';
-        const fromName = "Frotex";
+
+        // Ensure fromEmail is a valid email format
+        let fromEmail = env.SMTP_USER || 'no-reply@locattus.com.br';
+        if (fromEmail === 'apikey' || !fromEmail.includes('@')) {
+            fromEmail = 'notificacoes@locattus.com.br';
+        }
+
+        const fromName = "Locattus";
 
         logger.info(`📧 [SMTP-DEBUG] Step 2: Sending mail to ${email}...`);
         const info = await mailTransporter.sendMail({
@@ -149,6 +155,7 @@ export async function sendVerificationEmail(email: string, fullName: string, tok
         }
     } catch (error) {
         logger.error('Error sending verification email via SMTP:', error);
+        throw new Error('Falha ao enviar e-mail via SMTP');
     }
 }
 
@@ -184,7 +191,13 @@ export async function sendPasswordResetEmail(email: string, fullName: string, to
     try {
         logger.info(`📧 [SMTP-DEBUG] Step 1: Getting Transporter in sendPasswordResetEmail...`);
         const mailTransporter = await getTransporter();
-        const fromEmail = env.SMTP_USER || 'contato@locatus.com.br';
+
+        // Ensure fromEmail is a valid email format
+        let fromEmail = env.SMTP_USER || 'no-reply@locattus.com.br';
+        if (fromEmail === 'apikey' || !fromEmail.includes('@')) {
+            fromEmail = 'notificacoes@locattus.com.br';
+        }
+
         const fromName = "Locattus";
 
         logger.info(`📧 [SMTP-DEBUG] Step 2: Sending mail to ${email}...`);

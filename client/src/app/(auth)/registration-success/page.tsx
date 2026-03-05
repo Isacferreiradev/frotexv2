@@ -9,21 +9,25 @@ import api from '@/lib/api';
 
 function RegistrationSuccessContent() {
     const searchParams = useSearchParams();
-    const email = searchParams.get('email') || 'seu e-mail';
+    const emailParam = searchParams.get('email');
+    const email = emailParam || '';
     const [isResending, setIsResending] = useState(false);
     const [resendStatus, setResendStatus] = useState<'idle' | 'success' | 'error'>('idle');
+    const [errorMessage, setErrorMessage] = useState('');
 
     const handleResend = async () => {
-        if (isResending) return;
+        if (isResending || !email) return;
         setIsResending(true);
         setResendStatus('idle');
+        setErrorMessage('');
         try {
             await api.post('/auth/resend-verification', { email });
             setResendStatus('success');
             setTimeout(() => setResendStatus('idle'), 5000);
-        } catch (err) {
+        } catch (err: any) {
             setResendStatus('error');
-            setTimeout(() => setResendStatus('idle'), 5000);
+            setErrorMessage(err.response?.data?.message || 'Erro ao reenviar. Tente novamente.');
+            setTimeout(() => setResendStatus('idle'), 8000);
         } finally {
             setIsResending(false);
         }
@@ -70,8 +74,14 @@ function RegistrationSuccessContent() {
                         <span className="text-violet-600 italic">Caixa de Entrada.</span>
                     </h1>
                     <p className="text-slate-500 font-medium text-base leading-relaxed max-w-[280px] mx-auto">
-                        Um e-mail de verificação foi enviado para o e-mail <br />
-                        <span className="font-bold text-slate-900 break-all">{email}</span>.
+                        {email ? (
+                            <>
+                                Um e-mail de verificação foi enviado para o e-mail <br />
+                                <span className="font-bold text-slate-900 break-all">{email}</span>.
+                            </>
+                        ) : (
+                            "Um e-mail de verificação foi enviado para o seu e-mail profissional."
+                        )}
                     </p>
                 </div>
 
@@ -82,13 +92,18 @@ function RegistrationSuccessContent() {
                     </p>
                     <button
                         onClick={handleResend}
-                        disabled={isResending}
-                        className="w-full py-4 text-violet-600 font-black text-xs uppercase tracking-widest hover:bg-violet-50 transition-all border border-violet-100 rounded-2xl flex items-center justify-center gap-2 group"
+                        disabled={isResending || !email}
+                        className={`w-full py-4 font-black text-xs uppercase tracking-widest transition-all border rounded-2xl flex items-center justify-center gap-2 group ${!email
+                            ? 'bg-slate-50 border-slate-100 text-slate-300 cursor-not-allowed'
+                            : 'text-violet-600 border-violet-100 hover:bg-violet-50'
+                            }`}
                     >
                         {isResending ? (
                             <Loader2 className="w-4 h-4 animate-spin" />
                         ) : resendStatus === 'success' ? (
                             <><CheckCircle2 className="w-4 h-4" /> Link Reenviado!</>
+                        ) : !email ? (
+                            'E-mail não identificado'
                         ) : (
                             'Reenviar Link de Ativação'
                         )}
@@ -99,9 +114,9 @@ function RegistrationSuccessContent() {
                                 initial={{ opacity: 0, height: 0 }}
                                 animate={{ opacity: 1, height: 'auto' }}
                                 exit={{ opacity: 0, height: 0 }}
-                                className="text-[10px] text-red-500 font-bold mt-2 uppercase tracking-widest"
+                                className="text-[10px] text-red-500 font-bold mt-2 uppercase tracking-widest leading-tight"
                             >
-                                Erro ao reenviar. Tente novamente.
+                                {errorMessage}
                             </motion.p>
                         )}
                     </AnimatePresence>

@@ -66,7 +66,7 @@ export async function register(data: z.infer<typeof registerSchema>) {
 
             const [user] = await tx.insert(users).values({
                 tenantId: tenant.id,
-                email: data.email,
+                email: email, // Use the lowercased email variable
                 passwordHash,
                 fullName: data.fullName,
                 role: 'owner',
@@ -116,7 +116,8 @@ export async function verifyEmail(token: string) {
 
 export async function resendVerification(email: string) {
     const userEmail = email.toLowerCase().trim();
-    const [user] = await db.select().from(users).where(eq(users.email, userEmail));
+    // Use case-insensitive search
+    const [user] = await db.select().from(users).where(sql`lower(${users.email}) = ${userEmail}`);
 
     if (!user) {
         // For security, don't reveal if user doesn't exist
@@ -246,7 +247,8 @@ export async function updatePassword(userId: string, data: z.infer<typeof update
 }
 
 export async function requestPasswordReset(email: string) {
-    const [user] = await db.select().from(users).where(eq(users.email, email));
+    const userEmail = email.toLowerCase().trim();
+    const [user] = await db.select().from(users).where(sql`lower(${users.email}) = ${userEmail}`);
 
     // For security, don't reveal if user exists
     if (!user) return { success: true };
