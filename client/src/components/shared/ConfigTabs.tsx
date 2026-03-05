@@ -1,7 +1,7 @@
 'use client';
 
 import { cn } from '@/lib/utils';
-import { User, Building2, Shield, CreditCard, Bot } from 'lucide-react';
+import { User, Building2, Shield, CreditCard } from 'lucide-react';
 
 interface ConfigTabsProps {
     activeTab: string;
@@ -11,7 +11,6 @@ interface ConfigTabsProps {
 const tabs = [
     { id: 'perfil', label: 'Meu Perfil', icon: User },
     { id: 'empresa', label: 'Minha Empresa', icon: Building2 },
-    { id: 'automacao', label: 'Automações', icon: Bot },
     { id: 'seguranca', label: 'Segurança', icon: Shield },
     { id: 'assinatura', label: 'Assinatura', icon: CreditCard },
 ];
