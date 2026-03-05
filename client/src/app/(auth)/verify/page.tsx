@@ -58,7 +58,7 @@ export default function VerifyPage() {
                     <Link href="/">
                         <div className="flex items-center gap-2 group cursor-pointer animate-in fade-in duration-1000">
                             <div className="w-10 h-10 bg-zinc-950 rounded-xl flex items-center justify-center text-white font-black shadow-lg">L</div>
-                            <span className="text-2xl font-black italic tracking-tighter font-outfit">Locatus<span className="text-violet-600 not-italic">.</span></span>
+                            <span className="text-2xl font-black italic tracking-tighter font-outfit">Locattus<span className="text-violet-600 not-italic">.</span></span>
                         </div>
                     </Link>
                 </motion.div>
@@ -109,7 +109,7 @@ export default function VerifyPage() {
                                         <span className="text-violet-600 italic">Confirmada.</span>
                                     </h1>
                                     <p className="text-slate-500 font-medium text-lg leading-relaxed max-w-xs mx-auto">
-                                        Sua jornada na Locatus começa agora. Tudo pronto para escalar.
+                                        Sua jornada na Locattus começa agora. Tudo pronto para escalar.
                                     </p>
                                 </div>
                             </div>
@@ -169,7 +169,7 @@ export default function VerifyPage() {
             {/* Micro branding */}
             <div className="absolute bottom-10 text-center w-full opacity-30">
                 <p className="text-[10px] text-slate-400 font-black uppercase tracking-[0.4em]">
-                    LOCATUS SECURITY PROTOCOLS © 2026
+                    LOCATTUS SECURITY PROTOCOLS © 2026
                 </p>
             </div>
         </div>

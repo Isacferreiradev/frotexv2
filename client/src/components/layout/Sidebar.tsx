@@ -17,7 +17,7 @@ import {
     Zap,
 } from 'lucide-react';
 
-import { LocatusLogo } from '@/components/shared/LocatusLogo';
+import { LocattusLogo } from '@/components/shared/LocattusLogo';
 import { useState, useCallback } from 'react';
 import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/store/authStore';
@@ -97,7 +97,7 @@ export function Sidebar() {
             {!collapsed && (
                 <div className="px-5 py-6">
                     <Link href="/dashboard">
-                        <LocatusLogo size="lg" />
+                        <LocattusLogo size="lg" />
                     </Link>
                 </div>
             )}

@@ -76,7 +76,7 @@ export default function RegisterPage() {
         setServerError('');
         try {
             await api.post('/auth/register', data);
-            router.push('/registration-success');
+            router.push(`/registration-success?email=${encodeURIComponent(data.email)}`);
         } catch (err: any) {
             setServerError(err.response?.data?.message || 'Erro ao cadastrar. Tente novamente.');
         }
@@ -103,7 +103,7 @@ export default function RegisterPage() {
                 <Link href="/">
                     <div className="flex items-center gap-2 group cursor-pointer transition-transform active:scale-95">
                         <div className="w-10 h-10 bg-zinc-950 rounded-xl flex items-center justify-center text-white font-black shadow-lg">L</div>
-                        <span className="text-2xl font-black italic tracking-tighter text-zinc-950 font-outfit">Locatus<span className="text-violet-600 not-italic">.</span></span>
+                        <span className="text-2xl font-black italic tracking-tighter text-zinc-950 font-outfit">Locattus<span className="text-violet-600 not-italic">.</span></span>
                     </div>
                 </Link>
                 <div className="flex items-center gap-4">
@@ -364,7 +364,7 @@ export default function RegisterPage() {
                     </div>
 
                     <p className="mt-12 text-center text-[10px] font-black text-slate-300 uppercase tracking-[0.4em]">
-                        LOCATUS CLOUD PROTECTION INFRASTRUCTURE
+                        LOCATTUS CLOUD PROTECTION INFRASTRUCTURE
                     </p>
                 </div>
             </div>

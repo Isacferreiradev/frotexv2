@@ -192,7 +192,7 @@ export default function OnboardingPage() {
             {/* Header / Logo */}
             <div className="mb-12 flex items-center gap-2">
                 <div className="w-10 h-10 bg-violet-600 rounded-xl flex items-center justify-center text-white font-bold text-lg shadow-lg">L</div>
-                <span className="font-bold text-2xl text-zinc-900 tracking-tight font-heading">Locatus</span>
+                <span className="font-bold text-2xl text-zinc-900 tracking-tight font-heading">Locattus</span>
             </div>
 
             {/* Step 1: Welcome */}
@@ -202,7 +202,7 @@ export default function OnboardingPage() {
                         <div className="w-20 h-20 bg-violet-100 text-violet-600 rounded-3xl flex items-center justify-center mx-auto">
                             <Sparkles className="w-10 h-10" />
                         </div>
-                        <h1 className="text-4xl font-bold text-zinc-900 tracking-tight font-heading">Bem-vindo ao Locatus.</h1>
+                        <h1 className="text-4xl font-bold text-zinc-900 tracking-tight font-heading">Bem-vindo ao Locattus.</h1>
                         <p className="text-zinc-500 text-lg max-w-md mx-auto">Vamos configurar sua locadora em poucos passos para você começar a faturar hoje mesmo.</p>
                     </div>
 

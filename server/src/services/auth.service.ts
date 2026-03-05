@@ -42,7 +42,7 @@ export const resetPasswordSchema = z.object({
 });
 
 export async function register(data: z.infer<typeof registerSchema>) {
-    console.log(`[AUTH] Iniciando registro profissional Locatus para: ${data.email}`);
+    console.log(`[AUTH] Iniciando registro profissional Locattus para: ${data.email}`);
     try {
         const email = data.email.toLowerCase().trim();
         const result = await db.transaction(async (tx) => {
@@ -112,6 +112,30 @@ export async function verifyEmail(token: string) {
         .where(eq(users.id, user.id));
 
     return { success: true, message: 'E-mail verificado com sucesso' };
+}
+
+export async function resendVerification(email: string) {
+    const userEmail = email.toLowerCase().trim();
+    const [user] = await db.select().from(users).where(eq(users.email, userEmail));
+
+    if (!user) {
+        // For security, don't reveal if user doesn't exist
+        return { success: true, message: 'Se o e-mail estiver cadastrado, um novo link será enviado.' };
+    }
+
+    if (user.isVerified) {
+        throw new AppError(400, 'Este e-mail já foi verificado.');
+    }
+
+    let token = user.verificationToken;
+    if (!token) {
+        token = uuidv4();
+        await db.update(users).set({ verificationToken: token }).where(eq(users.id, user.id));
+    }
+
+    await sendVerificationEmail(user.email, user.fullName, token);
+
+    return { success: true, message: 'Link de verificação reenviado com sucesso.' };
 }
 
 export async function login(data: z.infer<typeof loginSchema>) {

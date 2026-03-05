@@ -145,7 +145,7 @@ export default function ResetPasswordPage() {
             <header className="flex items-center justify-between px-8 py-5 border-b border-zinc-100">
                 <Link href="/" className="flex items-center gap-2">
                     <div className="w-8 h-8 bg-violet-500 rounded-lg flex items-center justify-center text-white font-bold text-sm">L</div>
-                    <span className="font-bold text-lg text-zinc-900 font-heading">Locatus</span>
+                    <span className="font-bold text-lg text-zinc-900 font-heading">Locattus</span>
                 </Link>
             </header>
 

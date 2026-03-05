@@ -70,7 +70,7 @@ export default function LoginPage() {
                     <Link href="/">
                         <div className="flex items-center gap-2 group cursor-pointer">
                             <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-zinc-950 font-black shadow-lg shadow-white/5 transition-colors">L</div>
-                            <span className="text-2xl font-black italic tracking-tighter text-white font-outfit">Locatus<span className="text-violet-400 not-italic">.</span></span>
+                            <span className="text-2xl font-black italic tracking-tighter text-white font-outfit">Locattus<span className="text-violet-400 not-italic">.</span></span>
                         </div>
                     </Link>
 
@@ -107,7 +107,7 @@ export default function LoginPage() {
                 </div>
 
                 <div className="relative z-10">
-                    <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em]">LOCATUS SECURITY PROTOCOLS © 2026</p>
+                    <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em]">LOCATTUS SECURITY PROTOCOLS © 2026</p>
                 </div>
             </div>
 
@@ -123,7 +123,7 @@ export default function LoginPage() {
                     {/* Mobile logo */}
                     <div className="flex items-center gap-2 mb-16 lg:hidden">
                         <div className="w-10 h-10 bg-zinc-950 rounded-xl flex items-center justify-center text-white font-black shadow-lg">L</div>
-                        <span className="text-2xl font-black italic tracking-tighter text-zinc-950 font-outfit">Locatus<span className="text-violet-600 not-italic">.</span></span>
+                        <span className="text-2xl font-black italic tracking-tighter text-zinc-950 font-outfit">Locattus<span className="text-violet-600 not-italic">.</span></span>
                     </div>
 
                     <div className="space-y-3 mb-12">

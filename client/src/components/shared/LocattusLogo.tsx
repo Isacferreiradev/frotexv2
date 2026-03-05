@@ -3,15 +3,15 @@
 import { cn } from '@/lib/utils';
 import { memo } from 'react';
 
-interface LocatusLogoProps {
+interface LocattusLogoProps {
     className?: string;
     collapsed?: boolean;
     size?: 'sm' | 'md' | 'lg';
     variant?: 'normal' | 'white';
 }
 
-export const LocatusLogo = memo(({ className, size = 'md', variant = 'normal' }: LocatusLogoProps) => {
-    // Locatus uses high-contract typography-based branding as per user request
+export const LocattusLogo = memo(({ className, size = 'md', variant = 'normal' }: LocattusLogoProps) => {
+    // Locattus uses high-contract typography-based branding as per user request
     const sizeClasses = {
         sm: 'text-lg',
         md: 'text-2xl',
@@ -31,10 +31,10 @@ export const LocatusLogo = memo(({ className, size = 'md', variant = 'normal' }:
                 "font-black tracking-tighter text-zinc-900 uppercase italic",
                 sizeClasses[size]
             )}>
-                Locatus<span className="text-violet-600 not-italic">.</span>
+                Locattus<span className="text-violet-600 not-italic">.</span>
             </span>
         </div>
     );
 });
 
-LocatusLogo.displayName = 'LocatusLogo';
+LocattusLogo.displayName = 'LocattusLogo';

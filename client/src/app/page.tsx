@@ -129,7 +129,7 @@ export default function HomePage() {
             <Link href="/">
               <div className="flex items-center gap-2 group cursor-pointer">
                 <div className="w-10 h-10 bg-zinc-950 rounded-xl flex items-center justify-center text-white font-black shadow-lg group-hover:bg-violet-600 transition-colors">L</div>
-                <span className="text-2xl font-black italic tracking-tighter">Locatus<span className="text-violet-600 not-italic">.</span></span>
+                <span className="text-2xl font-black italic tracking-tighter">Locattus<span className="text-violet-600 not-italic">.</span></span>
               </div>
             </Link>
           </motion.div>
@@ -243,7 +243,7 @@ export default function HomePage() {
             </motion.div>
             <span className="text-[10px] font-black uppercase tracking-[0.4em] text-violet-600 mb-6 block">Visão Geral do Produto</span>
             <h2 className="text-4xl md:text-6xl font-black tracking-tighter text-slate-950 mb-8">
-              Locatus em um <span className="italic text-violet-600">Relance.</span>
+              Locattus em um <span className="italic text-violet-600">Relance.</span>
             </h2>
             <p className="text-slate-500 max-w-2xl mx-auto text-lg font-medium leading-relaxed">
               Explore as poderosas ferramentas desenhadas para simplificar a gestão de locações, aumentar a colaboração e impulsionar a eficiência.
@@ -265,7 +265,7 @@ export default function HomePage() {
                 <div className="absolute top-4 left-1/2 -translate-x-1/2 w-20 h-1 bg-slate-100 rounded-full z-20" />
                 <img
                   src="/foto.PNG"
-                  alt="Locatus Dashboard Preview"
+                  alt="Locattus Dashboard Preview"
                   className="rounded-[2rem] w-full"
                 />
               </div>
@@ -540,7 +540,7 @@ export default function HomePage() {
           ))}
         </div>
         <div className="max-w-7xl mx-auto px-6 border-t border-slate-200/50 mt-20 pt-10 flex flex-col md:flex-row items-center justify-between gap-6">
-          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest tracking-[0.2em]">© 2026 Locatus Intelligence. All rights reserved.</span>
+          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest tracking-[0.2em]">© 2026 Locattus Intelligence. All rights reserved.</span>
           <div className="flex items-center gap-8">
             <div className="flex items-center gap-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
               <Globe className="w-3 h-3" />

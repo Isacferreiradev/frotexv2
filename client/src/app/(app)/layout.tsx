@@ -37,7 +37,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                     </div>
                     <div className="space-y-2 text-center">
                         <p className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.3em] animate-pulse">
-                            Locatus Security Protocols
+                            Locattus Security Protocols
                         </p>
                         <div className="flex justify-center gap-1">
                             {[0, 1, 2].map((i) => (

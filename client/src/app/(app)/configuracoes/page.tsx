@@ -427,7 +427,7 @@ export default function ConfiguracoesPage() {
                             {[
                                 {
                                     id: 'pro',
-                                    name: 'Locatus Pro',
+                                    name: 'Locattus Pro',
                                     price: 'R$ 97/mês',
                                     priceId: 'price_pro_id', // This should match process.env.STRIPE_PRICE_PRO_ID on server
                                     benefits: ['Equipamentos Ilimitados', 'ROI e Inteligência', '3 Usuários', 'Suporte Prioritário'],
@@ -435,7 +435,7 @@ export default function ConfiguracoesPage() {
                                 },
                                 {
                                     id: 'scale',
-                                    name: 'Locatus Scale',
+                                    name: 'Locattus Scale',
                                     price: 'R$ 197/mês',
                                     priceId: 'price_scale_id',
                                     benefits: ['Tudo do Pro', 'Usuários Ilimitados', 'Multi-Unidade', 'WhatsApp Direto']
