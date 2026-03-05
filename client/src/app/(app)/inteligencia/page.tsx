@@ -84,11 +84,11 @@ export default function InteligenciaPage() {
                             <div className={cn("p-3 rounded-2xl transition-transform group-hover:scale-110", s.bg)}>
                                 <s.icon className={cn("w-5 h-5", s.color)} />
                             </div>
-                            <div className="p-1 px-2.5 bg-zinc-50 rounded-full text-[8px] font-black text-zinc-400 uppercase tracking-tighter">Real-time</div>
+                            <div className="p-1 px-2.5 bg-zinc-50 rounded-full text-[8px] font-extrabold text-zinc-400 uppercase tracking-tight">Real-time</div>
                         </div>
                         <h4 className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-1">{s.label}</h4>
                         <div className="flex items-baseline gap-2">
-                            <p className="text-2xl font-black text-zinc-900 tracking-tight">{s.value}</p>
+                            <p className="text-2xl font-extrabold text-zinc-900 tracking-tight">{s.value}</p>
                             <p className="text-[10px] font-medium text-zinc-400">{s.sub}</p>
                         </div>
                     </div>
@@ -140,7 +140,7 @@ export default function InteligenciaPage() {
                                     <td className="px-4 py-5 text-center">
                                         <div className="inline-flex flex-col items-center">
                                             <span className={cn(
-                                                "text-sm font-black tracking-tight",
+                                                "text-sm font-extrabold tracking-tight",
                                                 item.roi > 1 ? "text-emerald-600" : item.roi > 0.5 ? "text-violet-600" : "text-amber-600"
                                             )}>
                                                 {item.roi.toFixed(1)}x
@@ -187,7 +187,7 @@ export default function InteligenciaPage() {
                                                         <Calculator className="w-3 h-3" />}
                                             </div>
                                             <div>
-                                                <p className="text-[10px] font-black uppercase tracking-tight leading-none mb-1">{item.suggestion.text}</p>
+                                                <p className="text-[10px] font-extrabold uppercase tracking-tight leading-none mb-1">{item.suggestion.text}</p>
                                                 <p className="text-[9px] font-medium opacity-80 leading-tight">{item.suggestion.action}</p>
                                             </div>
                                         </div>

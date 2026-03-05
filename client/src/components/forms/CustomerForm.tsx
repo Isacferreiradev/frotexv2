@@ -153,7 +153,7 @@ export function CustomerForm({ initialData, onSubmit, isLoading }: CustomerFormP
                         {currentTags.map(tag => (
                             <span key={tag} className="bg-violet-50 text-violet-600 px-3 py-1 rounded-full text-[10px] font-bold uppercase flex items-center gap-2 border border-violet-100">
                                 {tag}
-                                <button type="button" onClick={() => removeTag(tag)} className="hover:text-red-500 font-black">×</button>
+                                <button type="button" onClick={() => removeTag(tag)} className="hover:text-red-500 font-extrabold">×</button>
                             </span>
                         ))}
                     </div>

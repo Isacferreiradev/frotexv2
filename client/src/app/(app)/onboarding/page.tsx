@@ -70,7 +70,7 @@ function StepWrapper({
         <div className="w-full max-w-xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
             <div className="space-y-2">
                 <div className="flex items-center gap-2 mb-2">
-                    <span className="text-[10px] font-black text-violet-600 bg-violet-100 px-2 py-0.5 rounded-full uppercase tracking-widest">
+                    <span className="text-[10px] font-extrabold text-violet-600 bg-violet-100 px-2 py-0.5 rounded-full uppercase tracking-widest">
                         Passo {current} de {count}
                     </span>
                 </div>
@@ -346,11 +346,11 @@ export default function OnboardingPage() {
 
                     <div className="grid grid-cols-2 gap-4 mb-6">
                         <div className="p-4 bg-zinc-50 rounded-2xl border border-zinc-100">
-                            <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-1">Ferramenta</p>
+                            <p className="text-[10px] font-extrabold text-zinc-400 uppercase tracking-widest mb-1">Ferramenta</p>
                             <p className="text-sm font-bold text-zinc-900">{createdTool?.name}</p>
                         </div>
                         <div className="p-4 bg-zinc-50 rounded-2xl border border-zinc-100">
-                            <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-1">Cliente</p>
+                            <p className="text-[10px] font-extrabold text-zinc-400 uppercase tracking-widest mb-1">Cliente</p>
                             <p className="text-sm font-bold text-zinc-900">{createdCustomer?.fullName}</p>
                         </div>
                     </div>

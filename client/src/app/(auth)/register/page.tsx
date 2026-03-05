@@ -102,15 +102,15 @@ export default function RegisterPage() {
             <header className="flex items-center justify-between px-10 py-6 border-b border-slate-50 relative z-10 bg-white/50 backdrop-blur-md">
                 <Link href="/">
                     <div className="flex items-center gap-2 group cursor-pointer transition-transform active:scale-95">
-                        <div className="w-10 h-10 bg-zinc-950 rounded-xl flex items-center justify-center text-white font-black shadow-lg">L</div>
-                        <span className="text-2xl font-black italic tracking-tighter text-zinc-950 font-outfit">Locattus<span className="text-violet-600 not-italic">.</span></span>
+                        <div className="w-10 h-10 bg-zinc-950 rounded-xl flex items-center justify-center text-white font-extrabold shadow-lg">L</div>
+                        <span className="text-2xl font-extrabold italic tracking-tight text-zinc-950 font-outfit">Locattus<span className="text-violet-600 not-italic">.</span></span>
                     </div>
                 </Link>
                 <div className="flex items-center gap-4">
                     <span className="text-sm text-slate-400 font-medium hidden sm:inline">
                         Já possui acesso?
                     </span>
-                    <Link href="/login" className="px-6 py-2.5 bg-violet-50 text-violet-600 font-black text-[10px] uppercase tracking-widest rounded-full hover:bg-violet-100 transition-colors">
+                    <Link href="/login" className="px-6 py-2.5 bg-violet-50 text-violet-600 font-extrabold text-[10px] uppercase tracking-widest rounded-full hover:bg-violet-100 transition-colors">
                         Fazer Login
                     </Link>
                 </div>
@@ -126,7 +126,7 @@ export default function RegisterPage() {
                         {STEPS.map((s, i) => (
                             <div key={s.id} className="relative z-10 flex flex-col items-center gap-3">
                                 <div className={cn(
-                                    "w-10 h-10 rounded-2xl flex items-center justify-center text-sm font-black transition-all duration-500 shadow-sm border",
+                                    "w-10 h-10 rounded-2xl flex items-center justify-center text-sm font-extrabold transition-all duration-500 shadow-sm border",
                                     step > s.id ? "bg-violet-600 border-violet-600 text-white" :
                                         step === s.id ? "bg-white border-violet-600 text-violet-600 ring-4 ring-violet-50" :
                                             "bg-white border-slate-200 text-slate-300"
@@ -134,7 +134,7 @@ export default function RegisterPage() {
                                     {step > s.id ? <Check className="w-5 h-5 stroke-[3px]" /> : s.id}
                                 </div>
                                 <span className={cn(
-                                    "text-[10px] uppercase font-black tracking-[0.2em] absolute -bottom-8 whitespace-nowrap",
+                                    "text-[10px] uppercase font-extrabold tracking-[0.2em] absolute -bottom-8 whitespace-nowrap",
                                     step >= s.id ? "text-slate-900" : "text-slate-300"
                                 )}>{s.label}</span>
                             </div>
@@ -170,25 +170,25 @@ export default function RegisterPage() {
                                     className="space-y-6 flex-1"
                                 >
                                     <div className="mb-10">
-                                        <h1 className="text-4xl font-black text-slate-950 font-outfit tracking-tighter leading-none mb-3">Bem-vindo à <br /><span className="text-violet-600 italic">Elite Logística.</span></h1>
+                                        <h1 className="text-4xl font-extrabold text-slate-950 font-outfit tracking-tight leading-none mb-3">Bem-vindo à <br /><span className="text-violet-600 italic">Elite Logística.</span></h1>
                                         <p className="text-slate-500 font-medium">Inicie sua jornada configurando seu cockpit.</p>
                                     </div>
 
                                     <div className="space-y-4">
                                         <div className="space-y-2">
-                                            <label className="text-[10px] uppercase font-black text-slate-400 tracking-[0.2em] ml-1">Nome completo</label>
+                                            <label className="text-[10px] uppercase font-extrabold text-slate-400 tracking-[0.2em] ml-1">Nome completo</label>
                                             <input {...register('fullName')} placeholder="João da Silva" className="w-full h-14 px-6 bg-slate-50/50 border border-slate-100 rounded-2xl text-sm font-bold text-slate-950 focus:outline-none focus:ring-4 focus:ring-violet-500/5 focus:border-violet-600 transition-all" />
-                                            {errors.fullName && <p className="text-[10px] text-red-500 font-black uppercase tracking-widest ml-1">{errors.fullName.message}</p>}
+                                            {errors.fullName && <p className="text-[10px] text-red-500 font-extrabold uppercase tracking-widest ml-1">{errors.fullName.message}</p>}
                                         </div>
 
                                         <div className="space-y-2">
-                                            <label className="text-[10px] uppercase font-black text-slate-400 tracking-[0.2em] ml-1">Email profissional</label>
+                                            <label className="text-[10px] uppercase font-extrabold text-slate-400 tracking-[0.2em] ml-1">Email profissional</label>
                                             <input type="email" {...register('email')} placeholder="seu@email.com" className="w-full h-14 px-6 bg-slate-50/50 border border-slate-100 rounded-2xl text-sm font-bold text-slate-950 focus:outline-none focus:ring-4 focus:ring-violet-500/5 focus:border-violet-600 transition-all" />
-                                            {errors.email && <p className="text-[10px] text-red-500 font-black uppercase tracking-widest ml-1">{errors.email.message}</p>}
+                                            {errors.email && <p className="text-[10px] text-red-500 font-extrabold uppercase tracking-widest ml-1">{errors.email.message}</p>}
                                         </div>
 
                                         <div className="space-y-2">
-                                            <label className="text-[10px] uppercase font-black text-slate-400 tracking-[0.2em] ml-1">Senha de acesso</label>
+                                            <label className="text-[10px] uppercase font-extrabold text-slate-400 tracking-[0.2em] ml-1">Senha de acesso</label>
                                             <div className="relative">
                                                 <input
                                                     type={showPassword ? 'text' : 'password'}
@@ -204,7 +204,7 @@ export default function RegisterPage() {
                                                     {showPassword ? <EyeOff className="w-5 h-5 stroke-[1.5px]" /> : <Eye className="w-5 h-5 stroke-[1.5px]" />}
                                                 </button>
                                             </div>
-                                            {errors.password && <p className="text-[10px] text-red-500 font-black uppercase tracking-widest ml-1">{errors.password.message}</p>}
+                                            {errors.password && <p className="text-[10px] text-red-500 font-extrabold uppercase tracking-widest ml-1">{errors.password.message}</p>}
                                             {password.length > 0 && (
                                                 <div className="mt-4 px-1 space-y-2">
                                                     <div className="flex gap-1.5">
@@ -212,14 +212,14 @@ export default function RegisterPage() {
                                                             <div key={i} className={cn("h-1.5 flex-1 rounded-full transition-all", strength >= i ? strengthColors[strength] : "bg-slate-100")} />
                                                         ))}
                                                     </div>
-                                                    <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest">Segurança: <span className={cn("font-black", strength === 3 ? "text-violet-600" : "text-slate-600")}>{strengthLabels[strength]}</span></p>
+                                                    <p className="text-[10px] text-slate-400 font-extrabold uppercase tracking-widest">Segurança: <span className={cn("font-extrabold", strength === 3 ? "text-violet-600" : "text-slate-600")}>{strengthLabels[strength]}</span></p>
                                                 </div>
                                             )}
                                         </div>
                                     </div>
 
                                     <div className="pt-6">
-                                        <button type="button" onClick={nextStep} className="w-full h-16 bg-slate-950 hover:bg-violet-700 text-white font-black rounded-2xl transition-all shadow-xl flex items-center justify-center gap-3 text-xs uppercase tracking-[0.2em] group">
+                                        <button type="button" onClick={nextStep} className="w-full h-16 bg-slate-950 hover:bg-violet-700 text-white font-extrabold rounded-2xl transition-all shadow-xl flex items-center justify-center gap-3 text-xs uppercase tracking-[0.2em] group">
                                             Continuar Próxima Etapa <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                                         </button>
                                     </div>
@@ -236,40 +236,40 @@ export default function RegisterPage() {
                                     className="space-y-6 flex-1"
                                 >
                                     <div className="mb-10">
-                                        <h1 className="text-4xl font-black text-slate-950 font-outfit tracking-tighter leading-none mb-3">Sua Locadora <br /><span className="text-violet-600 italic">em Detalhes.</span></h1>
+                                        <h1 className="text-4xl font-extrabold text-slate-950 font-outfit tracking-tight leading-none mb-3">Sua Locadora <br /><span className="text-violet-600 italic">em Detalhes.</span></h1>
                                         <p className="text-slate-500 font-medium">Configure as informações da sua frota.</p>
                                     </div>
 
                                     <div className="space-y-4">
                                         <div className="space-y-2">
-                                            <label className="text-[10px] uppercase font-black text-slate-400 tracking-[0.2em] ml-1">Nome Comercial</label>
+                                            <label className="text-[10px] uppercase font-extrabold text-slate-400 tracking-[0.2em] ml-1">Nome Comercial</label>
                                             <input {...register('tenantName')} placeholder="Elite Locações" className="w-full h-14 px-6 bg-slate-50/50 border border-slate-100 rounded-2xl text-sm font-bold text-slate-950 focus:outline-none focus:ring-4 focus:ring-violet-500/5 focus:border-violet-600 transition-all" />
-                                            {errors.tenantName && <p className="text-[10px] text-red-500 font-black uppercase tracking-widest ml-1">{errors.tenantName.message}</p>}
+                                            {errors.tenantName && <p className="text-[10px] text-red-500 font-extrabold uppercase tracking-widest ml-1">{errors.tenantName.message}</p>}
                                         </div>
 
                                         <div className="space-y-2">
-                                            <label className="text-[10px] uppercase font-black text-slate-400 tracking-[0.2em] ml-1">CPF ou CNPJ</label>
+                                            <label className="text-[10px] uppercase font-extrabold text-slate-400 tracking-[0.2em] ml-1">CPF ou CNPJ</label>
                                             <input {...register('documentNumber')} placeholder="00.000.000/0001-00" className="w-full h-14 px-6 bg-slate-50/50 border border-slate-100 rounded-2xl text-sm font-bold text-slate-950 focus:outline-none focus:ring-4 focus:ring-violet-500/5 focus:border-violet-600 transition-all" />
-                                            {errors.documentNumber && <p className="text-[10px] text-red-500 font-black uppercase tracking-widest ml-1">{errors.documentNumber.message}</p>}
+                                            {errors.documentNumber && <p className="text-[10px] text-red-500 font-extrabold uppercase tracking-widest ml-1">{errors.documentNumber.message}</p>}
                                         </div>
 
                                         <div className="grid grid-cols-2 gap-4">
                                             <div className="space-y-2">
-                                                <label className="text-[10px] uppercase font-black text-slate-400 tracking-[0.2em] ml-1">Cidade</label>
+                                                <label className="text-[10px] uppercase font-extrabold text-slate-400 tracking-[0.2em] ml-1">Cidade</label>
                                                 <input {...register('city')} placeholder="São Paulo" className="w-full h-14 px-6 bg-slate-50/50 border border-slate-100 rounded-2xl text-sm font-bold text-slate-950 focus:outline-none focus:ring-4 focus:ring-violet-500/5 focus:border-violet-600 transition-all" />
-                                                {errors.city && <p className="text-[10px] text-red-500 font-black uppercase tracking-widest ml-1">{errors.city.message}</p>}
+                                                {errors.city && <p className="text-[10px] text-red-500 font-extrabold uppercase tracking-widest ml-1">{errors.city.message}</p>}
                                             </div>
                                             <div className="space-y-2">
-                                                <label className="text-[10px] uppercase font-black text-slate-400 tracking-[0.2em] ml-1">UF</label>
+                                                <label className="text-[10px] uppercase font-extrabold text-slate-400 tracking-[0.2em] ml-1">UF</label>
                                                 <input {...register('state')} placeholder="SP" maxLength={2} className="w-full h-14 px-6 bg-slate-50/50 border border-slate-100 rounded-2xl text-sm font-bold text-slate-950 uppercase focus:outline-none focus:ring-4 focus:ring-violet-500/5 focus:border-violet-600 transition-all" />
-                                                {errors.state && <p className="text-[10px] text-red-500 font-black uppercase tracking-widest ml-1">{errors.state.message}</p>}
+                                                {errors.state && <p className="text-[10px] text-red-500 font-extrabold uppercase tracking-widest ml-1">{errors.state.message}</p>}
                                             </div>
                                         </div>
 
                                         <div className="space-y-2">
-                                            <label className="text-[10px] uppercase font-black text-slate-400 tracking-[0.2em] ml-1">WhatsApp / Telefone</label>
+                                            <label className="text-[10px] uppercase font-extrabold text-slate-400 tracking-[0.2em] ml-1">WhatsApp / Telefone</label>
                                             <input {...register('phoneNumber')} placeholder="(11) 99999-9999" className="w-full h-14 px-6 bg-slate-50/50 border border-slate-100 rounded-2xl text-sm font-bold text-slate-950 focus:outline-none focus:ring-4 focus:ring-violet-500/5 focus:border-violet-600 transition-all" />
-                                            {errors.phoneNumber && <p className="text-[10px] text-red-500 font-black uppercase tracking-widest ml-1">{errors.phoneNumber.message}</p>}
+                                            {errors.phoneNumber && <p className="text-[10px] text-red-500 font-extrabold uppercase tracking-widest ml-1">{errors.phoneNumber.message}</p>}
                                         </div>
                                     </div>
 
@@ -277,7 +277,7 @@ export default function RegisterPage() {
                                         <button type="button" onClick={() => setStep(1)} className="w-20 h-16 bg-slate-50 hover:bg-slate-100 text-slate-400 hover:text-slate-950 rounded-2xl transition-all border border-slate-100 flex items-center justify-center shrink-0 group">
                                             <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
                                         </button>
-                                        <button type="button" onClick={nextStep} className="flex-1 h-16 bg-slate-950 hover:bg-violet-700 text-white font-black rounded-2xl transition-all shadow-xl flex items-center justify-center gap-3 text-xs uppercase tracking-[0.2em] group">
+                                        <button type="button" onClick={nextStep} className="flex-1 h-16 bg-slate-950 hover:bg-violet-700 text-white font-extrabold rounded-2xl transition-all shadow-xl flex items-center justify-center gap-3 text-xs uppercase tracking-[0.2em] group">
                                             Avançar para Operação <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                                         </button>
                                     </div>
@@ -294,13 +294,13 @@ export default function RegisterPage() {
                                     className="space-y-6 flex-1"
                                 >
                                     <div className="mb-10">
-                                        <h1 className="text-4xl font-black text-slate-950 font-outfit tracking-tighter leading-none mb-3">Última Etapa: <br /><span className="text-violet-600 italic">Operação.</span></h1>
+                                        <h1 className="text-4xl font-extrabold text-slate-950 font-outfit tracking-tight leading-none mb-3">Última Etapa: <br /><span className="text-violet-600 italic">Operação.</span></h1>
                                         <p className="text-slate-500 font-medium">Personalizaremos sua interface com base nesses dados.</p>
                                     </div>
 
                                     <div className="space-y-6">
                                         <div className="space-y-3">
-                                            <label className="text-[10px] uppercase font-black text-slate-400 tracking-[0.2em] ml-1">Volume de Equipamentos</label>
+                                            <label className="text-[10px] uppercase font-extrabold text-slate-400 tracking-[0.2em] ml-1">Volume de Equipamentos</label>
                                             <div className="grid grid-cols-2 gap-3">
                                                 {TOOL_RANGES.map(range => (
                                                     <button
@@ -308,7 +308,7 @@ export default function RegisterPage() {
                                                         type="button"
                                                         onClick={() => { setToolRange(range); setValue('toolCountRange', range); }}
                                                         className={cn(
-                                                            "h-14 px-4 rounded-2xl border text-xs font-black transition-all uppercase tracking-widest",
+                                                            "h-14 px-4 rounded-2xl border text-xs font-extrabold transition-all uppercase tracking-widest",
                                                             toolRange === range
                                                                 ? "border-violet-600 bg-violet-600 text-white shadow-lg shadow-violet-100"
                                                                 : "border-slate-100 bg-slate-50 text-slate-400 hover:border-violet-200"
@@ -321,7 +321,7 @@ export default function RegisterPage() {
                                         </div>
 
                                         <div className="space-y-3">
-                                            <label className="text-[10px] uppercase font-black text-slate-400 tracking-[0.2em] ml-1">Método de Controle Atual</label>
+                                            <label className="text-[10px] uppercase font-extrabold text-slate-400 tracking-[0.2em] ml-1">Método de Controle Atual</label>
                                             <div className="grid grid-cols-2 gap-3">
                                                 {METHODS.map(m => (
                                                     <button
@@ -329,7 +329,7 @@ export default function RegisterPage() {
                                                         type="button"
                                                         onClick={() => { setMethod(m); setValue('currentControlMethod', m); }}
                                                         className={cn(
-                                                            "h-14 px-4 rounded-2xl border text-[10px] font-black transition-all uppercase tracking-tight leading-none text-left",
+                                                            "h-14 px-4 rounded-2xl border text-[10px] font-extrabold transition-all uppercase tracking-tight leading-none text-left",
                                                             method === m
                                                                 ? "border-violet-600 bg-violet-600 text-white shadow-lg shadow-violet-100"
                                                                 : "border-slate-100 bg-slate-50 text-slate-400 hover:border-violet-200"
@@ -349,7 +349,7 @@ export default function RegisterPage() {
                                         <button
                                             onClick={handleSubmit(onSubmit)}
                                             disabled={isSubmitting}
-                                            className="flex-1 h-16 bg-slate-950 hover:bg-violet-700 text-white font-black rounded-2xl transition-all shadow-xl flex items-center justify-center gap-3 text-xs uppercase tracking-[0.2em] group"
+                                            className="flex-1 h-16 bg-slate-950 hover:bg-violet-700 text-white font-extrabold rounded-2xl transition-all shadow-xl flex items-center justify-center gap-3 text-xs uppercase tracking-[0.2em] group"
                                         >
                                             {isSubmitting ? (
                                                 <Loader2 className="w-5 h-5 animate-spin" />
@@ -363,7 +363,7 @@ export default function RegisterPage() {
                         </AnimatePresence>
                     </div>
 
-                    <p className="mt-12 text-center text-[10px] font-black text-slate-300 uppercase tracking-[0.4em]">
+                    <p className="mt-12 text-center text-[10px] font-extrabold text-slate-300 uppercase tracking-[0.4em]">
                         LOCATTUS CLOUD PROTECTION INFRASTRUCTURE
                     </p>
                 </div>

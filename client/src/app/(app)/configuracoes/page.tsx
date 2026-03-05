@@ -458,7 +458,7 @@ export default function ConfiguracoesPage() {
                                     <h4 className={cn("text-lg font-bold mb-1", tenant?.plan === p.id ? "text-white" : "text-zinc-900")}>
                                         {p.name}
                                     </h4>
-                                    <p className={cn("text-2xl font-black mb-6", tenant?.plan === p.id ? "text-white" : "text-violet-600")}>
+                                    <p className={cn("text-2xl font-extrabold mb-6", tenant?.plan === p.id ? "text-white" : "text-violet-600")}>
                                         {p.price}
                                     </p>
 

@@ -21,14 +21,14 @@ export const LocattusLogo = memo(({ className, size = 'md', variant = 'normal' }
     return (
         <div className={cn('flex items-center gap-2 select-none group', className)}>
             <div className={cn(
-                "w-10 h-10 bg-zinc-950 rounded-xl flex items-center justify-center text-white font-black shadow-lg group-hover:bg-violet-600 transition-colors duration-300",
+                "w-10 h-10 bg-zinc-950 rounded-xl flex items-center justify-center text-white font-extrabold shadow-lg group-hover:bg-violet-600 transition-colors duration-300",
                 size === 'lg' && 'w-12 h-12 text-xl',
                 size === 'sm' && 'w-8 h-8 text-sm'
             )}>
                 L
             </div>
             <span className={cn(
-                "font-black tracking-tighter text-zinc-900 uppercase italic",
+                "font-extrabold tracking-tight text-zinc-900 uppercase italic",
                 sizeClasses[size]
             )}>
                 Locattus<span className="text-violet-600 not-italic">.</span>

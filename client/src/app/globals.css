@@ -28,7 +28,7 @@
     /* Violet 300 */
 
     /* Typography */
-    --font-heading: var(--font-outfit);
+    --font-heading: var(--font-jakarta);
     --font-body: var(--font-inter);
 
     /* Radius */
@@ -38,7 +38,7 @@
 
 @layer utilities {
     .font-heading {
-        font-family: var(--font-outfit), sans-serif;
+        font-family: var(--font-jakarta), sans-serif;
     }
 
     .glass-card {
@@ -73,12 +73,13 @@
 }
 
 body {
-    font-family: var(--font-inter), system-ui, sans-serif;
+    font-family: var(--font-body), system-ui, sans-serif;
     font-size: 15px;
     color: #09090B;
     background-color: #FFFFFF;
     font-weight: 400;
     line-height: 1.6;
+    letter-spacing: -0.01em;
 }
 
 h1,
@@ -87,8 +88,9 @@ h3,
 h4,
 h5,
 h6 {
-    font-family: var(--font-outfit), sans-serif;
-    letter-spacing: -0.02em;
+    font-family: var(--font-heading), sans-serif;
+    letter-spacing: -0.03em;
+    font-weight: 700;
 }
 
 @layer base {

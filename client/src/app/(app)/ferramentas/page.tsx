@@ -192,7 +192,7 @@ export default function FerramentasPage() {
                             </div>
                             <div className="p-8 space-y-8">
                                 <div className="space-y-4">
-                                    <h4 className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Nova Categoria / Editar</h4>
+                                    <h4 className="text-[10px] font-extrabold text-zinc-400 uppercase tracking-widest">Nova Categoria / Editar</h4>
                                     <CategoryForm
                                         initialData={editingCategory}
                                         onSubmit={(data) => {
@@ -215,7 +215,7 @@ export default function FerramentasPage() {
                                 </div>
 
                                 <div className="space-y-4 pt-8 border-t border-violet-50">
-                                    <h4 className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Categorias Existentes</h4>
+                                    <h4 className="text-[10px] font-extrabold text-zinc-400 uppercase tracking-widest">Categorias Existentes</h4>
                                     <div className="grid grid-cols-1 gap-2">
                                         {categories?.map((cat: any) => (
                                             <div key={cat.id} className="flex items-center justify-between p-3 rounded-xl border border-violet-50 bg-slate-50/50 hover:bg-white transition-colors">
@@ -510,13 +510,13 @@ export default function FerramentasPage() {
                     <div className="flex-1 overflow-y-auto p-10">
                         <Tabs defaultValue="details" className="w-full">
                             <TabsList className="grid w-full grid-cols-3 mb-10 bg-slate-100/50 p-1.5 rounded-2xl border border-violet-50">
-                                <TabsTrigger value="details" className="rounded-xl data-[state=active]:bg-white data-[state=active]:text-violet-600 data-[state=active]:shadow-sm text-[10px] font-black uppercase tracking-widest">
+                                <TabsTrigger value="details" className="rounded-xl data-[state=active]:bg-white data-[state=active]:text-violet-600 data-[state=active]:shadow-sm text-[10px] font-extrabold uppercase tracking-widest">
                                     Ficha Técnica
                                 </TabsTrigger>
-                                <TabsTrigger value="availability" className="rounded-xl data-[state=active]:bg-white data-[state=active]:text-violet-600 data-[state=active]:shadow-sm text-[10px] font-black uppercase tracking-widest">
+                                <TabsTrigger value="availability" className="rounded-xl data-[state=active]:bg-white data-[state=active]:text-violet-600 data-[state=active]:shadow-sm text-[10px] font-extrabold uppercase tracking-widest">
                                     Disponibilidade
                                 </TabsTrigger>
-                                <TabsTrigger value="history" className="rounded-xl data-[state=active]:bg-white data-[state=active]:text-violet-600 data-[state=active]:shadow-sm text-[10px] font-black uppercase tracking-widest">
+                                <TabsTrigger value="history" className="rounded-xl data-[state=active]:bg-white data-[state=active]:text-violet-600 data-[state=active]:shadow-sm text-[10px] font-extrabold uppercase tracking-widest">
                                     Timeline
                                 </TabsTrigger>
                             </TabsList>

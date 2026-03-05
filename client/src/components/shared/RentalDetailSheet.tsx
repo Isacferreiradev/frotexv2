@@ -28,7 +28,7 @@ export function RentalDetailSheet({ rental, isOpen, onClose }: RentalDetailSheet
                 <Icon className="w-5 h-5" />
             </div>
             <div>
-                <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest leading-none mb-1.5 mt-0.5">{label}</p>
+                <p className="text-[10px] font-extrabold text-zinc-400 uppercase tracking-widest leading-none mb-1.5 mt-0.5">{label}</p>
                 <h4 className="font-bold text-zinc-900 text-sm tracking-tight">{value}</h4>
             </div>
         </div>
@@ -42,17 +42,17 @@ export function RentalDetailSheet({ rental, isOpen, onClose }: RentalDetailSheet
                     <div className="relative z-10 flex items-center justify-between">
                         <div className="space-y-1">
                             <div className="flex items-center gap-3">
-                                <span className="bg-white/10 backdrop-blur-md px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border border-white/10">
+                                <span className="bg-white/10 backdrop-blur-md px-3 py-1 rounded-lg text-[10px] font-extrabold uppercase tracking-widest border border-white/10">
                                     #{rental.rentalCode}
                                 </span>
                                 <div className={cn(
-                                    "px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest flex items-center gap-1.5",
+                                    "px-3 py-1 rounded-full text-[9px] font-extrabold uppercase tracking-widest flex items-center gap-1.5",
                                     isOverdue ? "bg-red-500/20 text-red-400 border border-red-500/30" : "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
                                 )}>
                                     {isOverdue ? 'Atrasada' : rental.status === 'active' ? 'Em Campo' : 'Finalizada'}
                                 </div>
                             </div>
-                            <SheetTitle className="text-3xl font-black tracking-tighter mt-4 text-white">{rental.tool?.name}</SheetTitle>
+                            <SheetTitle className="text-3xl font-extrabold tracking-tight mt-4 text-white">{rental.tool?.name}</SheetTitle>
                             <SheetDescription className="text-zinc-400 text-xs font-medium uppercase tracking-widest">Detalhes da Operação</SheetDescription>
                         </div>
                         <button onClick={onClose} className="w-12 h-12 rounded-2xl bg-white/5 hover:bg-white/10 flex items-center justify-center transition-all border border-white/5">
@@ -81,13 +81,13 @@ export function RentalDetailSheet({ rental, isOpen, onClose }: RentalDetailSheet
 
                     {/* Timeline Interaction */}
                     <div className="space-y-6">
-                        <h5 className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em] flex items-center gap-2">
+                        <h5 className="text-[10px] font-extrabold text-zinc-400 uppercase tracking-[0.2em] flex items-center gap-2">
                             <Calendar className="w-3 h-3" /> Linha do Tempo
                         </h5>
                         <div className="relative pl-8 space-y-8 before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-[2px] before:bg-zinc-100">
                             <div className="relative">
                                 <div className="absolute -left-[27px] top-1 w-4 h-4 rounded-full bg-emerald-500 border-4 border-white shadow-sm" />
-                                <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-1">Início da Locação</p>
+                                <p className="text-[10px] font-extrabold text-zinc-400 uppercase tracking-widest mb-1">Início da Locação</p>
                                 <p className="text-sm font-bold text-zinc-900">{formatDate(rental.startDate)}</p>
                             </div>
                             <div className="relative">
@@ -95,18 +95,18 @@ export function RentalDetailSheet({ rental, isOpen, onClose }: RentalDetailSheet
                                     "absolute -left-[27px] top-1 w-4 h-4 rounded-full border-4 border-white shadow-sm",
                                     isOverdue ? "bg-red-500" : "bg-violet-500"
                                 )} />
-                                <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-1">Previsão de Retorno</p>
+                                <p className="text-[10px] font-extrabold text-zinc-400 uppercase tracking-widest mb-1">Previsão de Retorno</p>
                                 <div className="flex items-center gap-2">
                                     <p className={cn("text-sm font-bold", isOverdue ? "text-red-500" : "text-zinc-900")}>
                                         {formatDate(rental.endDateExpected)}
                                     </p>
-                                    {isOverdue && <span className="text-[10px] bg-red-50 text-red-500 px-2 py-0.5 rounded font-black">ATRASADO</span>}
+                                    {isOverdue && <span className="text-[10px] bg-red-50 text-red-500 px-2 py-0.5 rounded font-extrabold">ATRASADO</span>}
                                 </div>
                             </div>
                             {rental.endDateActual && (
                                 <div className="relative">
                                     <div className="absolute -left-[27px] top-1 w-4 h-4 rounded-full bg-zinc-900 border-4 border-white shadow-sm" />
-                                    <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-1">Retorno Realizado</p>
+                                    <p className="text-[10px] font-extrabold text-zinc-400 uppercase tracking-widest mb-1">Retorno Realizado</p>
                                     <p className="text-sm font-bold text-zinc-900">{formatDate(rental.endDateActual)}</p>
                                 </div>
                             )}
@@ -119,7 +119,7 @@ export function RentalDetailSheet({ rental, isOpen, onClose }: RentalDetailSheet
                             <User className="w-8 h-8" />
                         </div>
                         <div className="flex-1 text-center md:text-left">
-                            <h4 className="text-lg font-black tracking-tight">{rental.customer?.fullName}</h4>
+                            <h4 className="text-lg font-extrabold tracking-tight">{rental.customer?.fullName}</h4>
                             <p className="text-violet-100 text-xs font-medium uppercase tracking-widest mt-1">Clique para Perfil 360º</p>
                         </div>
                         <Button
@@ -133,7 +133,7 @@ export function RentalDetailSheet({ rental, isOpen, onClose }: RentalDetailSheet
 
                     {/* Financial Breakdown */}
                     <div className="space-y-6 pt-4">
-                        <h5 className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em] flex items-center gap-2">
+                        <h5 className="text-[10px] font-extrabold text-zinc-400 uppercase tracking-[0.2em] flex items-center gap-2">
                             <DollarSign className="w-3 h-3" /> Resumo Financeiro
                         </h5>
                         <div className="rounded-3xl border border-zinc-100 overflow-hidden">
@@ -156,8 +156,8 @@ export function RentalDetailSheet({ rental, isOpen, onClose }: RentalDetailSheet
                                 )}
                             </div>
                             <div className="px-6 py-5 bg-zinc-950 text-white flex justify-between items-center">
-                                <span className="text-[10px] font-black uppercase tracking-[0.2em]">Total Acumulado</span>
-                                <span className="text-2xl font-black italic">{formatCurrency(rental.totalAmountActual || rental.totalAmountExpected)}</span>
+                                <span className="text-[10px] font-extrabold uppercase tracking-[0.2em]">Total Acumulado</span>
+                                <span className="text-2xl font-extrabold italic">{formatCurrency(rental.totalAmountActual || rental.totalAmountExpected)}</span>
                             </div>
                         </div>
                     </div>
@@ -165,7 +165,7 @@ export function RentalDetailSheet({ rental, isOpen, onClose }: RentalDetailSheet
                     {/* Internal Notes */}
                     {(rental.internalNotes || rental.customerNotes) && (
                         <div className="space-y-6 pt-4">
-                            <h5 className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em] flex items-center gap-2">
+                            <h5 className="text-[10px] font-extrabold text-zinc-400 uppercase tracking-[0.2em] flex items-center gap-2">
                                 <FileText className="w-3 h-3" /> Observações do Contrato
                             </h5>
                             <div className="p-6 rounded-3xl bg-amber-50 border border-amber-100 text-amber-900/80 text-xs italic leading-relaxed">

@@ -118,7 +118,7 @@ export default function HomePage() {
   const scale = useTransform(scrollYProgress, [0, 0.2], [1, 0.95]);
 
   return (
-    <div className="min-h-screen bg-[#FDFDFD] text-slate-900 font-jakarta selection:bg-violet-100">
+    <div className="min-h-screen bg-[#FDFDFD] text-slate-900 selection:bg-violet-100">
       {/* Header / Nav */}
       <header className="fixed top-0 w-full z-[100] transition-all duration-300">
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
@@ -128,8 +128,8 @@ export default function HomePage() {
           >
             <Link href="/">
               <div className="flex items-center gap-2 group cursor-pointer">
-                <div className="w-10 h-10 bg-zinc-950 rounded-xl flex items-center justify-center text-white font-black shadow-lg group-hover:bg-violet-600 transition-colors">L</div>
-                <span className="text-2xl font-black italic tracking-tighter">Locattus<span className="text-violet-600 not-italic">.</span></span>
+                <div className="w-10 h-10 bg-zinc-950 rounded-xl flex items-center justify-center text-white font-extrabold shadow-lg group-hover:bg-violet-600 transition-colors">L</div>
+                <span className="text-2xl font-extrabold italic tracking-tight">Locattus<span className="text-violet-600 not-italic">.</span></span>
               </div>
             </Link>
           </motion.div>
@@ -181,11 +181,11 @@ export default function HomePage() {
               transition={{ duration: 0.8, ease: "easeOut" }}
               style={{ opacity, scale }}
             >
-              <div className="inline-flex items-center gap-2 py-2 px-4 mb-10 rounded-full bg-slate-900 text-white text-[10px] font-black uppercase tracking-[0.2em] border border-white/10 shadow-xl">
+              <div className="inline-flex items-center gap-2 py-2 px-4 mb-10 rounded-full bg-slate-900 text-white text-[10px] font-bold uppercase tracking-wider border border-white/10 shadow-xl">
                 <span className="w-2 h-2 bg-violet-500 rounded-full animate-pulse" /> Gestão completa ponta-a-ponta
               </div>
 
-              <h1 className="text-6xl md:text-8xl font-black tracking-tighter text-slate-950 mb-8 leading-[0.85] lg:max-w-5xl mx-auto drop-shadow-sm">
+              <h1 className="text-6xl md:text-8xl font-extrabold tracking-tight text-slate-950 mb-8 leading-[0.85] lg:max-w-5xl mx-auto drop-shadow-sm">
                 Evolua sua Locadora <br /> para a <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-600 to-indigo-600 italic">Era Digital.</span>
               </h1>
 
@@ -212,14 +212,14 @@ export default function HomePage() {
               transition={{ delay: 1, duration: 1 }}
               className="mt-32 pt-12 border-t border-slate-100"
             >
-              <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mb-12">Confiado por +50.000 negócios em crescimento</p>
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-12">Confiado por +50.000 negócios em crescimento</p>
               <div className="flex flex-wrap justify-center items-center gap-x-20 gap-y-10 opacity-30 grayscale hover:grayscale-0 transition-all duration-700">
                 {['Lumina', 'Vortex', 'Velocity', 'Synergy', 'Enigma', 'Spectrum'].map((brand) => (
                   <div key={brand} className="flex items-center gap-2 group cursor-default">
                     <div className="w-6 h-6 bg-slate-950 rounded-lg flex items-center justify-center rotate-3 group-hover:rotate-0 transition-transform">
                       <Zap className="text-white w-3 h-3 fill-current" />
                     </div>
-                    <span className="text-sm font-black tracking-tighter text-slate-950 uppercase">{brand}</span>
+                    <span className="text-sm font-extrabold tracking-tight text-slate-950 uppercase">{brand}</span>
                   </div>
                 ))}
               </div>
@@ -241,8 +241,8 @@ export default function HomePage() {
             >
               <Sparkles className="text-white w-8 h-8" />
             </motion.div>
-            <span className="text-[10px] font-black uppercase tracking-[0.4em] text-violet-600 mb-6 block">Visão Geral do Produto</span>
-            <h2 className="text-4xl md:text-6xl font-black tracking-tighter text-slate-950 mb-8">
+            <span className="text-[10px] font-bold uppercase tracking-widest text-violet-600 mb-6 block">Visão Geral do Produto</span>
+            <h2 className="text-4xl md:text-6xl font-extrabold tracking-tight text-slate-950 mb-8">
               Locattus em um <span className="italic text-violet-600">Relance.</span>
             </h2>
             <p className="text-slate-500 max-w-2xl mx-auto text-lg font-medium leading-relaxed">
@@ -282,8 +282,8 @@ export default function HomePage() {
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
             >
-              <span className="text-violet-600 font-black uppercase tracking-[0.3em] text-[10px] mb-6 block">Inteligência Preditiva</span>
-              <h2 className="text-4xl md:text-6xl font-black text-slate-950 tracking-tighter mb-8 leading-[1.1]">
+              <span className="text-violet-600 font-extrabold uppercase tracking-[0.3em] text-[10px] mb-6 block">Inteligência Preditiva</span>
+              <h2 className="text-4xl md:text-6xl font-extrabold text-slate-950 tracking-tight mb-8 leading-[1.1]">
                 Monitore sua Frota <br /> mais rápido que nunca.
               </h2>
               <p className="text-slate-500 text-lg font-medium leading-relaxed mb-12">
@@ -291,11 +291,11 @@ export default function HomePage() {
               </p>
               <div className="grid grid-cols-2 gap-10 border-t border-slate-100 pt-10">
                 <div>
-                  <div className="text-4xl font-black text-slate-950 mb-1">100%</div>
+                  <div className="text-4xl font-extrabold text-slate-950 mb-1">100%</div>
                   <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest text-[10px]">Aumento em Rastreabilidade</div>
                 </div>
                 <div>
-                  <div className="text-4xl font-black text-slate-950 mb-1">10X</div>
+                  <div className="text-4xl font-extrabold text-slate-950 mb-1">10X</div>
                   <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest text-[10px]">Aumento em Produtividade</div>
                 </div>
               </div>
@@ -321,8 +321,8 @@ export default function HomePage() {
               viewport={{ once: true }}
               className="lg:order-2"
             >
-              <span className="text-violet-600 font-black uppercase tracking-[0.3em] text-[10px] mb-6 block">Automação de Faturamento</span>
-              <h2 className="text-4xl md:text-6xl font-black text-slate-950 tracking-tighter mb-8 leading-[1.1]">
+              <span className="text-violet-600 font-extrabold uppercase tracking-[0.3em] text-[10px] mb-6 block">Automação de Faturamento</span>
+              <h2 className="text-4xl md:text-6xl font-extrabold text-slate-950 tracking-tight mb-8 leading-[1.1]">
                 Faturamento que <br /> trabalha para você.
               </h2>
               <p className="text-slate-500 text-lg font-medium leading-relaxed mb-12">
@@ -351,8 +351,8 @@ export default function HomePage() {
         {/* Pricing Tiers (Model Style) */}
         <section id="pricing" className="py-40 bg-white relative overflow-hidden">
           <div className="max-w-7xl mx-auto px-6 relative z-10 text-center mb-24">
-            <span className="text-violet-600 font-black uppercase tracking-[0.4em] text-[10px] mb-6 block font-jakarta">Investimento Estratégico</span>
-            <h2 className="text-4xl md:text-6xl font-black text-slate-950 tracking-tighter mb-6">Planos que acompanham sua escala.</h2>
+            <span className="text-violet-600 font-extrabold uppercase tracking-[0.4em] text-[10px] mb-6 block font-jakarta">Investimento Estratégico</span>
+            <h2 className="text-4xl md:text-6xl font-extrabold text-slate-950 tracking-tight mb-6">Planos que acompanham sua escala.</h2>
             <p className="text-slate-500 max-w-xl mx-auto font-medium">Transparência total para você focar no que importa: seu crescimento.</p>
           </div>
 
@@ -378,9 +378,9 @@ export default function HomePage() {
                 )}
 
                 <div className="mb-10">
-                  <h3 className={cn("text-lg font-black uppercase tracking-widest mb-4", plan.popular ? "text-violet-100" : "text-violet-600")}>{plan.name}</h3>
+                  <h3 className={cn("text-lg font-extrabold uppercase tracking-widest mb-4", plan.popular ? "text-violet-100" : "text-violet-600")}>{plan.name}</h3>
                   <div className="flex items-baseline gap-1">
-                    <span className="text-5xl font-black tracking-tighter">{plan.price}</span>
+                    <span className="text-5xl font-extrabold tracking-tight">{plan.price}</span>
                     <span className={cn("text-sm font-bold", plan.popular ? "text-white/60" : "text-slate-400")}>{plan.period}</span>
                   </div>
                   <p className={cn("mt-4 text-sm font-medium leading-relaxed", plan.popular ? "text-white/80" : "text-slate-500")}>{plan.description}</p>
@@ -399,7 +399,7 @@ export default function HomePage() {
 
                 <Link href="/register">
                   <Button className={cn(
-                    "w-full h-14 rounded-xl font-black uppercase tracking-[0.2em] text-[10px] transition-all",
+                    "w-full h-14 rounded-xl font-extrabold uppercase tracking-[0.2em] text-[10px] transition-all",
                     plan.popular ? "bg-white text-violet-600 hover:bg-slate-50 shadow-xl shadow-black/10" : "bg-slate-950 text-white hover:bg-violet-700"
                   )}>
                     {plan.cta}
@@ -411,7 +411,7 @@ export default function HomePage() {
 
           {/* "All Plans Include" row (Model style) */}
           <div className="mt-24 max-w-4xl mx-auto px-6 text-center">
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mb-10">Todos os planos incluem</p>
+            <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-[0.3em] mb-10">Todos os planos incluem</p>
             <div className="flex flex-wrap justify-center items-center gap-x-12 gap-y-6 opacity-40">
               {[
                 { icon: Shield, label: 'Segurança Enterprise' },
@@ -447,14 +447,14 @@ export default function HomePage() {
                   className="p-8 bg-white rounded-3xl border border-slate-100 shadow-sm"
                 >
                   <item.icon className="w-6 h-6 text-violet-600 mb-4" />
-                  <h4 className="text-sm font-black text-slate-950 mb-2 uppercase tracking-tighter">{item.title}</h4>
+                  <h4 className="text-sm font-extrabold text-slate-950 mb-2 uppercase tracking-tight">{item.title}</h4>
                   <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-relaxed">{item.desc}</p>
                 </motion.div>
               ))}
             </div>
             <div className="lg:order-2">
-              <span className="text-violet-600 font-black uppercase tracking-[0.3em] text-[10px] mb-6 block">Produtividade Máxima</span>
-              <h2 className="text-4xl md:text-5xl font-black text-slate-950 tracking-tighter mb-8 leading-[1.1]">
+              <span className="text-violet-600 font-extrabold uppercase tracking-[0.3em] text-[10px] mb-6 block">Produtividade Máxima</span>
+              <h2 className="text-4xl md:text-5xl font-extrabold text-slate-950 tracking-tight mb-8 leading-[1.1]">
                 Ferramentas de Gestão <br /> de Próxima Geração.
               </h2>
               <ul className="space-y-6">
@@ -484,7 +484,7 @@ export default function HomePage() {
               className="bg-slate-950 rounded-[4rem] p-16 md:p-32 text-center relative overflow-hidden"
             >
               <div className="relative z-10">
-                <h2 className="text-4xl md:text-7xl font-black text-white tracking-tighter mb-10 leading-[1]">
+                <h2 className="text-4xl md:text-7xl font-extrabold text-white tracking-tight mb-10 leading-[1]">
                   Assuma o comando da <br /> sua locadora <span className="text-violet-500 italic">hoje.</span>
                 </h2>
                 <p className="text-slate-400 text-lg mb-14 font-medium max-w-xl mx-auto">
@@ -492,11 +492,11 @@ export default function HomePage() {
                 </p>
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-8">
                   <Link href="/register">
-                    <Button className="h-16 px-14 bg-violet-600 hover:bg-violet-700 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] shadow-2xl shadow-violet-500/20 transition-all hover:scale-105 active:scale-95">
+                    <Button className="h-16 px-14 bg-violet-600 hover:bg-violet-700 text-white rounded-2xl text-[10px] font-extrabold uppercase tracking-[0.2em] shadow-2xl shadow-violet-500/20 transition-all hover:scale-105 active:scale-95">
                       Criar minha conta Grátis
                     </Button>
                   </Link>
-                  <Button variant="ghost" className="text-white hover:bg-white/10 h-16 px-10 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em]">
+                  <Button variant="ghost" className="text-white hover:bg-white/10 h-16 px-10 rounded-2xl text-[10px] font-extrabold uppercase tracking-[0.2em]">
                     Agendar Demonstração
                   </Button>
                 </div>
@@ -518,7 +518,7 @@ export default function HomePage() {
               <div className="w-8 h-8 bg-slate-950 rounded-xl flex items-center justify-center -rotate-6 shadow-xl">
                 <Zap className="text-white w-4 h-4 fill-current" />
               </div>
-              <span className="text-lg font-black tracking-tighter text-zinc-950">LOCATUS<span className="text-violet-600">PRO</span></span>
+              <span className="text-lg font-extrabold tracking-tight text-zinc-950">LOCATUS<span className="text-violet-600">PRO</span></span>
             </div>
             <p className="text-sm text-slate-400 font-medium leading-relaxed">
               A plataforma definitiva para escala de locadoras de equipamentos. Desenvolvido com tecnologia de próxima geração.
@@ -530,7 +530,7 @@ export default function HomePage() {
             { title: 'Legal', links: ['Termos de Uso', 'Privacidade', 'Cookies', 'Compliance'] },
           ].map((col, idx) => (
             <div key={idx}>
-              <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-950 mb-8">{col.title}</h4>
+              <h4 className="text-[10px] font-extrabold uppercase tracking-[0.3em] text-slate-950 mb-8">{col.title}</h4>
               <ul className="space-y-4">
                 {col.links.map((link, i) => (
                   <li key={i}><a href="#" className="text-xs font-bold text-slate-400 hover:text-violet-600 transition-colors uppercase tracking-widest">{link}</a></li>

@@ -57,8 +57,8 @@ export default function VerifyPage() {
                 >
                     <Link href="/">
                         <div className="flex items-center gap-2 group cursor-pointer animate-in fade-in duration-1000">
-                            <div className="w-10 h-10 bg-zinc-950 rounded-xl flex items-center justify-center text-white font-black shadow-lg">L</div>
-                            <span className="text-2xl font-black italic tracking-tighter font-outfit">Locattus<span className="text-violet-600 not-italic">.</span></span>
+                            <div className="w-10 h-10 bg-zinc-950 rounded-xl flex items-center justify-center text-white font-extrabold shadow-lg">L</div>
+                            <span className="text-2xl font-extrabold italic tracking-tight font-outfit">Locattus<span className="text-violet-600 not-italic">.</span></span>
                         </div>
                     </Link>
                 </motion.div>
@@ -79,7 +79,7 @@ export default function VerifyPage() {
                                 </div>
                             </div>
                             <div className="space-y-4">
-                                <h1 className="text-4xl font-black tracking-tighter text-slate-950 font-outfit">Autenticando...</h1>
+                                <h1 className="text-4xl font-extrabold tracking-tight text-slate-950 font-outfit">Autenticando...</h1>
                                 <p className="text-slate-500 font-medium text-lg leading-relaxed max-w-xs mx-auto">
                                     Sua identidade está sendo processada através dos nossos protocolos de segurança.
                                 </p>
@@ -101,10 +101,10 @@ export default function VerifyPage() {
                                     </div>
                                 </div>
                                 <div className="space-y-4">
-                                    <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-emerald-500 text-white text-[10px] font-black uppercase tracking-[0.2em] rounded-full shadow-lg shadow-emerald-100 italic">
+                                    <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-emerald-500 text-white text-[10px] font-extrabold uppercase tracking-[0.2em] rounded-full shadow-lg shadow-emerald-100 italic">
                                         <Sparkles className="w-3 h-3" /> Verificado
                                     </div>
-                                    <h1 className="text-5xl font-black tracking-tighter text-slate-950 leading-[0.9] font-outfit">
+                                    <h1 className="text-5xl font-extrabold tracking-tight text-slate-950 leading-[0.9] font-outfit">
                                         Identidade <br />
                                         <span className="text-violet-600 italic">Confirmada.</span>
                                     </h1>
@@ -116,7 +116,7 @@ export default function VerifyPage() {
 
                             <Link
                                 href="/login"
-                                className="w-full py-6 bg-slate-950 hover:bg-violet-700 text-white font-black rounded-3xl transition-all shadow-2xl shadow-slate-200 flex items-center justify-center gap-3 group text-xs uppercase tracking-[0.2em] animate-in slide-in-from-bottom-4 duration-700"
+                                className="w-full py-6 bg-slate-950 hover:bg-violet-700 text-white font-extrabold rounded-3xl transition-all shadow-2xl shadow-slate-200 flex items-center justify-center gap-3 group text-xs uppercase tracking-[0.2em] animate-in slide-in-from-bottom-4 duration-700"
                             >
                                 Acessar Plataforma <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                             </Link>
@@ -137,10 +137,10 @@ export default function VerifyPage() {
                                     </div>
                                 </div>
                                 <div className="space-y-4">
-                                    <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-red-50 text-red-600 text-[10px] font-black uppercase tracking-[0.2em] rounded-full border border-red-100">
+                                    <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-red-50 text-red-600 text-[10px] font-extrabold uppercase tracking-[0.2em] rounded-full border border-red-100">
                                         FALLBACK
                                     </div>
-                                    <h1 className="text-5xl font-black tracking-tighter text-slate-950 leading-[0.9] font-outfit">
+                                    <h1 className="text-5xl font-extrabold tracking-tight text-slate-950 leading-[0.9] font-outfit">
                                         Erro de <br />
                                         <span className="text-red-600 italic">Verificação.</span>
                                     </h1>
@@ -153,11 +153,11 @@ export default function VerifyPage() {
                             <div className="space-y-4">
                                 <Link
                                     href="/register"
-                                    className="w-full py-6 bg-slate-950 hover:bg-slate-800 text-white font-black rounded-3xl transition-all shadow-2xl flex items-center justify-center gap-3 group text-xs uppercase tracking-[0.2em]"
+                                    className="w-full py-6 bg-slate-950 hover:bg-slate-800 text-white font-extrabold rounded-3xl transition-all shadow-2xl flex items-center justify-center gap-3 group text-xs uppercase tracking-[0.2em]"
                                 >
                                     Solicitar Novo Link <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                                 </Link>
-                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                                <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">
                                     Tokens de segurança expiram em 24h
                                 </p>
                             </div>
@@ -168,7 +168,7 @@ export default function VerifyPage() {
 
             {/* Micro branding */}
             <div className="absolute bottom-10 text-center w-full opacity-30">
-                <p className="text-[10px] text-slate-400 font-black uppercase tracking-[0.4em]">
+                <p className="text-[10px] text-slate-400 font-extrabold uppercase tracking-[0.4em]">
                     LOCATTUS SECURITY PROTOCOLS © 2026
                 </p>
             </div>

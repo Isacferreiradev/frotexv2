@@ -60,7 +60,7 @@ const MetricCard = memo(({
             )}
         >
             <div className="flex items-center justify-between relative z-10">
-                <span className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.25em]">{title}</span>
+                <span className="text-[10px] font-extrabold text-zinc-400 uppercase tracking-[0.25em]">{title}</span>
                 <div className={cn(
                     "p-3 rounded-2xl transition-all duration-500 group-hover:scale-110 group-hover:rotate-3",
                     iconStyles[variant]
@@ -101,7 +101,7 @@ function ROIRow({ tool, rank, onClick }: { tool: any; rank: number; onClick?: ()
             className="flex items-center gap-6 py-5 border-b border-border/50 last:border-0 group cursor-pointer"
         >
             <div className={cn(
-                'w-10 h-10 rounded-xl flex items-center justify-center text-[11px] font-black shrink-0 transition-all border border-transparent',
+                'w-10 h-10 rounded-xl flex items-center justify-center text-[11px] font-extrabold shrink-0 transition-all border border-transparent',
                 rank === 0
                     ? 'bg-primary text-white shadow-premium scale-110'
                     : 'bg-muted text-muted-foreground group-hover:bg-primary/5 group-hover:text-primary group-hover:border-primary/10'
@@ -118,8 +118,8 @@ function ROIRow({ tool, rank, onClick }: { tool: any; rank: number; onClick?: ()
                 </div>
             </div>
             <div className="text-right shrink-0">
-                <p className="text-sm font-black text-foreground font-jakarta">{formatCurrency(tool.netProfit)}</p>
-                <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-tighter">{tool.roi.toFixed(1)}% ROI</p>
+                <p className="text-sm font-extrabold text-foreground font-jakarta">{formatCurrency(tool.netProfit)}</p>
+                <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-tight">{tool.roi.toFixed(1)}% ROI</p>
             </div>
         </div>
     );
@@ -148,7 +148,7 @@ const BillingRuleWidget = ({ onOpenDetail }: { onOpenDetail: (rental: any) => vo
             <CardHeader className="flex flex-row items-center justify-between pb-6">
                 <div className="flex items-center gap-3">
                     <History className="w-5 h-5 text-primary" />
-                    <CardTitle className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400">Régua de Cobrança</CardTitle>
+                    <CardTitle className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-zinc-400">Régua de Cobrança</CardTitle>
                 </div>
             </CardHeader>
             <CardContent className="space-y-3">
@@ -216,11 +216,11 @@ export default function DashboardPage() {
             {/* ── Welcome Header & Quick Filters ── */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-8">
                 <div>
-                    <h1 className="text-4xl font-bold text-foreground tracking-tighter sm:text-5xl font-jakarta">
+                    <h1 className="text-4xl font-bold text-foreground tracking-tight sm:text-5xl font-jakarta">
                         {greeting}, <span className="text-primary italic">{firstName}</span>
                     </h1>
                     <div className="flex items-center gap-4 mt-4">
-                        <p className="text-[11px] font-black text-primary uppercase tracking-[0.3em]">{today}</p>
+                        <p className="text-[11px] font-extrabold text-primary uppercase tracking-[0.3em]">{today}</p>
                         <div className="w-1.5 h-1.5 rounded-full bg-primary/20" />
                         <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-[0.2em]">Inteligência de Ativos v2.0</p>
                     </div>
@@ -236,7 +236,7 @@ export default function DashboardPage() {
                             key={range.id}
                             onClick={() => setTimeRange(range.id as any)}
                             className={cn(
-                                "px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all",
+                                "px-6 py-2.5 rounded-xl text-[10px] font-extrabold uppercase tracking-widest transition-all",
                                 timeRange === range.id
                                     ? "bg-primary text-white shadow-premium scale-105"
                                     : "text-muted-foreground hover:bg-white/10"
@@ -291,23 +291,23 @@ export default function DashboardPage() {
                     <CardHeader className="flex flex-row items-center justify-between relative z-10">
                         <div className="flex items-center gap-3">
                             <Crown className="w-5 h-5 text-primary" />
-                            <CardTitle className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400">Pro Fleet Intelligence</CardTitle>
+                            <CardTitle className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-zinc-400">Pro Fleet Intelligence</CardTitle>
                         </div>
-                        <Button variant="ghost" size="sm" className="text-[10px] font-black uppercase tracking-widest text-zinc-500 hover:text-white">
+                        <Button variant="ghost" size="sm" className="text-[10px] font-extrabold uppercase tracking-widest text-zinc-500 hover:text-white">
                             Relatório Completo <ArrowUpRight className="ml-2 w-3 h-3" />
                         </Button>
                     </CardHeader>
                     <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-8 relative z-10 py-6">
                         <div className="space-y-2">
                             <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">ROI Médio Real</p>
-                            <p className="text-4xl font-black font-jakarta text-emerald-400">
+                            <p className="text-4xl font-extrabold font-jakarta text-emerald-400">
                                 {stats?.total > 0 ? (stats.topToolsByROI?.reduce((sum: number, t: any) => sum + t.roi, 0) / stats.topToolsByROI?.length || 0).toFixed(1) : 0}%
                             </p>
                             <p className="text-[10px] text-zinc-500 leading-relaxed font-medium">Contabilizando depreciação de 20%/ano e custos de manutenção.</p>
                         </div>
                         <div className="space-y-2">
                             <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Capital em Risco</p>
-                            <p className="text-4xl font-black font-jakarta text-red-500">
+                            <p className="text-4xl font-extrabold font-jakarta text-red-500">
                                 {formatCurrency(stats?.zombieEquipment?.reduce((sum: number, t: any) => sum + parseFloat(t.acquisition || '0'), 0) || 0)}
                             </p>
                             <p className="text-[10px] text-zinc-500 leading-relaxed font-medium">Investimento em equipamentos com ROI negativo ou fim de vida.</p>
@@ -315,7 +315,7 @@ export default function DashboardPage() {
                         <div className="space-y-2">
                             <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Saúde da Operação</p>
                             <div className="flex items-end gap-3 mb-2">
-                                <p className="text-4xl font-black font-jakarta text-white">
+                                <p className="text-4xl font-extrabold font-jakarta text-white">
                                     {(stats?.occupancyRate || 0)}%
                                 </p>
                                 <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest pb-1.5 ml-auto">Ocupação</span>
@@ -331,23 +331,23 @@ export default function DashboardPage() {
                     <CardHeader className="flex flex-row items-center justify-between">
                         <div className="flex items-center gap-3">
                             <Target className="w-5 h-5 text-primary" />
-                            <CardTitle className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400">Fluxo de Demanda</CardTitle>
+                            <CardTitle className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-zinc-400">Fluxo de Demanda</CardTitle>
                         </div>
                     </CardHeader>
                     <CardContent className="space-y-6">
                         <div className="flex items-center justify-between">
                             <div>
-                                <p className="text-2xl font-black font-jakarta">{stats?.pendingQuotesCount || 0}</p>
+                                <p className="text-2xl font-extrabold font-jakarta">{stats?.pendingQuotesCount || 0}</p>
                                 <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Orçamentos Pendentes</p>
                             </div>
                             <div className="text-right">
-                                <p className="text-2xl font-black font-jakarta text-primary">{formatCurrency(stats?.potentialRevenue || 0)}</p>
+                                <p className="text-2xl font-extrabold font-jakarta text-primary">{formatCurrency(stats?.potentialRevenue || 0)}</p>
                                 <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Potencial Bruto</p>
                             </div>
                         </div>
                         <Button
                             onClick={() => window.location.href = '/orcamentos'}
-                            className="w-full bg-primary/10 hover:bg-primary/20 text-primary border-none shadow-none text-[10px] font-black uppercase tracking-widest py-6 rounded-2xl"
+                            className="w-full bg-primary/10 hover:bg-primary/20 text-primary border-none shadow-none text-[10px] font-extrabold uppercase tracking-widest py-6 rounded-2xl"
                         >
                             Ver Todos os Orçamentos
                         </Button>
@@ -366,7 +366,7 @@ export default function DashboardPage() {
                 {/* Ranking */}
                 <Card glass className="lg:col-span-1 border-none">
                     <CardHeader>
-                        <CardTitle className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400">Top 5 Rentabilidade</CardTitle>
+                        <CardTitle className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-zinc-400">Top 5 Rentabilidade</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-2">
                         {isLoading
@@ -393,7 +393,7 @@ export default function DashboardPage() {
                 <div className="space-y-6">
                     <Card glass className="bg-red-500/5 border-red-500/10 border-none">
                         <CardHeader className="flex flex-row items-center justify-between">
-                            <CardTitle className="text-[10px] font-black uppercase tracking-[0.2em] text-red-500">Equipamentos Zumbis</CardTitle>
+                            <CardTitle className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-red-500">Equipamentos Zumbis</CardTitle>
                             <Skull className="w-4 h-4 text-red-500" />
                         </CardHeader>
                         <CardContent className="space-y-3">
@@ -405,7 +405,7 @@ export default function DashboardPage() {
                                         className="flex items-center justify-between p-3 bg-red-500/5 rounded-xl border border-red-500/10 cursor-pointer hover:bg-red-500/10 transition-colors"
                                     >
                                         <p className="text-xs font-bold font-jakarta">{tool.name}</p>
-                                        <span className="text-[9px] font-black uppercase text-red-500 tracking-tighter">Vender</span>
+                                        <span className="text-[9px] font-extrabold uppercase text-red-500 tracking-tight">Vender</span>
                                     </div>
                                 ))
                             ) : (
@@ -416,7 +416,7 @@ export default function DashboardPage() {
 
                     <Card glass className="border-none">
                         <CardHeader className="flex flex-row items-center justify-between">
-                            <CardTitle className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400">Saúde da Frota</CardTitle>
+                            <CardTitle className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-zinc-400">Saúde da Frota</CardTitle>
                             <Wrench className="w-4 h-4 text-primary" />
                         </CardHeader>
                         <CardContent className="space-y-4">

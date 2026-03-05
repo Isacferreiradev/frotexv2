@@ -162,14 +162,14 @@ export default function Tool360Page() {
                                     <div className="space-y-1">
                                         <p className="text-sm font-semibold uppercase tracking-widest text-muted-foreground">Uso Atual</p>
                                         <div className="flex items-baseline gap-2">
-                                            <span className="text-4xl font-black text-foreground">{tool.currentUsageHours}h</span>
+                                            <span className="text-4xl font-extrabold text-foreground">{tool.currentUsageHours}h</span>
                                             <span className="text-xs font-bold text-muted-foreground whitespace-nowrap">Acumuladas</span>
                                         </div>
                                     </div>
                                     <div className="text-right space-y-1">
                                         <p className="text-sm font-semibold uppercase tracking-widest text-muted-foreground">Próxima Revisão</p>
                                         <div className="flex items-baseline gap-2 justify-end">
-                                            <span className="text-4xl font-black text-amber-500">{tool.nextMaintenanceDueHours}h</span>
+                                            <span className="text-4xl font-extrabold text-amber-500">{tool.nextMaintenanceDueHours}h</span>
                                         </div>
                                     </div>
                                 </div>
@@ -307,11 +307,11 @@ export default function Tool360Page() {
                             <CardContent className="p-8 space-y-6">
                                 <div className="grid grid-cols-2 gap-8">
                                     <div className="space-y-1">
-                                        <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em]">Data de Compra</p>
+                                        <p className="text-[10px] font-extrabold text-muted-foreground uppercase tracking-[0.2em]">Data de Compra</p>
                                         <p className="text-base font-bold">{tool.acquisitionDate ? format(new Date(tool.acquisitionDate), "dd 'de' MMMM, yyyy", { locale: ptBR }) : 'Não informado'}</p>
                                     </div>
                                     <div className="space-y-1">
-                                        <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em]">Custo Inicial</p>
+                                        <p className="text-[10px] font-extrabold text-muted-foreground uppercase tracking-[0.2em]">Custo Inicial</p>
                                         <p className="text-base font-bold text-zinc-900">{formatCurrency(tool.acquisitionCost)}</p>
                                     </div>
                                 </div>
@@ -325,11 +325,11 @@ export default function Tool360Page() {
                             <CardContent className="p-8 space-y-6">
                                 <div className="grid grid-cols-2 gap-8">
                                     <div className="space-y-1">
-                                        <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em]">Valor da Diária (Padrão)</p>
+                                        <p className="text-[10px] font-extrabold text-muted-foreground uppercase tracking-[0.2em]">Valor da Diária (Padrão)</p>
                                         <p className="text-base font-bold text-violet-600">{formatCurrency(tool.dailyRate)}</p>
                                     </div>
                                     <div className="space-y-1">
-                                        <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em]">Série / Serial</p>
+                                        <p className="text-[10px] font-extrabold text-muted-foreground uppercase tracking-[0.2em]">Série / Serial</p>
                                         <p className="text-base font-bold font-mono text-zinc-700">{tool.serialNumber || 'N/A'}</p>
                                     </div>
                                 </div>
@@ -343,7 +343,7 @@ export default function Tool360Page() {
                 <SheetContent className="sm:max-w-[800px] border-border/40 p-0 overflow-hidden bg-white shadow-float overflow-y-auto">
                     <div className="px-10 py-10 border-b border-border/40 bg-zinc-50/50">
                         <SheetTitle className="font-semibold text-2xl tracking-tight text-foreground">Editar Equipamento</SheetTitle>
-                        <SheetDescription className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mt-2">Atualizando metadados da frota</SheetDescription>
+                        <SheetDescription className="text-[10px] font-extrabold uppercase tracking-widest text-muted-foreground mt-2">Atualizando metadados da frota</SheetDescription>
                     </div>
                     <div className="p-10">
                         <ToolForm

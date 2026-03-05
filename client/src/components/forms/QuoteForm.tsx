@@ -129,8 +129,8 @@ export function QuoteForm({ initialData, onSubmit, isLoading }: QuoteFormProps) 
             <div className="max-h-[300px] overflow-y-auto space-y-4 pr-2 scrollbar-thin scrollbar-thumb-zinc-200">
                 <div className="flex items-center justify-between mb-2 px-1">
                     <div className="flex items-center gap-2">
-                        <Label className="text-[11px] font-black uppercase tracking-[0.2em] text-zinc-900 shadow-sm">Itens do Orçamento</Label>
-                        <span className="bg-primary/10 text-primary text-[9px] font-black px-2 py-0.5 rounded-full">{fields.length}</span>
+                        <Label className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-zinc-900 shadow-sm">Itens do Orçamento</Label>
+                        <span className="bg-primary/10 text-primary text-[9px] font-extrabold px-2 py-0.5 rounded-full">{fields.length}</span>
                     </div>
                     <Button
                         type="button"
@@ -221,7 +221,7 @@ export function QuoteForm({ initialData, onSubmit, isLoading }: QuoteFormProps) 
                     <div className="absolute top-0 right-0 w-40 h-40 bg-primary/20 blur-[80px] rounded-full -translate-y-1/2 translate-x-1/2" />
 
                     <div className="space-y-3 relative z-10">
-                        <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500">
+                        <div className="flex justify-between items-center text-[10px] font-extrabold uppercase tracking-[0.2em] text-zinc-500">
                             <span>Resumo Financeiro</span>
                             <span className="text-zinc-400">{days} {days === 1 ? 'Dia' : 'Dias'}</span>
                         </div>
@@ -248,12 +248,12 @@ export function QuoteForm({ initialData, onSubmit, isLoading }: QuoteFormProps) 
 
                     <div className="flex justify-between items-end pt-2 relative z-10">
                         <div>
-                            <p className="text-[9px] font-black text-primary uppercase tracking-[0.3em] mb-1">Valor Final</p>
+                            <p className="text-[9px] font-extrabold text-primary uppercase tracking-[0.3em] mb-1">Valor Final</p>
                             <p className="text-[10px] text-zinc-500 flex items-center gap-1.5 font-medium">
                                 <Info className="w-3 h-3" /> Inc. todas as ferramentas
                             </p>
                         </div>
-                        <span className="text-4xl font-bold tracking-tighter tabular-nums bg-gradient-to-r from-white to-zinc-400 bg-clip-text text-transparent">
+                        <span className="text-4xl font-bold tracking-tight tabular-nums bg-gradient-to-r from-white to-zinc-400 bg-clip-text text-transparent">
                             {formatCurrency(total)}
                         </span>
                     </div>
@@ -261,7 +261,7 @@ export function QuoteForm({ initialData, onSubmit, isLoading }: QuoteFormProps) 
                     <Button
                         type="submit"
                         disabled={isLoading}
-                        className="w-full h-14 bg-primary hover:bg-primary/90 text-white font-black uppercase tracking-[0.2em] text-[11px] rounded-2xl shadow-xl shadow-primary/20 relative z-10 mt-2"
+                        className="w-full h-14 bg-primary hover:bg-primary/90 text-white font-extrabold uppercase tracking-[0.2em] text-[11px] rounded-2xl shadow-xl shadow-primary/20 relative z-10 mt-2"
                     >
                         {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Confirmar e Gerar Orçamento'}
                     </Button>

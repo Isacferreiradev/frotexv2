@@ -63,7 +63,7 @@ export function Navbar() {
                             <img src={user.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
                         ) : (
                             <div className="w-full h-full bg-primary rounded-full flex items-center justify-center m-0.5">
-                                <span className="text-white text-[10px] font-black leading-none">
+                                <span className="text-white text-[10px] font-extrabold leading-none">
                                     {user?.fullName?.charAt(0).toUpperCase() || 'U'}
                                 </span>
                             </div>

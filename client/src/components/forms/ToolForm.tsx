@@ -99,7 +99,7 @@ export function ToolForm({ initialData, onSubmit, isLoading }: ToolFormProps) {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* ── Seção: Identificação Principal ── */}
                 <div className="col-span-full space-y-4">
-                    <h4 className="text-[10px] font-black text-zinc-400 uppercase tracking-widest flex items-center gap-2">
+                    <h4 className="text-[10px] font-extrabold text-zinc-400 uppercase tracking-widest flex items-center gap-2">
                         <div className="w-1.5 h-1.5 rounded-full bg-violet-500" /> Identificação Base
                     </h4>
                     <div className="grid grid-cols-2 gap-4">
@@ -128,7 +128,7 @@ export function ToolForm({ initialData, onSubmit, isLoading }: ToolFormProps) {
                                 <SelectContent className="max-h-[300px] bg-white border-zinc-100 shadow-xl z-[100] text-foreground">
                                     <SelectItem
                                         value="ADD_NEW"
-                                        className="flex items-center gap-2 p-3 text-[10px] font-black text-violet-600 uppercase tracking-widest hover:bg-violet-50 focus:bg-violet-50 border-b border-zinc-50 mb-1 cursor-pointer"
+                                        className="flex items-center gap-2 p-3 text-[10px] font-extrabold text-violet-600 uppercase tracking-widest hover:bg-violet-50 focus:bg-violet-50 border-b border-zinc-50 mb-1 cursor-pointer"
                                     >
                                         <Plus className="w-3.5 h-3.5 mr-2 inline" />
                                         Nova Categoria
@@ -180,7 +180,7 @@ export function ToolForm({ initialData, onSubmit, isLoading }: ToolFormProps) {
 
                 {/* ── Seção: Financeiro ── */}
                 <div className="col-span-full space-y-4 pt-4">
-                    <h4 className="text-[10px] font-black text-zinc-400 uppercase tracking-widest flex items-center gap-2">
+                    <h4 className="text-[10px] font-extrabold text-zinc-400 uppercase tracking-widest flex items-center gap-2">
                         <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> Precificação & Taxas
                     </h4>
                     <div className="grid grid-cols-3 gap-4">
@@ -201,7 +201,7 @@ export function ToolForm({ initialData, onSubmit, isLoading }: ToolFormProps) {
 
                 {/* ── Seção: Ciclo de Vida ── */}
                 <div className="col-span-full space-y-4 pt-4">
-                    <h4 className="text-[10px] font-black text-zinc-400 uppercase tracking-widest flex items-center gap-2">
+                    <h4 className="text-[10px] font-extrabold text-zinc-400 uppercase tracking-widest flex items-center gap-2">
                         <div className="w-1.5 h-1.5 rounded-full bg-amber-500" /> Gestão de Patrimônio
                     </h4>
                     <div className="grid grid-cols-2 gap-4">

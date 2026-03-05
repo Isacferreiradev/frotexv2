@@ -112,7 +112,7 @@ export default function AutomationPage() {
                 <div className="space-y-2">
                     <div className="flex items-center gap-2 text-violet-500">
                         <Zap className="w-4 h-4 fill-current" />
-                        <span className="text-[10px] font-black uppercase tracking-[0.2em]">SaaS Intelligence</span>
+                        <span className="text-[10px] font-extrabold uppercase tracking-[0.2em]">SaaS Intelligence</span>
                     </div>
                     <h1 className="text-4xl font-extrabold text-zinc-900 tracking-tight">Automação de Cobrança</h1>
                     <p className="text-zinc-500 text-sm font-medium">Configure as réguas de notificação e multas automáticas via WhatsApp.</p>
@@ -199,7 +199,7 @@ export default function AutomationPage() {
                                         <div className="w-8 h-8 rounded-lg bg-violet-50 flex items-center justify-center">
                                             <Bell className="w-4 h-4 text-violet-600" />
                                         </div>
-                                        <Label className="text-[10px] uppercase font-black text-zinc-400 tracking-widest leading-none">Notificação Imediata</Label>
+                                        <Label className="text-[10px] uppercase font-extrabold text-zinc-400 tracking-widest leading-none">Notificação Imediata</Label>
                                     </div>
                                     <div className="flex items-center justify-between p-4 rounded-2xl bg-zinc-50 border border-zinc-100">
                                         <span className="text-xs font-bold text-zinc-600">Avisar no dia do vencimento</span>
@@ -216,7 +216,7 @@ export default function AutomationPage() {
                                         <div className="w-8 h-8 rounded-lg bg-zinc-50 flex items-center justify-center">
                                             <Clock className="w-4 h-4 text-zinc-400" />
                                         </div>
-                                        <Label className="text-[10px] uppercase font-black text-zinc-400 tracking-widest leading-none">Carência de Cobrança</Label>
+                                        <Label className="text-[10px] uppercase font-extrabold text-zinc-400 tracking-widest leading-none">Carência de Cobrança</Label>
                                     </div>
                                     <div className="space-y-2">
                                         <Input
@@ -225,7 +225,7 @@ export default function AutomationPage() {
                                             className="h-12 bg-zinc-50 border-zinc-100 rounded-xl font-bold"
                                             placeholder="Ex: 1"
                                         />
-                                        <p className="text-[9px] text-zinc-400 font-bold uppercase tracking-tighter">Dias após vencimento para notificar</p>
+                                        <p className="text-[9px] text-zinc-400 font-bold uppercase tracking-tight">Dias após vencimento para notificar</p>
                                     </div>
                                 </div>
 
@@ -234,14 +234,14 @@ export default function AutomationPage() {
                                         <div className="w-8 h-8 rounded-lg bg-amber-50 flex items-center justify-center">
                                             <DollarSign className="w-4 h-4 text-amber-500" />
                                         </div>
-                                        <Label className="text-[10px] uppercase font-black text-zinc-400 tracking-widest leading-none">Multa Diária (Penalty)</Label>
+                                        <Label className="text-[10px] uppercase font-extrabold text-zinc-400 tracking-widest leading-none">Multa Diária (Penalty)</Label>
                                     </div>
                                     <div className="relative">
                                         <Input
                                             type="number"
                                             step="0.01"
                                             {...register('finePerDay', { valueAsNumber: true })}
-                                            className="h-14 pl-12 bg-zinc-50 border-zinc-100 rounded-2xl font-black text-lg text-amber-600"
+                                            className="h-14 pl-12 bg-zinc-50 border-zinc-100 rounded-2xl font-extrabold text-lg text-amber-600"
                                             placeholder="0.00"
                                         />
                                         <span className="absolute left-5 top-1/2 -translate-y-1/2 text-zinc-400 font-bold">R$</span>
@@ -281,7 +281,7 @@ export default function AutomationPage() {
                             </div>
 
                             <div className="space-y-4">
-                                <p className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em]">Variáveis Disponíveis</p>
+                                <p className="text-[10px] font-extrabold text-zinc-400 uppercase tracking-[0.2em]">Variáveis Disponíveis</p>
                                 <div className="flex flex-wrap gap-2">
                                     {['nome', 'ferramenta', 'dias', 'multa'].map((tag) => (
                                         <button
@@ -304,7 +304,7 @@ export default function AutomationPage() {
                                 <div className="absolute top-0 right-0 p-3">
                                     <MessageSquare className="w-4 h-4 text-emerald-600 opacity-20" />
                                 </div>
-                                <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest mb-3 flex items-center gap-2">
+                                <p className="text-[10px] font-extrabold text-emerald-600 uppercase tracking-widest mb-3 flex items-center gap-2">
                                     <CheckCircle2 className="w-3 h-3" /> Preview da Cobrança
                                 </p>
                                 <p className="text-[11px] text-zinc-600 leading-relaxed italic pr-6 h-12 overflow-hidden overflow-ellipsis">

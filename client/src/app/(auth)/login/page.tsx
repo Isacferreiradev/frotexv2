@@ -69,15 +69,15 @@ export default function LoginPage() {
                     {/* Logo */}
                     <Link href="/">
                         <div className="flex items-center gap-2 group cursor-pointer">
-                            <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-zinc-950 font-black shadow-lg shadow-white/5 transition-colors">L</div>
-                            <span className="text-2xl font-black italic tracking-tighter text-white font-outfit">Locattus<span className="text-violet-400 not-italic">.</span></span>
+                            <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-zinc-950 font-extrabold shadow-lg shadow-white/5 transition-colors">L</div>
+                            <span className="text-2xl font-extrabold italic tracking-tight text-white font-outfit">Locattus<span className="text-violet-400 not-italic">.</span></span>
                         </div>
                     </Link>
 
                     {/* Headline */}
                     <div className="space-y-12">
                         <div className="space-y-6">
-                            <h1 className="text-6xl font-black text-white leading-[0.9] tracking-tighter font-outfit">
+                            <h1 className="text-6xl font-extrabold text-white leading-[0.9] tracking-tight font-outfit">
                                 Escalar é o seu <br />
                                 <span className="text-violet-400 italic">Destino.</span>
                             </h1>
@@ -107,7 +107,7 @@ export default function LoginPage() {
                 </div>
 
                 <div className="relative z-10">
-                    <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em]">LOCATTUS SECURITY PROTOCOLS © 2026</p>
+                    <p className="text-[10px] font-extrabold text-white/20 uppercase tracking-[0.4em]">LOCATTUS SECURITY PROTOCOLS © 2026</p>
                 </div>
             </div>
 
@@ -122,12 +122,12 @@ export default function LoginPage() {
 
                     {/* Mobile logo */}
                     <div className="flex items-center gap-2 mb-16 lg:hidden">
-                        <div className="w-10 h-10 bg-zinc-950 rounded-xl flex items-center justify-center text-white font-black shadow-lg">L</div>
-                        <span className="text-2xl font-black italic tracking-tighter text-zinc-950 font-outfit">Locattus<span className="text-violet-600 not-italic">.</span></span>
+                        <div className="w-10 h-10 bg-zinc-950 rounded-xl flex items-center justify-center text-white font-extrabold shadow-lg">L</div>
+                        <span className="text-2xl font-extrabold italic tracking-tight text-zinc-950 font-outfit">Locattus<span className="text-violet-600 not-italic">.</span></span>
                     </div>
 
                     <div className="space-y-3 mb-12">
-                        <h2 className="text-4xl font-black text-slate-950 tracking-tighter font-outfit leading-none">Bem-vindo <br /><span className="text-violet-600 italic">de volta.</span></h2>
+                        <h2 className="text-4xl font-extrabold text-slate-950 tracking-tight font-outfit leading-none">Bem-vindo <br /><span className="text-violet-600 italic">de volta.</span></h2>
                         <p className="text-slate-500 font-medium">Acesse seu cockpit administrativo.</p>
                     </div>
 
@@ -144,23 +144,23 @@ export default function LoginPage() {
 
                     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
                         <div className="space-y-2">
-                            <label className="text-[10px] uppercase font-black text-slate-400 tracking-[0.2em] ml-1">Email profissional</label>
+                            <label className="text-[10px] uppercase font-extrabold text-slate-400 tracking-[0.2em] ml-1">Email profissional</label>
                             <input
                                 type="email"
                                 {...register('email')}
                                 placeholder="seu@email.com"
                                 className="w-full h-14 px-6 bg-white border border-slate-100 rounded-2xl text-sm font-bold text-slate-950 placeholder:text-slate-300 focus:outline-none focus:ring-4 focus:ring-violet-500/5 focus:border-violet-600 transition-all shadow-sm"
                             />
-                            {errors.email && <p className="mt-2 text-[10px] text-red-500 font-black uppercase tracking-widest ml-1">{errors.email.message}</p>}
+                            {errors.email && <p className="mt-2 text-[10px] text-red-500 font-extrabold uppercase tracking-widest ml-1">{errors.email.message}</p>}
                         </div>
 
                         <div className="space-y-2">
                             <div className="flex items-center justify-between mb-1.5 px-1">
-                                <label className="text-[10px] uppercase font-black text-slate-400 tracking-[0.2em]">Senha</label>
+                                <label className="text-[10px] uppercase font-extrabold text-slate-400 tracking-[0.2em]">Senha</label>
                                 <button
                                     type="button"
                                     onClick={() => setIsForgotModalOpen(true)}
-                                    className="text-[10px] text-violet-600 hover:text-violet-700 font-black uppercase tracking-widest transition-colors"
+                                    className="text-[10px] text-violet-600 hover:text-violet-700 font-extrabold uppercase tracking-widest transition-colors"
                                 >
                                     Esqueceu a senha?
                                 </button>
@@ -180,14 +180,14 @@ export default function LoginPage() {
                                     {showPassword ? <EyeOff className="w-5 h-5 stroke-[1.5px]" /> : <Eye className="w-5 h-5 stroke-[1.5px]" />}
                                 </button>
                             </div>
-                            {errors.password && <p className="mt-2 text-[10px] text-red-500 font-black uppercase tracking-widest ml-1">{errors.password.message}</p>}
+                            {errors.password && <p className="mt-2 text-[10px] text-red-500 font-extrabold uppercase tracking-widest ml-1">{errors.password.message}</p>}
                         </div>
 
                         <div className="pt-4">
                             <button
                                 type="submit"
                                 disabled={isSubmitting}
-                                className="w-full h-16 bg-slate-950 hover:bg-violet-700 text-white font-black rounded-2xl transition-all shadow-2xl shadow-slate-200 flex items-center justify-center gap-3 text-xs uppercase tracking-[0.2em] active:scale-[0.98] disabled:opacity-50 group"
+                                className="w-full h-16 bg-slate-950 hover:bg-violet-700 text-white font-extrabold rounded-2xl transition-all shadow-2xl shadow-slate-200 flex items-center justify-center gap-3 text-xs uppercase tracking-[0.2em] active:scale-[0.98] disabled:opacity-50 group"
                             >
                                 {isSubmitting ? (
                                     <Loader2 className="w-5 h-5 animate-spin" />

@@ -292,10 +292,10 @@ export default function LocacoesPage() {
 
                                             <div className="flex justify-between items-end relative z-10">
                                                 <div>
-                                                    <p className="text-[9px] font-black text-primary uppercase tracking-[0.25em] mb-1">Total Final</p>
+                                                    <p className="text-[9px] font-extrabold text-primary uppercase tracking-[0.25em] mb-1">Total Final</p>
                                                     <p className="text-xs text-zinc-500 font-medium">Cálculo Pro Intelligence</p>
                                                 </div>
-                                                <span className="text-3xl font-bold tracking-tighter tabular-nums text-white">
+                                                <span className="text-3xl font-bold tracking-tight tabular-nums text-white">
                                                     {(() => {
                                                         const start = new Date(selectedRental.startDate);
                                                         const actual = new Date(returnDate);

@@ -32,11 +32,11 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         return (
             <div className="h-screen w-screen flex items-center justify-center bg-white">
                 <div className="flex flex-col items-center gap-6">
-                    <div className="w-16 h-16 bg-zinc-950 rounded-2xl flex items-center justify-center text-white font-black text-xl shadow-2xl animate-bounce">
+                    <div className="w-16 h-16 bg-zinc-950 rounded-2xl flex items-center justify-center text-white font-extrabold text-xl shadow-2xl animate-bounce">
                         L
                     </div>
                     <div className="space-y-2 text-center">
-                        <p className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.3em] animate-pulse">
+                        <p className="text-[10px] font-extrabold text-zinc-400 uppercase tracking-[0.3em] animate-pulse">
                             Locattus Security Protocols
                         </p>
                         <div className="flex justify-center gap-1">

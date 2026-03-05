@@ -86,7 +86,7 @@ export default function Customer360Page() {
                         <ArrowLeft className="w-4 h-4" />
                     </Button>
                     <div className="flex items-center gap-5">
-                        <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center text-primary text-2xl font-black shadow-sm border border-primary/5">
+                        <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center text-primary text-2xl font-extrabold shadow-sm border border-primary/5">
                             {customer.fullName.charAt(0).toUpperCase()}
                         </div>
                         <div>
@@ -158,7 +158,7 @@ export default function Customer360Page() {
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
                                     <div className="space-y-6">
                                         <div className="space-y-1.5">
-                                            <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] flex items-center gap-2">
+                                            <p className="text-[10px] font-extrabold text-muted-foreground uppercase tracking-[0.2em] flex items-center gap-2">
                                                 <FileText className="w-3 h-3" /> Documentação ({customer.documentType})
                                             </p>
                                             <p className="text-sm font-bold font-mono bg-muted/30 px-3 py-1.5 rounded-lg w-fit">
@@ -166,13 +166,13 @@ export default function Customer360Page() {
                                             </p>
                                         </div>
                                         <div className="space-y-1.5">
-                                            <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] flex items-center gap-2">
+                                            <p className="text-[10px] font-extrabold text-muted-foreground uppercase tracking-[0.2em] flex items-center gap-2">
                                                 <Phone className="w-3 h-3" /> Contato Direto
                                             </p>
                                             <p className="text-sm font-bold">{customer.phoneNumber}</p>
                                         </div>
                                         <div className="space-y-1.5">
-                                            <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] flex items-center gap-2">
+                                            <p className="text-[10px] font-extrabold text-muted-foreground uppercase tracking-[0.2em] flex items-center gap-2">
                                                 <Mail className="w-3 h-3" /> E-mail
                                             </p>
                                             <p className="text-sm font-bold lowercase">{customer.email || 'N/A'}</p>
@@ -181,7 +181,7 @@ export default function Customer360Page() {
 
                                     <div className="space-y-6">
                                         <div className="space-y-1.5">
-                                            <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] flex items-center gap-2">
+                                            <p className="text-[10px] font-extrabold text-muted-foreground uppercase tracking-[0.2em] flex items-center gap-2">
                                                 <MapPin className="w-3 h-3" /> Endereço Principal
                                             </p>
                                             <div className="text-sm font-medium leading-relaxed">
@@ -194,7 +194,7 @@ export default function Customer360Page() {
                                 </div>
 
                                 <div className="pt-8 border-t border-border/10">
-                                    <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] mb-3">Observações CRM</p>
+                                    <p className="text-[10px] font-extrabold text-muted-foreground uppercase tracking-[0.2em] mb-3">Observações CRM</p>
                                     <p className="text-sm bg-amber-50/50 p-4 rounded-xl border border-amber-100/50 italic text-zinc-700 leading-relaxed">
                                         {customer.notes || 'Nenhuma observação interna registrada.'}
                                     </p>
@@ -282,7 +282,7 @@ export default function Customer360Page() {
                                         <span className="text-[10px] font-bold text-muted-foreground">{format(new Date(quote.createdAt), "dd/MM/yyyy")}</span>
                                     </div>
                                     <p className="text-sm font-bold mb-1">{quote.tool.name}</p>
-                                    <p className="text-xl font-black text-primary tracking-tight">{formatCurrency(quote.totalAmount)}</p>
+                                    <p className="text-xl font-extrabold text-primary tracking-tight">{formatCurrency(quote.totalAmount)}</p>
                                 </div>
                             ))}
                         </div>
