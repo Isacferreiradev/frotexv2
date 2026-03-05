@@ -18,6 +18,10 @@ export const customerSchema = z.object({
     addressState: z.string().optional(),
     addressZipCode: z.string().optional(),
     isBlocked: z.boolean().default(false),
+    creditLimit: z.coerce.number().min(0).default(0),
+    allowLateRentals: z.boolean().default(false),
+    classification: z.enum(['vip', 'new', 'risk', 'inactive']).default('new'),
+    source: z.string().optional(),
     notes: z.string().optional(),
 });
 
@@ -51,14 +55,24 @@ export async function getCustomer(tenantId: string, id: string) {
 }
 
 export async function createCustomer(tenantId: string, data: z.infer<typeof customerSchema>) {
-    const [customer] = await db.insert(customers).values({ tenantId, ...data, email: data.email || null }).returning();
+    const [customer] = await db.insert(customers).values({
+        tenantId,
+        ...data,
+        email: data.email || null,
+        creditLimit: String(data.creditLimit)
+    }).returning();
     return customer;
 }
 
 export async function updateCustomer(tenantId: string, id: string, data: Partial<z.infer<typeof customerSchema>>) {
     const [customer] = await db
         .update(customers)
-        .set({ ...data, email: data.email || null, updatedAt: new Date() })
+        .set({
+            ...data,
+            email: data.email || null,
+            creditLimit: data.creditLimit !== undefined ? String(data.creditLimit) : undefined,
+            updatedAt: new Date()
+        })
         .where(and(eq(customers.tenantId, tenantId), eq(customers.id, id)))
         .returning();
     if (!customer) throw new AppError(404, 'Cliente não encontrado');
@@ -112,8 +126,15 @@ export async function getCustomer360(tenantId: string, id: string) {
     // Inadimplência logic
     const hasOverdue = customer.rentals.some(r => r.status === 'overdue');
 
+    // Automatic Classification Logic
+    let classification = customer.classification;
+    if (totalSpent > 10000 && !hasOverdue) classification = 'vip';
+    else if (hasOverdue || customer.isBlocked) classification = 'risk';
+    else if (totalRentals > 0) classification = 'vip'; // Assuming vip as best-case for regular or keep as is
+
     return {
         ...customer,
+        classification, // Return calculated classification
         metrics: {
             totalRentals,
             activeRentals,

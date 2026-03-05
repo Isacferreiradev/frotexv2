@@ -6,6 +6,7 @@ import { useAuthStore } from '@/store/authStore';
 import { CommandMenu } from '../shared/CommandMenu';
 
 const pageTitles: Record<string, string> = {
+    '/dashboard/automacao-cobranca': 'Automação de Cobrança',
     '/dashboard': 'Dashboard',
     '/ferramentas': 'Ferramentas',
     '/clientes': 'Clientes',

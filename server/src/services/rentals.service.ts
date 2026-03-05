@@ -1,6 +1,6 @@
 import { eq, and, or, desc, sql } from 'drizzle-orm';
 import { db } from '../db';
-import { rentals, tools, customers, payments, tenants, users, toolCategories, expenses, maintenanceLogs, quotes } from '../db/schema';
+import { rentals, tools, customers, payments, tenants, users, toolCategories, expenses, maintenanceLogs, quotes, rentalEvents } from '../db/schema';
 import { AppError } from '../middleware/error.middleware';
 import { z } from 'zod';
 import { getPlanLimits } from '../lib/plan-limits';
@@ -12,7 +12,13 @@ export const createRentalSchema = z.object({
     startDate: z.string(),
     endDateExpected: z.string(),
     dailyRateAgreed: z.coerce.number().min(0),
+    rentalType: z.enum(['daily', 'weekly', 'monthly', 'custom']).default('daily'),
+    discountType: z.enum(['fixed', 'percentage']).optional(),
+    discountValue: z.coerce.number().min(0).default(0),
+    securityDeposit: z.coerce.number().min(0).default(0),
     templateId: z.string().uuid().optional(),
+    internalNotes: z.string().optional(),
+    customerNotes: z.string().optional(),
     notes: z.string().optional(),
 });
 
@@ -87,7 +93,19 @@ export async function createRental(tenantId: string, userId: string, data: z.inf
     const startDate = new Date(data.startDate);
     const endDateExpected = new Date(data.endDateExpected);
     const totalDaysExpected = daysBetween(startDate, endDateExpected);
-    const totalAmountExpected = data.dailyRateAgreed * totalDaysExpected;
+
+    // Calculate total amount with discounts
+    const baseAmount = data.dailyRateAgreed * totalDaysExpected;
+    let totalAmountExpected = baseAmount;
+
+    if (data.discountValue > 0) {
+        if (data.discountType === 'percentage') {
+            totalAmountExpected = baseAmount * (1 - data.discountValue / 100);
+        } else {
+            totalAmountExpected = Math.max(0, baseAmount - data.discountValue);
+        }
+    }
+
     const rentalCode = await generateRentalCode(tenantId);
 
     const rental = await db.transaction(async (tx) => {
@@ -102,15 +120,36 @@ export async function createRental(tenantId: string, userId: string, data: z.inf
             totalDaysExpected,
             totalAmountExpected: String(totalAmountExpected),
             status: 'active',
+            rentalType: data.rentalType,
+            discountType: data.discountType,
+            discountValue: String(data.discountValue),
+            securityDeposit: String(data.securityDeposit),
             templateId: data.templateId,
             checkoutBy: userId,
+            internalNotes: data.internalNotes,
+            customerNotes: data.customerNotes,
             notes: data.notes,
         }).returning();
 
         // Update tool status to rented
         await tx.update(tools).set({ status: 'rented', updatedAt: new Date() }).where(eq(tools.id, data.toolId));
 
-        // Create pending payment record
+        // Create initial rental event
+        await tx.insert(rentalEvents).values({
+            tenantId,
+            rentalId: insertedRental.id,
+            userId,
+            type: 'CHECKOUT',
+            description: `Locação ${rentalCode} iniciada. Ferramenta: ${tool.name}.`,
+            details: {
+                baseAmount,
+                discount: data.discountValue,
+                totalAmountExpected,
+                securityDeposit: data.securityDeposit
+            }
+        });
+
+        // Create pending payment record (now including deposit if applicable)
         await tx.insert(payments).values({
             tenantId,
             rentalId: insertedRental.id,
@@ -119,7 +158,7 @@ export async function createRental(tenantId: string, userId: string, data: z.inf
             paymentMethod: 'pix',
             status: 'pending',
             receivedBy: userId,
-            notes: 'Pagamento pendente criado na locação (Transação)',
+            notes: `Pagamento de locação ${rentalCode} (Caução: R$ ${data.securityDeposit})`,
         });
 
         return insertedRental;
@@ -207,6 +246,21 @@ export async function checkinRental(tenantId: string, id: string, userId: string
 
         // Update tool back to available
         await tx.update(tools).set({ status: 'available', updatedAt: new Date() }).where(eq(tools.id, rental.toolId));
+
+        // Create check-in event
+        await tx.insert(rentalEvents).values({
+            tenantId,
+            rentalId: id,
+            userId,
+            type: 'CHECKIN',
+            description: `Devolução de locação ${rental.rentalCode} processada.`,
+            details: {
+                endDateActual,
+                totalDaysActual,
+                totalAmountActual,
+                overdueFineAmount
+            }
+        });
 
         return updatedRental;
     });

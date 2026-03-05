@@ -41,10 +41,28 @@ export async function updateTenantInfo(tenantId: string, data: any) {
     const [updated] = await db.update(tenants)
         .set({
             name: data.name,
+            publicName: data.publicName,
             cnpj: data.cnpj,
             contactEmail: data.contactEmail,
             phoneNumber: data.phoneNumber,
             address: data.address,
+            logoUrl: data.logoUrl,
+            openingHours: data.openingHours,
+            nonWorkingDays: data.nonWorkingDays,
+            themeConfig: data.themeConfig,
+            catalogSettings: data.catalogSettings,
+            clientPortalSettings: data.clientPortalSettings,
+            updatedAt: new Date(),
+        })
+        .where(eq(tenants.id, tenantId))
+        .returning();
+    return updated;
+}
+
+export async function updateBusinessSettings(tenantId: string, settings: any) {
+    const [updated] = await db.update(tenants)
+        .set({
+            settings: settings,
             updatedAt: new Date(),
         })
         .where(eq(tenants.id, tenantId))

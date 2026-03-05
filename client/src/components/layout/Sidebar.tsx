@@ -14,6 +14,7 @@ import {
     PenToolIcon,
     DollarSign,
     Calculator,
+    Zap,
 } from 'lucide-react';
 
 import { FrotexLogo } from '@/components/shared/FrotexLogo';
@@ -31,6 +32,7 @@ const NAV_ITEMS = [
     { href: '/orcamentos', label: 'Orçamentos', icon: Calculator },
     { href: '/inteligencia', label: 'Inteligência', icon: Calculator },
     { href: '/manutencao', label: 'Manutenção', icon: PenToolIcon },
+    { href: '/dashboard/automacao-cobranca', label: 'Automação', icon: Zap },
 
     { href: '/financeiro', label: 'Financeiro', icon: DollarSign },
     { href: '/configuracoes', label: 'Configurações', icon: Settings },

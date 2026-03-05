@@ -39,6 +39,12 @@ export const tenants = pgTable('tenants', {
     stripeSubscriptionId: text('stripe_subscription_id'),
     paymentProvider: text('payment_provider', { enum: ['none', 'asaas', 'stripe'] }).default('none'),
     plan: text('plan', { enum: ['free', 'pro', 'scale'] }).notNull().default('free'),
+    openingHours: jsonb('opening_hours').default({}), // e.g., { mon: { open: '08:00', close: '18:00' }, ... }
+    nonWorkingDays: jsonb('non_working_days').default([]), // Array of dates or days of week
+    themeConfig: jsonb('theme_config').default({ primaryColor: '#6d28d9', glassmorphism: true }),
+    catalogSettings: jsonb('catalog_settings').default({ showPrices: true, showAvailability: true, whatsappDirect: true }),
+    clientPortalSettings: jsonb('client_portal_settings').default({ allowExtensions: false, showFines: true }),
+    publicName: text('public_name'),
 });
 
 // ========== USERS ==========
@@ -101,6 +107,10 @@ export const tools = pgTable(
         notes: text('notes'),
         acquisitionDate: date('acquisition_date'),
         acquisitionCost: numeric('acquisition_cost', { precision: 10, scale: 2 }).default('0.00'),
+        minRentalValue: numeric('min_rental_value', { precision: 10, scale: 2 }).default('0.00'),
+        cleaningFee: numeric('cleaning_fee', { precision: 10, scale: 2 }).default('0.00'),
+        images: jsonb('images').default([]), // Array of image URLs
+        subcategoryId: uuid('subcategory_id'), // Optional subcategory
         createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
         updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
     },
@@ -130,6 +140,10 @@ export const customers = pgTable(
         addressState: text('address_state'),
         addressZipCode: text('address_zip_code'),
         isBlocked: boolean('is_blocked').notNull().default(false),
+        creditLimit: numeric('credit_limit', { precision: 10, scale: 2 }).default('0.00'),
+        allowLateRentals: boolean('allow_late_rentals').notNull().default(true),
+        classification: text('classification', { enum: ['vip', 'new', 'risk', 'inactive'] }).notNull().default('new'),
+        source: text('source'), // Origem do cliente
         tags: text('tags').array(),
         notes: text('notes'),
         createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
@@ -190,11 +204,19 @@ export const rentals = pgTable(
         status: text('status', {
             enum: ['active', 'returned', 'overdue', 'cancelled', 'lost'],
         }).notNull().default('active'),
+        rentalType: text('rental_type', { enum: ['daily', 'weekly', 'monthly', 'custom'] }).notNull().default('daily'),
+        discountType: text('discount_type', { enum: ['fixed', 'percentage'] }).default('percentage'),
+        discountValue: numeric('discount_value', { precision: 10, scale: 2 }).default('0.00'),
+        securityDeposit: numeric('security_deposit', { precision: 10, scale: 2 }).default('0.00'), // Caução
+        toleranceMinutes: integer('tolerance_minutes'), // Store override
+        internalNotes: text('internal_notes'),
+        customerNotes: text('customer_notes'),
         templateId: uuid('template_id').references(() => contractTemplates.id, { onDelete: 'set null' }),
         contractPdfUrl: text('contract_pdf_url'),
         checkoutBy: uuid('checkout_by').references(() => users.id),
         checkinBy: uuid('checkin_by').references(() => users.id),
         notes: text('notes'),
+        lastNotificationDate: timestamp('last_notification_date', { withTimezone: true }),
         createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
         updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
     },
@@ -311,6 +333,19 @@ export const otherRevenues = pgTable(
     ]
 );
 
+// ========== STORE AUTOMATION SETTINGS ==========
+export const storeAutomationSettings = pgTable('store_automation_settings', {
+    id: uuid('id').primaryKey().defaultRandom().notNull(),
+    tenantId: uuid('tenant_id').notNull().references(() => tenants.id, { onDelete: 'cascade' }),
+    whatsappEnabled: boolean('whatsapp_enabled').notNull().default(false),
+    notifyOnDueDate: boolean('notify_on_due_date').notNull().default(true),
+    daysAfterDue: integer('days_after_due').notNull().default(1),
+    finePerDay: numeric('fine_per_day', { precision: 10, scale: 2 }).notNull().default('0.00'),
+    messageTemplate: text('message_template').notNull().default('Olá {{nome}}, sua ferramenta {{ferramenta}} está atrasada há {{dias}} dias. Multa atual: R$ {{multa}}. Entre em contato para regularizar.'),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+});
+
 // ========== ACTIVITY LOGS ==========
 export const activityLogs = pgTable(
     'activity_logs',
@@ -327,7 +362,25 @@ export const activityLogs = pgTable(
     },
     (t) => [
         index('idx_activity_logs_tenant_id').on(t.tenantId),
-        index('idx_activity_logs_created_at').on(t.createdAt),
+    ]
+);
+
+// ========== RENTAL EVENTS (Professional Timeline) ==========
+export const rentalEvents = pgTable(
+    'rental_events',
+    {
+        id: uuid('id').primaryKey().defaultRandom().notNull(),
+        tenantId: uuid('tenant_id').notNull().references(() => tenants.id, { onDelete: 'cascade' }),
+        rentalId: uuid('rental_id').notNull().references(() => rentals.id, { onDelete: 'cascade' }),
+        userId: uuid('user_id').references(() => users.id),
+        type: text('type').notNull(), // e.g., 'CHECKOUT', 'EXTENSION', 'ALARM', 'PAYMENT', 'CHECKIN'
+        description: text('description').notNull(),
+        details: jsonb('details').default({}),
+        createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    },
+    (t) => [
+        index('idx_rental_events_rental_id').on(t.rentalId),
+        index('idx_rental_events_type').on(t.type),
     ]
 );
 
@@ -346,6 +399,8 @@ export const tenantsRelations = relations(tenants, ({ many }) => ({
     otherRevenues: many(otherRevenues),
     quotes: many(quotes),
     clientCommunications: many(clientCommunications),
+    storeAutomationSettings: many(storeAutomationSettings),
+    rentalEvents: many(rentalEvents),
 }));
 
 export const usersRelations = relations(users, ({ one }) => ({
@@ -380,6 +435,13 @@ export const rentalsRelations = relations(rentals, ({ one, many }) => ({
     template: one(contractTemplates, { fields: [rentals.templateId], references: [contractTemplates.id] }),
     checkoutUser: one(users, { fields: [rentals.checkoutBy], references: [users.id] }),
     checkinUser: one(users, { fields: [rentals.checkinBy], references: [users.id] }),
+    events: many(rentalEvents),
+}));
+
+export const rentalEventsRelations = relations(rentalEvents, ({ one }) => ({
+    tenant: one(tenants, { fields: [rentalEvents.tenantId], references: [tenants.id] }),
+    rental: one(rentals, { fields: [rentalEvents.rentalId], references: [rentals.id] }),
+    user: one(users, { fields: [rentalEvents.userId], references: [users.id] }),
 }));
 
 export const paymentsRelations = relations(payments, ({ one }) => ({
@@ -413,6 +475,10 @@ export const clientCommunicationsRelations = relations(clientCommunications, ({ 
     tenant: one(tenants, { fields: [clientCommunications.tenantId], references: [tenants.id] }),
     customer: one(customers, { fields: [clientCommunications.customerId], references: [customers.id] }),
     user: one(users, { fields: [clientCommunications.userId], references: [users.id] }),
+}));
+
+export const storeAutomationSettingsRelations = relations(storeAutomationSettings, ({ one }) => ({
+    tenant: one(tenants, { fields: [storeAutomationSettings.tenantId], references: [tenants.id] }),
 }));
 
 // Export all schemas for Drizzle Kit
@@ -471,4 +537,8 @@ export type ClientCommunication = typeof clientCommunications.$inferSelect;
 export type NewClientCommunication = typeof clientCommunications.$inferInsert;
 export type OtherRevenue = typeof otherRevenues.$inferSelect;
 export type NewOtherRevenue = typeof otherRevenues.$inferInsert;
+export type StoreAutomationSettings = typeof storeAutomationSettings.$inferSelect;
+export type NewStoreAutomationSettings = typeof storeAutomationSettings.$inferInsert;
+export type RentalEvent = typeof rentalEvents.$inferSelect;
+export type NewRentalEvent = typeof rentalEvents.$inferInsert;
 

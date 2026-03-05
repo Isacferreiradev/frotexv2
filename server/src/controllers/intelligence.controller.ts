@@ -17,3 +17,20 @@ export async function getRoiInsights(req: Request, res: Response) {
         });
     }
 }
+
+export async function getCashFlowIntelligence(req: Request, res: Response) {
+    try {
+        const tenantId = req.user!.tenantId;
+        const insights = await intelligenceService.getCashFlowIntelligence(tenantId);
+
+        res.json({
+            success: true,
+            data: insights
+        });
+    } catch (error: any) {
+        res.status(500).json({
+            success: false,
+            message: error.message || 'Erro ao buscar inteligência de fluxo de caixa'
+        });
+    }
+}

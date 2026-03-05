@@ -3,12 +3,15 @@ import { env } from './config/env';
 import { pool } from './db';
 import logger from './utils/logger';
 import { runMigration } from './db/migrate';
+import { initCronJobs } from './utils/cron';
 
 async function startServer() {
     try {
         if (env.NODE_ENV === 'production') {
             await runMigration();
         }
+
+        initCronJobs();
 
         const server = app.listen(env.PORT, '0.0.0.0', () => {
             logger.info(`🚀 AlugaFácil Pro API running on port ${env.PORT}`);
