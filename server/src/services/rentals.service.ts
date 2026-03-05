@@ -124,16 +124,15 @@ export async function createRental(tenantId: string, userId: string, data: z.inf
             totalAmountExpected: String(totalAmountExpected),
             status: 'active',
             rentalType: data.rentalType,
-            discountType: data.discountType,
-            discountValue: String(data.discountValue),
-            securityDeposit: String(data.securityDeposit),
-            templateId: data.templateId,
+            discountType: data.discountType || 'percentage',
+            discountValue: String(data.discountValue || 0),
+            securityDeposit: String(data.securityDeposit || 0),
+            templateId: data.templateId || null,
             checkoutBy: userId,
             internalNotes: data.internalNotes,
             customerNotes: data.customerNotes,
             notes: data.notes,
         }).returning();
-
         // Update tool status to rented
         await tx.update(tools).set({ status: 'rented', updatedAt: new Date() }).where(eq(tools.id, data.toolId));
 

@@ -10,7 +10,10 @@ export async function getStatus(req: Request, res: Response, next: NextFunction)
         const userId = req.user!.userId;
 
         // Check user status
-        const [user] = await db.select({ hasOnboarded: users.hasOnboarded }).from(users).where(eq(users.id, userId));
+        const [user] = await db.select({
+            hasOnboarded: users.hasOnboarded,
+            onboardingStep: users.onboardingStep
+        }).from(users).where(eq(users.id, userId));
 
         // Check completion of steps
         const [toolsCount] = await db.select({ count: sql`count(*)` }).from(tools).where(eq(tools.tenantId, tenantId));
@@ -21,6 +24,7 @@ export async function getStatus(req: Request, res: Response, next: NextFunction)
             success: true,
             data: {
                 hasOnboarded: user?.hasOnboarded ?? false,
+                onboardingStep: user?.onboardingStep ?? 1,
                 steps: {
                     toolCreated: Number((toolsCount as any).count) > 0,
                     customerCreated: Number((customersCount as any).count) > 0,
@@ -48,5 +52,22 @@ export async function finishOnboarding(req: Request, res: Response, next: NextFu
             .where(eq(users.id, userId));
 
         res.json({ success: true, message: 'Onboarding concluído com sucesso' });
+    } catch (err) { next(err); }
+}
+
+export async function updateStep(req: Request, res: Response, next: NextFunction) {
+    try {
+        const userId = req.user!.userId;
+        const { step } = req.body;
+
+        if (typeof step !== 'number') {
+            throw new AppError(400, 'Step deve ser um número');
+        }
+
+        await db.update(users)
+            .set({ onboardingStep: step, updatedAt: new Date() })
+            .where(eq(users.id, userId));
+
+        res.json({ success: true, message: 'Step atualizado' });
     } catch (err) { next(err); }
 }

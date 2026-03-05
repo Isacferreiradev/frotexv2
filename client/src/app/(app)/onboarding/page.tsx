@@ -133,6 +133,11 @@ export default function OnboardingPage() {
         queryFn: async () => (await api.get('/customers')).data.data
     });
 
+    const { data: onboardingStatus, isLoading: isLoadingStatus } = useQuery({
+        queryKey: ['onboarding-status'],
+        queryFn: async () => (await api.get('/onboarding/status')).data.data
+    });
+
     // Forms
     const toolForm = useForm<ToolForm>({ resolver: zodResolver(toolSchema) as any });
     const customerForm = useForm<CustomerForm>({ resolver: zodResolver(customerSchema) as any });
@@ -149,6 +154,7 @@ export default function OnboardingPage() {
         mutationFn: async (data: ToolForm) => (await api.post('/tools', data)).data.data,
         onSuccess: (tool: any) => {
             setCreatedTool(tool);
+            updateStep.mutate(3);
             setStep(3);
             toast.success('Ferramenta cadastrada!');
         }
@@ -158,6 +164,7 @@ export default function OnboardingPage() {
         mutationFn: async (data: CustomerForm) => (await api.post('/customers', data)).data.data,
         onSuccess: (customer: any) => {
             setCreatedCustomer(customer);
+            updateStep.mutate(4);
             setStep(4);
             toast.success('Cliente cadastrado!');
         }
@@ -166,8 +173,16 @@ export default function OnboardingPage() {
     const createRental = useMutation({
         mutationFn: async (data: RentalForm) => (await api.post('/rentals', data)).data.data,
         onSuccess: () => {
+            updateStep.mutate(5);
             setStep(5);
             toast.success('Aluguel simulado com sucesso!');
+        }
+    });
+
+    const updateStep = useMutation({
+        mutationFn: async (newStep: number) => await api.patch('/onboarding/step', { step: newStep }),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['onboarding-status'] });
         }
     });
 
@@ -185,6 +200,13 @@ export default function OnboardingPage() {
         if (createdCustomer) rentalForm.setValue('customerId', createdCustomer.id);
         if (createdTool?.dailyRate) rentalForm.setValue('dailyRateAgreed', createdTool.dailyRate);
     }, [createdTool, createdCustomer, rentalForm]);
+
+    // Sync step from backend
+    useEffect(() => {
+        if (onboardingStatus?.onboardingStep && onboardingStatus.onboardingStep !== step) {
+            setStep(onboardingStatus.onboardingStep);
+        }
+    }, [onboardingStatus, step]);
 
     const stepsCount = 5;
 
@@ -225,7 +247,10 @@ export default function OnboardingPage() {
 
                     <div className="flex justify-center">
                         <button
-                            onClick={() => setStep(2)}
+                            onClick={() => {
+                                updateStep.mutate(2);
+                                setStep(2);
+                            }}
                             className="btn-primary w-full max-w-xs h-14 text-lg"
                         >
                             Começar configuração <ChevronRight className="w-5 h-5 ml-2" />

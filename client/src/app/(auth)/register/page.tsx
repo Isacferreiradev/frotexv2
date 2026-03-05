@@ -177,13 +177,13 @@ export default function RegisterPage() {
                                     <div className="space-y-4">
                                         <div className="space-y-2">
                                             <label className="text-[10px] uppercase font-extrabold text-slate-400 tracking-[0.2em] ml-1">Nome completo</label>
-                                            <input {...register('fullName')} placeholder="João da Silva" className="w-full h-14 px-6 bg-slate-50/50 border border-slate-100 rounded-2xl text-sm font-bold text-slate-950 focus:outline-none focus:ring-4 focus:ring-violet-500/5 focus:border-violet-600 transition-all" />
+                                            <input {...register('fullName')} placeholder="João da Silva" className="w-full h-14 px-6 bg-slate-50/50 border border-slate-100 rounded-2xl text-sm font-medium text-slate-950 focus:outline-none focus:ring-4 focus:ring-violet-500/5 focus:border-violet-600 transition-all" />
                                             {errors.fullName && <p className="text-[10px] text-red-500 font-extrabold uppercase tracking-widest ml-1">{errors.fullName.message}</p>}
                                         </div>
 
                                         <div className="space-y-2">
                                             <label className="text-[10px] uppercase font-extrabold text-slate-400 tracking-[0.2em] ml-1">Email profissional</label>
-                                            <input type="email" {...register('email')} placeholder="seu@email.com" className="w-full h-14 px-6 bg-slate-50/50 border border-slate-100 rounded-2xl text-sm font-bold text-slate-950 focus:outline-none focus:ring-4 focus:ring-violet-500/5 focus:border-violet-600 transition-all" />
+                                            <input type="email" {...register('email')} placeholder="seu@email.com" className="w-full h-14 px-6 bg-slate-50/50 border border-slate-100 rounded-2xl text-sm font-medium text-slate-950 focus:outline-none focus:ring-4 focus:ring-violet-500/5 focus:border-violet-600 transition-all" />
                                             {errors.email && <p className="text-[10px] text-red-500 font-extrabold uppercase tracking-widest ml-1">{errors.email.message}</p>}
                                         </div>
 
@@ -194,7 +194,7 @@ export default function RegisterPage() {
                                                     type={showPassword ? 'text' : 'password'}
                                                     {...register('password')}
                                                     placeholder="••••••••"
-                                                    className="w-full h-14 px-6 bg-slate-50/50 border border-slate-100 rounded-2xl text-sm font-bold text-slate-950 focus:outline-none focus:ring-4 focus:ring-violet-500/5 focus:border-violet-600 transition-all"
+                                                    className="w-full h-14 px-6 bg-slate-50/50 border border-slate-100 rounded-2xl text-sm font-medium text-slate-950 focus:outline-none focus:ring-4 focus:ring-violet-500/5 focus:border-violet-600 transition-all"
                                                 />
                                                 <button
                                                     type="button"
@@ -243,32 +243,32 @@ export default function RegisterPage() {
                                     <div className="space-y-4">
                                         <div className="space-y-2">
                                             <label className="text-[10px] uppercase font-extrabold text-slate-400 tracking-[0.2em] ml-1">Nome Comercial</label>
-                                            <input {...register('tenantName')} placeholder="Elite Locações" className="w-full h-14 px-6 bg-slate-50/50 border border-slate-100 rounded-2xl text-sm font-bold text-slate-950 focus:outline-none focus:ring-4 focus:ring-violet-500/5 focus:border-violet-600 transition-all" />
+                                            <input {...register('tenantName')} placeholder="Elite Locações" className="w-full h-14 px-6 bg-slate-50/50 border border-slate-100 rounded-2xl text-sm font-medium text-slate-950 focus:outline-none focus:ring-4 focus:ring-violet-500/5 focus:border-violet-600 transition-all" />
                                             {errors.tenantName && <p className="text-[10px] text-red-500 font-extrabold uppercase tracking-widest ml-1">{errors.tenantName.message}</p>}
                                         </div>
 
                                         <div className="space-y-2">
                                             <label className="text-[10px] uppercase font-extrabold text-slate-400 tracking-[0.2em] ml-1">CPF ou CNPJ</label>
-                                            <input {...register('documentNumber')} placeholder="00.000.000/0001-00" className="w-full h-14 px-6 bg-slate-50/50 border border-slate-100 rounded-2xl text-sm font-bold text-slate-950 focus:outline-none focus:ring-4 focus:ring-violet-500/5 focus:border-violet-600 transition-all" />
+                                            <input {...register('documentNumber')} placeholder="00.000.000/0001-00" className="w-full h-14 px-6 bg-slate-50/50 border border-slate-100 rounded-2xl text-sm font-medium text-slate-950 focus:outline-none focus:ring-4 focus:ring-violet-500/5 focus:border-violet-600 transition-all" />
                                             {errors.documentNumber && <p className="text-[10px] text-red-500 font-extrabold uppercase tracking-widest ml-1">{errors.documentNumber.message}</p>}
                                         </div>
 
                                         <div className="grid grid-cols-2 gap-4">
                                             <div className="space-y-2">
                                                 <label className="text-[10px] uppercase font-extrabold text-slate-400 tracking-[0.2em] ml-1">Cidade</label>
-                                                <input {...register('city')} placeholder="São Paulo" className="w-full h-14 px-6 bg-slate-50/50 border border-slate-100 rounded-2xl text-sm font-bold text-slate-950 focus:outline-none focus:ring-4 focus:ring-violet-500/5 focus:border-violet-600 transition-all" />
+                                                <input {...register('city')} placeholder="São Paulo" className="w-full h-14 px-6 bg-slate-50/50 border border-slate-100 rounded-2xl text-sm font-medium text-slate-950 focus:outline-none focus:ring-4 focus:ring-violet-500/5 focus:border-violet-600 transition-all" />
                                                 {errors.city && <p className="text-[10px] text-red-500 font-extrabold uppercase tracking-widest ml-1">{errors.city.message}</p>}
                                             </div>
                                             <div className="space-y-2">
                                                 <label className="text-[10px] uppercase font-extrabold text-slate-400 tracking-[0.2em] ml-1">UF</label>
-                                                <input {...register('state')} placeholder="SP" maxLength={2} className="w-full h-14 px-6 bg-slate-50/50 border border-slate-100 rounded-2xl text-sm font-bold text-slate-950 uppercase focus:outline-none focus:ring-4 focus:ring-violet-500/5 focus:border-violet-600 transition-all" />
+                                                <input {...register('state')} placeholder="SP" maxLength={2} className="w-full h-14 px-6 bg-slate-50/50 border border-slate-100 rounded-2xl text-sm font-medium text-slate-950 uppercase focus:outline-none focus:ring-4 focus:ring-violet-500/5 focus:border-violet-600 transition-all" />
                                                 {errors.state && <p className="text-[10px] text-red-500 font-extrabold uppercase tracking-widest ml-1">{errors.state.message}</p>}
                                             </div>
                                         </div>
 
                                         <div className="space-y-2">
                                             <label className="text-[10px] uppercase font-extrabold text-slate-400 tracking-[0.2em] ml-1">WhatsApp / Telefone</label>
-                                            <input {...register('phoneNumber')} placeholder="(11) 99999-9999" className="w-full h-14 px-6 bg-slate-50/50 border border-slate-100 rounded-2xl text-sm font-bold text-slate-950 focus:outline-none focus:ring-4 focus:ring-violet-500/5 focus:border-violet-600 transition-all" />
+                                            <input {...register('phoneNumber')} placeholder="(11) 99999-9999" className="w-full h-14 px-6 bg-slate-50/50 border border-slate-100 rounded-2xl text-sm font-medium text-slate-950 focus:outline-none focus:ring-4 focus:ring-violet-500/5 focus:border-violet-600 transition-all" />
                                             {errors.phoneNumber && <p className="text-[10px] text-red-500 font-extrabold uppercase tracking-widest ml-1">{errors.phoneNumber.message}</p>}
                                         </div>
                                     </div>
