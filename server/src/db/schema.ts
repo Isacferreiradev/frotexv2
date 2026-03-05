@@ -45,6 +45,13 @@ export const tenants = pgTable('tenants', {
     catalogSettings: jsonb('catalog_settings').default({ showPrices: true, showAvailability: true, whatsappDirect: true }),
     clientPortalSettings: jsonb('client_portal_settings').default({ allowExtensions: false, showFines: true }),
     publicName: text('public_name'),
+    city: text('city'),
+    state: text('state'),
+    operationalProfile: jsonb('operational_profile').default({
+        toolCountRange: null, // e.g., '0-20', '21-100', '100+'
+        currentControlMethod: null, // e.g., 'paper', 'spreadsheet', 'other_system', 'none'
+        activeRentalsRange: null, // e.g., '0-10', '11-50', '50+'
+    }),
 });
 
 // ========== USERS ==========
@@ -56,6 +63,7 @@ export const users = pgTable('users', {
     fullName: text('full_name').notNull(),
     role: text('role', { enum: ['owner', 'employee'] }).notNull().default('employee'),
     avatarUrl: text('avatar_url'),
+    isActive: boolean('is_active').notNull().default(true),
     hasOnboarded: boolean('has_onboarded').notNull().default(false),
     isVerified: boolean('is_verified').notNull().default(false),
     verificationToken: text('verification_token'),

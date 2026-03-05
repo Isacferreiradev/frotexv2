@@ -9,14 +9,22 @@ import { v4 as uuidv4 } from 'uuid';
 import { sendVerificationEmail, sendPasswordResetEmail } from './email.service';
 
 export const registerSchema = z.object({
-    tenantName: z.string().min(2, 'Nome da locadora obrigatório'),
-    documentType: z.enum(['CPF', 'CNPJ']).default('CPF'),
-    documentNumber: z.string().min(11, 'Documento inválido'),
-    phoneNumber: z.string().optional(),
-    address: z.string().optional(),
+    // Step 1: Account
     email: z.string().email('Email inválido'),
-    password: z.string().min(6, 'Senha deve ter ao menos 6 caracteres'),
+    password: z.string().min(8, 'A senha deve ter no mínimo 8 caracteres'),
     fullName: z.string().min(2, 'Nome completo obrigatório'),
+
+    // Step 2: Company
+    tenantName: z.string().min(2, 'Nome da locadora obrigatório'),
+    documentNumber: z.string().min(11, 'Documento inválido'),
+    phoneNumber: z.string().min(10, 'Telefone inválido'),
+    city: z.string().min(2, 'Cidade obrigatória'),
+    state: z.string().length(2, 'Estado (UF) deve ter 2 caracteres'),
+
+    // Step 3: Profile
+    toolCountRange: z.string().optional(),
+    currentControlMethod: z.string().optional(),
+    activeRentalsRange: z.string().optional(),
 });
 
 export const loginSchema = z.object({
@@ -34,47 +42,72 @@ export const resetPasswordSchema = z.object({
 });
 
 export async function register(data: z.infer<typeof registerSchema>) {
-    console.log(`[AUTH] Iniciando registro para: ${data.email}`);
+    console.log(`[AUTH] Iniciando registro profissional Locatus para: ${data.email}`);
     try {
-        // Check for duplicate email (case-insensitive and trimmed)
         const email = data.email.toLowerCase().trim();
         const [existingUser] = await db.select({ id: users.id })
             .from(users)
             .where(sql`lower(${users.email}) = ${email}`);
+
         if (existingUser) {
-            console.warn(`[AUTH] Email já cadastrado: ${data.email}`);
             throw new AppError(409, 'Este e-mail já está cadastrado');
         }
 
-        // Create tenant
-        console.log(`[AUTH] Criando tenant: ${data.tenantName}`);
-        const [tenant] = await db.insert(tenants).values({
-            name: data.tenantName,
-            cnpj: data.documentNumber,
-            phoneNumber: data.phoneNumber,
-            address: data.address,
-        }).returning();
+        // Check for duplicate document
+        const [existingTenant] = await db.select({ id: tenants.id })
+            .from(tenants)
+            .where(eq(tenants.cnpj, data.documentNumber));
 
-        // Generate verification token
-        const verificationToken = uuidv4();
+        if (existingTenant) {
+            throw new AppError(409, 'Este CPF/CNPJ já está vinculado a uma conta');
+        }
 
-        // Hash password and create owner user
-        const passwordHash = await bcrypt.hash(data.password, 12);
-        const [user] = await db.insert(users).values({
-            tenantId: tenant.id,
-            email: data.email,
-            passwordHash,
-            fullName: data.fullName,
-            role: 'owner',
-            isVerified: false,
-            verificationToken: verificationToken,
-        }).returning();
+        const rental = await db.transaction(async (tx) => {
+            // 1. Create tenant with operational profile
+            const [tenant] = await tx.insert(tenants).values({
+                name: data.tenantName,
+                cnpj: data.documentNumber,
+                phoneNumber: data.phoneNumber,
+                city: data.city,
+                state: data.state,
+                operationalProfile: {
+                    toolCountRange: data.toolCountRange || null,
+                    currentControlMethod: data.currentControlMethod || null,
+                    activeRentalsRange: data.activeRentalsRange || null,
+                },
+            }).returning();
 
-        // Send verification email in the background to avoid blocking the user
-        sendVerificationEmail(user.email, user.fullName, verificationToken)
+            // 2. Hash password and create owner user
+            const verificationToken = uuidv4();
+            const passwordHash = await bcrypt.hash(data.password, 12);
+
+            const [user] = await tx.insert(users).values({
+                tenantId: tenant.id,
+                email: data.email,
+                passwordHash,
+                fullName: data.fullName,
+                role: 'owner',
+                isVerified: false,
+                verificationToken: verificationToken,
+            }).returning();
+
+            return { user, tenant };
+        });
+
+        // Send verification email
+        sendVerificationEmail(rental.user.email, rental.user.fullName, rental.user.verificationToken!)
             .catch(e => console.error('[AUTH-EMAIL-ERROR] Background email failed:', e));
 
-        return { user: { id: user.id, email: user.email, fullName: user.fullName, role: user.role, tenantId: tenant.id, isVerified: user.isVerified } };
+        return {
+            user: {
+                id: rental.user.id,
+                email: rental.user.email,
+                fullName: rental.user.fullName,
+                role: rental.user.role,
+                tenantId: rental.tenant.id,
+                isVerified: rental.user.isVerified
+            }
+        };
     } catch (error: any) {
         throw error;
     }

@@ -40,10 +40,11 @@ export default function VerifyPage() {
         <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-zinc-50">
             <div className="w-full max-w-md space-y-8 text-center">
                 {/* Logo */}
-                <div className="flex flex-col items-center gap-4">
-                    <div className="w-16 h-16 bg-violet-600 rounded-3xl flex items-center justify-center shadow-2xl shadow-violet-200">
-                        <Wrench className="w-8 h-8 text-white" />
+                <div className="flex flex-col items-center gap-3 animate-in fade-in slide-in-from-top-4 duration-700">
+                    <div className="w-12 h-12 bg-violet-600 rounded-2xl flex items-center justify-center text-white font-black text-xl shadow-2xl shadow-violet-200">
+                        L
                     </div>
+                    <span className="font-black text-2xl tracking-tighter text-zinc-900">Locatus</span>
                 </div>
 
                 {/* Card */}

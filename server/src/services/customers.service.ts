@@ -98,7 +98,11 @@ export async function getCustomer360(tenantId: string, id: string) {
             },
             quotes: {
                 with: {
-                    tool: true,
+                    items: {
+                        with: {
+                            tool: true
+                        }
+                    },
                 },
                 orderBy: (quotes, { desc }) => [desc(quotes.createdAt)],
             },
