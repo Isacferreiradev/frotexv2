@@ -22,6 +22,47 @@ export interface RoiInsight {
         text: string;
         action: string;
     };
+    healthScore: number;
+    healthStatus: 'excellent' | 'good' | 'fair' | 'poor' | 'critical';
+}
+
+export function calculateAssetHealth(tool: any): { score: number, status: 'excellent' | 'good' | 'fair' | 'poor' | 'critical' } {
+    let score = 100;
+    const now = new Date();
+    const acqCost = parseFloat(tool.acquisitionCost || '0');
+    const maintenanceCost = (tool.maintenanceLogs || []).reduce((acc: number, m: any) => acc + parseFloat(m.cost || '0'), 0);
+    const revenue = (tool.rentals || []).reduce((acc: number, r: any) => acc + parseFloat(r.totalAmountActual || '0'), 0);
+
+    // 1. Maintenance Draine: If maintenance > 40% of revenue, drop score
+    if (revenue > 0) {
+        const maintRatio = maintenanceCost / revenue;
+        if (maintRatio > 0.4) score -= 20;
+        if (maintRatio > 0.7) score -= 20;
+    }
+
+    // 2. Usage/Age: If tool is old and hasn't paid itself back
+    const start = tool.acquisitionDate ? new Date(tool.acquisitionDate) : tool.createdAt;
+    const daysOwned = Math.max(1, Math.floor((now.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)));
+    if (daysOwned > 365 && revenue < acqCost) {
+        score -= 10;
+    }
+
+    // 3. Maintenance Recency: If maintenance was very recent (good) or overdue
+    const usageExceeded = tool.currentUsageHours && tool.nextMaintenanceDueHours && parseFloat(tool.currentUsageHours) >= parseFloat(tool.nextMaintenanceDueHours);
+    if (usageExceeded) score -= 30;
+
+    // 4. Critical Status
+    if (tool.status === 'lost' || tool.status === 'unavailable') score = 0;
+    if (tool.status === 'maintenance') score = Math.min(score, 40);
+
+    let status: 'excellent' | 'good' | 'fair' | 'poor' | 'critical' = 'excellent';
+    if (score < 20) status = 'critical';
+    else if (score < 40) status = 'critical'; // Adjusted status names
+    else if (score < 60) status = 'poor';
+    else if (score < 80) status = 'fair';
+    else if (score < 90) status = 'good';
+
+    return { score: Math.max(0, score), status };
 }
 
 export async function getRoiInsights(tenantId: string): Promise<RoiInsight[]> {
@@ -127,7 +168,9 @@ export async function getRoiInsights(tenantId: string): Promise<RoiInsight[]> {
             daysRented,
             lastRentalDate,
             status: tool.status,
-            suggestion
+            suggestion,
+            healthScore: calculateAssetHealth(tool).score,
+            healthStatus: calculateAssetHealth(tool).status,
         };
     });
 

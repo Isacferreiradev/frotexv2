@@ -172,6 +172,8 @@ export async function deleteTool(tenantId: string, id: string) {
     return { success: true };
 }
 
+import { calculateAssetHealth } from './intelligence.service';
+
 export async function getTool360(tenantId: string, id: string) {
     const tool = await db.query.tools.findFirst({
         where: and(eq(tools.tenantId, tenantId), eq(tools.id, id)),
@@ -209,10 +211,12 @@ export async function getTool360(tenantId: string, id: string) {
     const totalMaintenance = tool.maintenanceLogs.reduce((sum, m) => sum + parseFloat(m.cost || '0'), 0);
     const acqCost = parseFloat(tool.acquisitionCost || '0');
 
-    // Simple ROI: (Revenue - Maint - Acq) / (Maint + Acq)
-    const netProfit = totalRevenue - totalMaintenance - (acqCost * 0.2); // 20% depreciation as base cost per year not implemented yet, using simple 20% flat for now
+    // Simple ROI
+    const netProfit = totalRevenue - totalMaintenance - acqCost;
     const totalCost = acqCost + totalMaintenance;
     const roi = totalCost > 0 ? (netProfit / totalCost) * 100 : 0;
+
+    const health = calculateAssetHealth(tool);
 
     return {
         ...tool,
@@ -220,7 +224,9 @@ export async function getTool360(tenantId: string, id: string) {
             totalRevenue,
             totalMaintenance,
             roi: roi.toFixed(1),
-            netProfit: netProfit.toFixed(2)
+            netProfit: netProfit.toFixed(2),
+            healthScore: health.score,
+            healthStatus: health.status
         }
     };
 }

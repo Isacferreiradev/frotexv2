@@ -32,11 +32,14 @@ import { toast } from 'sonner';
 import { motion } from 'framer-motion';
 import { useState } from 'react';
 
+import { ToolForm } from '@/components/forms/ToolForm';
+
 export default function Tool360Page() {
     const { id } = useParams();
     const router = useRouter();
     const queryClient = useQueryClient();
     const [isMaintenanceOpen, setIsMaintenanceOpen] = useState(false);
+    const [isEditOpen, setIsEditOpen] = useState(false);
 
     const { data: tool, isLoading } = useQuery({
         queryKey: ['tool-360', id],
@@ -44,6 +47,16 @@ export default function Tool360Page() {
             const res = await api.get(`/tools/${id}/360`);
             return res.data.data;
         }
+    });
+
+    const updateToolMutation = useMutation({
+        mutationFn: (data: any) => api.patch(`/tools/${id}`, data),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['tool-360', id] });
+            setIsEditOpen(false);
+            toast.success('Equipamento atualizado com sucesso!');
+        },
+        onError: () => toast.error('Erro ao atualizar equipamento'),
     });
 
     const createMaintenanceMutation = useMutation({
@@ -79,20 +92,24 @@ export default function Tool360Page() {
                             <h1 className="text-3xl font-semibold tracking-tight">{tool.name}</h1>
                             <StatusBadge status={tool.status} />
                         </div>
-                        <p className="text-sm text-muted-foreground mt-1">
+                        <p className="text-sm text-muted-foreground mt-1 text-foreground">
                             {tool.brand} • {tool.model} • <span className="font-mono text-[10px] bg-muted px-1.5 py-0.5 rounded uppercase">{tool.assetTag}</span>
                         </p>
                     </div>
                 </div>
                 <div className="flex items-center gap-3">
-                    <Button variant="outline" className="rounded-xl font-bold text-[10px] uppercase tracking-widest h-11 px-6">
-                        <Pencil className="w-3.5 h-3.5 mr-2" /> Editar
+                    <Button
+                        variant="outline"
+                        className="rounded-xl font-bold text-[10px] uppercase tracking-widest h-11 px-6 bg-white"
+                        onClick={() => setIsEditOpen(true)}
+                    >
+                        <Pencil className="w-3.5 h-3.5 mr-2" /> Editar Ativo
                     </Button>
                     <Button
                         className="rounded-xl font-bold text-[10px] uppercase tracking-widest h-11 px-6 shadow-premium"
                         onClick={() => setIsMaintenanceOpen(true)}
                     >
-                        <Plus className="w-3.5 h-3.5 mr-2" /> Nova Manutenção
+                        <Plus className="w-3.5 h-3.5 mr-2" /> Registrar Manutenção
                     </Button>
                 </div>
             </div>
@@ -100,9 +117,9 @@ export default function Tool360Page() {
             {/* Quick Stats Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {[
-                    { label: 'ROI Acumulado', value: `${metrics.roi}%`, icon: TrendingUp, color: 'text-emerald-500', bg: 'bg-emerald-50' },
+                    { label: 'Saúde do Ativo', value: `${metrics.healthScore}/100`, icon: AlertTriangle, color: metrics.healthScore < 40 ? 'text-red-500' : (metrics.healthScore < 70 ? 'text-amber-500' : 'text-emerald-500'), bg: metrics.healthScore < 40 ? 'bg-red-50' : (metrics.healthScore < 70 ? 'bg-amber-50' : 'bg-emerald-50') },
                     { label: 'Receita Total', value: formatCurrency(metrics.totalRevenue), icon: DollarSign, color: 'text-blue-500', bg: 'bg-blue-50' },
-                    { label: 'Custo Manutenção', value: formatCurrency(metrics.totalMaintenance), icon: Wrench, color: 'text-amber-500', bg: 'bg-amber-50' },
+                    { label: 'ROI (Acumulado)', value: `${metrics.roi}%`, icon: TrendingUp, color: 'text-emerald-500', bg: 'bg-emerald-50' },
                     { label: 'Lucro Líquido', value: formatCurrency(metrics.netProfit), icon: Zap, color: 'text-violet-500', bg: 'bg-violet-50' },
                 ].map((stat, i) => (
                     <motion.div
@@ -118,7 +135,7 @@ export default function Tool360Page() {
                             </div>
                             <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Global</span>
                         </div>
-                        <p className="text-2xl font-bold tracking-tight">{stat.value}</p>
+                        <p className="text-2xl font-bold tracking-tight text-foreground">{stat.value}</p>
                         <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-widest mt-1">{stat.label}</p>
                     </motion.div>
                 ))}
@@ -138,14 +155,14 @@ export default function Tool360Page() {
                         {/* Status Card */}
                         <Card className="lg:col-span-2 rounded-2xl border-border/40 shadow-soft overflow-hidden">
                             <CardHeader className="border-b border-border/10 bg-muted/5">
-                                <CardTitle className="text-sm font-bold uppercase tracking-widest text-muted-foreground">Saúde do Ativo</CardTitle>
+                                <CardTitle className="text-sm font-bold uppercase tracking-widest text-muted-foreground">Estado do Ativo: {metrics.healthStatus.toUpperCase()}</CardTitle>
                             </CardHeader>
                             <CardContent className="p-8 space-y-8">
                                 <div className="flex items-center justify-between">
                                     <div className="space-y-1">
                                         <p className="text-sm font-semibold uppercase tracking-widest text-muted-foreground">Uso Atual</p>
                                         <div className="flex items-baseline gap-2">
-                                            <span className="text-4xl font-black">{tool.currentUsageHours}h</span>
+                                            <span className="text-4xl font-black text-foreground">{tool.currentUsageHours}h</span>
                                             <span className="text-xs font-bold text-muted-foreground whitespace-nowrap">Acumuladas</span>
                                         </div>
                                     </div>
@@ -159,16 +176,16 @@ export default function Tool360Page() {
 
                                 <div className="space-y-3">
                                     <div className="flex justify-between text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">
-                                        <span>Progresso Ciclo de Vida</span>
-                                        <span>{((parseFloat(tool.currentUsageHours) / parseFloat(tool.nextMaintenanceDueHours)) * 100).toFixed(0)}%</span>
+                                        <span>Confiança Operacional</span>
+                                        <span className="text-foreground">{metrics.healthScore}%</span>
                                     </div>
                                     <div className="h-4 bg-muted/50 rounded-full overflow-hidden border border-border/40 p-0.5">
                                         <motion.div
                                             initial={{ width: 0 }}
-                                            animate={{ width: `${Math.min(100, (parseFloat(tool.currentUsageHours) / parseFloat(tool.nextMaintenanceDueHours)) * 100)}%` }}
+                                            animate={{ width: `${metrics.healthScore}%` }}
                                             className={cn(
-                                                "h-full rounded-full",
-                                                (parseFloat(tool.currentUsageHours) / parseFloat(tool.nextMaintenanceDueHours)) > 0.8 ? "bg-amber-500" : "bg-primary"
+                                                "h-full rounded-full transition-all duration-1000",
+                                                metrics.healthScore < 40 ? "bg-red-500" : (metrics.healthScore < 70 ? "bg-amber-500" : "bg-emerald-500")
                                             )}
                                         />
                                     </div>
@@ -321,6 +338,22 @@ export default function Tool360Page() {
                     </div>
                 </TabsContent>
             </Tabs>
+
+            <Sheet open={isEditOpen} onOpenChange={setIsEditOpen}>
+                <SheetContent className="sm:max-w-[800px] border-border/40 p-0 overflow-hidden bg-white shadow-float overflow-y-auto">
+                    <div className="px-10 py-10 border-b border-border/40 bg-zinc-50/50">
+                        <SheetTitle className="font-semibold text-2xl tracking-tight text-foreground">Editar Equipamento</SheetTitle>
+                        <SheetDescription className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mt-2">Atualizando metadados da frota</SheetDescription>
+                    </div>
+                    <div className="p-10">
+                        <ToolForm
+                            initialData={tool}
+                            onSubmit={(data) => updateToolMutation.mutate(data)}
+                            isLoading={updateToolMutation.isPending}
+                        />
+                    </div>
+                </SheetContent>
+            </Sheet>
 
             <Sheet open={isMaintenanceOpen} onOpenChange={setIsMaintenanceOpen}>
                 <SheetContent className="sm:max-w-[700px] border-border/40 p-0 overflow-hidden bg-white shadow-float">

@@ -25,6 +25,9 @@ export const createRentalSchema = z.object({
 export const checkinSchema = z.object({
     endDateActual: z.string(),
     paymentMethod: z.enum(['cash', 'pix', 'credit_card', 'debit_card', 'bank_transfer']),
+    equipmentCondition: z.enum(['excellent', 'good', 'fair', 'poor']).default('good'),
+    usageHours: z.coerce.number().optional(),
+    damageNotes: z.string().optional(),
     notes: z.string().optional(),
 });
 
@@ -211,6 +214,9 @@ export async function checkinRental(tenantId: string, id: string, userId: string
                 totalDaysActual,
                 totalAmountActual: String(totalAmountActual),
                 overdueFineAmount: String(overdueFineAmount),
+                equipmentCondition: data.equipmentCondition,
+                usageHours: data.usageHours ? String(data.usageHours) : null,
+                damageNotes: data.damageNotes,
                 checkinBy: userId,
                 updatedAt: new Date(),
             })
@@ -244,8 +250,12 @@ export async function checkinRental(tenantId: string, id: string, userId: string
             });
         }
 
-        // Update tool back to available
-        await tx.update(tools).set({ status: 'available', updatedAt: new Date() }).where(eq(tools.id, rental.toolId));
+        // Update tool back to available and update usage hours
+        await tx.update(tools).set({
+            status: 'available',
+            currentUsageHours: data.usageHours ? sql`${tools.currentUsageHours} + ${String(data.usageHours)}` : tools.currentUsageHours,
+            updatedAt: new Date()
+        }).where(eq(tools.id, rental.toolId));
 
         // Create check-in event
         await tx.insert(rentalEvents).values({

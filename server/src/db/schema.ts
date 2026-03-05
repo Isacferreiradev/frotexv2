@@ -171,16 +171,30 @@ export const clientCommunications = pgTable('client_communications', {
 export const quotes = pgTable('quotes', {
     id: uuid('id').primaryKey().defaultRandom().notNull(),
     tenantId: uuid('tenant_id').notNull().references(() => tenants.id, { onDelete: 'cascade' }),
-    toolId: uuid('tool_id').notNull().references(() => tools.id, { onDelete: 'cascade' }),
     customerId: uuid('customer_id').notNull().references(() => customers.id, { onDelete: 'cascade' }),
-    status: text('status', { enum: ['draft', 'sent', 'accepted', 'rejected'] }).notNull().default('draft'),
+    quoteCode: text('quote_code').notNull(),
+    status: text('status', { enum: ['draft', 'sent', 'accepted', 'rejected', 'expired'] }).notNull().default('draft'),
     startDate: timestamp('start_date', { withTimezone: true }).notNull(),
     endDateExpected: timestamp('end_date_expected', { withTimezone: true }).notNull(),
     totalAmount: numeric('total_amount', { precision: 10, scale: 2 }).notNull().default('0.00'),
+    totalDiscount: numeric('total_discount', { precision: 10, scale: 2 }).default('0.00'),
     validUntil: timestamp('valid_until', { withTimezone: true }),
     notes: text('notes'),
+    termsAndConditions: text('terms_and_conditions'),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+});
+
+// ========== QUOTE ITEMS ==========
+export const quoteItems = pgTable('quote_items', {
+    id: uuid('id').primaryKey().defaultRandom().notNull(),
+    tenantId: uuid('tenant_id').notNull().references(() => tenants.id, { onDelete: 'cascade' }),
+    quoteId: uuid('quote_id').notNull().references(() => quotes.id, { onDelete: 'cascade' }),
+    toolId: uuid('tool_id').notNull().references(() => tools.id, { onDelete: 'cascade' }),
+    quantity: integer('quantity').notNull().default(1),
+    dailyRate: numeric('daily_rate', { precision: 10, scale: 2 }).notNull(),
+    totalAmount: numeric('total_amount', { precision: 10, scale: 2 }).notNull(),
+    notes: text('notes'),
 });
 
 // ========== RENTALS ==========
@@ -215,6 +229,9 @@ export const rentals = pgTable(
         contractPdfUrl: text('contract_pdf_url'),
         checkoutBy: uuid('checkout_by').references(() => users.id),
         checkinBy: uuid('checkin_by').references(() => users.id),
+        equipmentCondition: text('equipment_condition', { enum: ['excellent', 'good', 'fair', 'poor'] }),
+        usageHours: numeric('usage_hours', { precision: 10, scale: 2 }), // Hours used during THIS rental
+        damageNotes: text('damage_notes'),
         notes: text('notes'),
         lastNotificationDate: timestamp('last_notification_date', { withTimezone: true }),
         createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
@@ -417,7 +434,7 @@ export const toolsRelations = relations(tools, ({ one, many }) => ({
     category: one(toolCategories, { fields: [tools.categoryId], references: [toolCategories.id] }),
     rentals: many(rentals),
     maintenanceLogs: many(maintenanceLogs),
-    quotes: many(quotes),
+    quoteItems: many(quoteItems) // Changed from quotes: many(quotes)
 }));
 
 export const customersRelations = relations(customers, ({ one, many }) => ({
@@ -465,10 +482,16 @@ export const contractTemplatesRelations = relations(contractTemplates, ({ one })
     tenant: one(tenants, { fields: [contractTemplates.tenantId], references: [tenants.id] }),
 }));
 
-export const quotesRelations = relations(quotes, ({ one }) => ({
+export const quotesRelations = relations(quotes, ({ one, many }) => ({
     tenant: one(tenants, { fields: [quotes.tenantId], references: [tenants.id] }),
-    tool: one(tools, { fields: [quotes.toolId], references: [tools.id] }),
     customer: one(customers, { fields: [quotes.customerId], references: [customers.id] }),
+    items: many(quoteItems),
+}));
+
+export const quoteItemsRelations = relations(quoteItems, ({ one }) => ({
+    tenant: one(tenants, { fields: [quoteItems.tenantId], references: [tenants.id] }),
+    quote: one(quotes, { fields: [quoteItems.quoteId], references: [quotes.id] }),
+    tool: one(tools, { fields: [quoteItems.toolId], references: [tools.id] }),
 }));
 
 export const clientCommunicationsRelations = relations(clientCommunications, ({ one }) => ({
@@ -525,6 +548,8 @@ export const checklistsRelations = relations(checklists, ({ one }) => ({
 
 export type Checklist = typeof checklists.$inferSelect;
 export type NewChecklist = typeof checklists.$inferInsert;
+export type QuoteItem = typeof quoteItems.$inferSelect;
+export type NewQuoteItem = typeof quoteItems.$inferInsert;
 export type ActivityLog = typeof activityLogs.$inferSelect;
 export type NewActivityLog = typeof activityLogs.$inferInsert;
 export type ContractTemplate = typeof contractTemplates.$inferSelect;

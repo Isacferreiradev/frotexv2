@@ -34,6 +34,9 @@ export default function LocacoesPage() {
     const [detailRental, setDetailRental] = useState<any>(null);
     const [returnDate, setReturnDate] = useState(new Date().toISOString().split('T')[0]);
     const [paymentMethod, setPaymentMethod] = useState('pix');
+    const [condition, setCondition] = useState('good');
+    const [usageHours, setUsageHours] = useState('');
+    const [damageNotes, setDamageNotes] = useState('');
     const queryClient = useQueryClient();
 
     const { data, isLoading } = useQuery({
@@ -59,8 +62,8 @@ export default function LocacoesPage() {
     });
 
     const returnMutation = useMutation({
-        mutationFn: ({ id, date, method }: { id: string; date: string; method: string }) =>
-            api.put(`/rentals/${id}/checkin`, { endDateActual: date, paymentMethod: method }),
+        mutationFn: ({ id, date, method, condition, usageHours, damageNotes }: { id: string; date: string; method: string, condition: string, usageHours: string, damageNotes: string }) =>
+            api.put(`/rentals/${id}/checkin`, { endDateActual: date, paymentMethod: method, equipmentCondition: condition, usageHours, damageNotes }),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['rentals'] });
             queryClient.invalidateQueries({ queryKey: ['dashboard-stats'] });
@@ -70,6 +73,9 @@ export default function LocacoesPage() {
             queryClient.invalidateQueries({ queryKey: ['tools'] });
             setIsReturnOpen(false);
             setSelectedRental(null);
+            setCondition('good');
+            setUsageHours('');
+            setDamageNotes('');
             toast.success('Equipamento devolvido com sucesso!');
         },
         onError: (err: any) => toast.error(err.response?.data?.message || 'Erro ao processar devolução'),
@@ -164,29 +170,68 @@ export default function LocacoesPage() {
                                         </div>
                                     </div>
 
-                                    <div className="space-y-3">
-                                        <label className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground ml-1">Data Real de Entrega</label>
-                                        <input
-                                            type="date"
-                                            value={returnDate}
-                                            onChange={(e) => setReturnDate(e.target.value)}
-                                            className="w-full px-5 py-3.5 bg-muted/30 border-none rounded-xl text-sm font-medium focus:outline-none focus:ring-1 focus:ring-primary/20 transition-all"
-                                        />
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="space-y-3">
+                                            <label className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground ml-1">Data Real de Entrega</label>
+                                            <input
+                                                type="date"
+                                                value={returnDate}
+                                                onChange={(e) => setReturnDate(e.target.value)}
+                                                className="w-full px-5 py-3.5 bg-muted/30 border-none rounded-xl text-sm font-medium focus:outline-none focus:ring-1 focus:ring-primary/20 transition-all text-foreground"
+                                            />
+                                        </div>
+
+                                        <div className="space-y-3">
+                                            <label className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground ml-1">Forma de Pagamento</label>
+                                            <select
+                                                value={paymentMethod}
+                                                onChange={(e) => setPaymentMethod(e.target.value)}
+                                                className="w-full px-5 py-3.5 bg-muted/30 border-none rounded-xl text-sm font-medium focus:outline-none focus:ring-1 focus:ring-primary/20 transition-all appearance-none text-foreground"
+                                            >
+                                                <option value="pix">PIX</option>
+                                                <option value="cash">Dinheiro</option>
+                                                <option value="credit_card">Cartão de Crédito</option>
+                                                <option value="debit_card">Cartão de Débito</option>
+                                                <option value="bank_transfer">Transferência Bancária</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="space-y-3">
+                                            <label className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground ml-1">Estado do Ativo</label>
+                                            <select
+                                                value={condition}
+                                                onChange={(e: any) => setCondition(e.target.value)}
+                                                className="w-full px-5 py-3.5 bg-muted/30 border-none rounded-xl text-sm font-medium focus:outline-none focus:ring-1 focus:ring-primary/20 transition-all appearance-none text-foreground"
+                                            >
+                                                <option value="excellent">Excelente</option>
+                                                <option value="good">Bom</option>
+                                                <option value="fair">Regular</option>
+                                                <option value="poor">Ruim / Crítico</option>
+                                            </select>
+                                        </div>
+
+                                        <div className="space-y-3">
+                                            <label className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground ml-1">Horas de Uso (Nesta Locação)</label>
+                                            <input
+                                                type="number"
+                                                placeholder="0.00"
+                                                value={usageHours}
+                                                onChange={(e) => setUsageHours(e.target.value)}
+                                                className="w-full px-5 py-3.5 bg-muted/30 border-none rounded-xl text-sm font-medium focus:outline-none focus:ring-1 focus:ring-primary/20 transition-all text-foreground"
+                                            />
+                                        </div>
                                     </div>
 
                                     <div className="space-y-3">
-                                        <label className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground ml-1">Forma de Pagamento</label>
-                                        <select
-                                            value={paymentMethod}
-                                            onChange={(e) => setPaymentMethod(e.target.value)}
-                                            className="w-full px-5 py-3.5 bg-muted/30 border-none rounded-xl text-sm font-medium focus:outline-none focus:ring-1 focus:ring-primary/20 transition-all appearance-none"
-                                        >
-                                            <option value="pix">PIX</option>
-                                            <option value="cash">Dinheiro</option>
-                                            <option value="credit_card">Cartão de Crédito</option>
-                                            <option value="debit_card">Cartão de Débito</option>
-                                            <option value="bank_transfer">Transferência Bancária</option>
-                                        </select>
+                                        <label className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground ml-1">Notas de Avaria / Observações</label>
+                                        <textarea
+                                            placeholder="Descreva qualquer dano ou observação sobre o estado do equipamento..."
+                                            value={damageNotes}
+                                            onChange={(e) => setDamageNotes(e.target.value)}
+                                            className="w-full px-5 py-3.5 bg-muted/30 border-none rounded-xl text-sm font-medium focus:outline-none focus:ring-1 focus:ring-primary/20 transition-all min-h-[100px] text-foreground"
+                                        />
                                     </div>
 
                                     {/* Real-time Calculation with Intelligence Breakdown */}
@@ -275,7 +320,14 @@ export default function LocacoesPage() {
                                     </button>
                                     <button
                                         disabled={returnMutation.isPending}
-                                        onClick={() => returnMutation.mutate({ id: selectedRental.id, date: returnDate, method: paymentMethod })}
+                                        onClick={() => returnMutation.mutate({
+                                            id: selectedRental.id,
+                                            date: returnDate,
+                                            method: paymentMethod,
+                                            condition,
+                                            usageHours,
+                                            damageNotes
+                                        })}
                                         className="flex-1 px-5 py-3.5 rounded-xl bg-primary text-white text-[11px] font-semibold uppercase tracking-widest hover:bg-primary/90 transition-all shadow-premium flex items-center justify-center gap-2"
                                     >
                                         {returnMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Confirmar Retorno'}
