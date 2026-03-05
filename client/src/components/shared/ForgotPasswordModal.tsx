@@ -77,7 +77,7 @@ export function ForgotPasswordModal({ open, onOpenChange }: ForgotPasswordModalP
 
                             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
                                 <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em] ml-1">
+                                    <label className="text-[10px] font-extrabold text-zinc-400 uppercase tracking-[0.2em] ml-1">
                                         Seu E-mail de Cadastro
                                     </label>
                                     <input
@@ -96,7 +96,7 @@ export function ForgotPasswordModal({ open, onOpenChange }: ForgotPasswordModalP
                                 <button
                                     type="submit"
                                     disabled={isSubmitting}
-                                    className="w-full flex items-center justify-center gap-3 py-4 bg-violet-600 hover:bg-violet-700 disabled:opacity-50 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all shadow-lg shadow-violet-100 hover:shadow-violet-200 active:scale-[0.98]"
+                                    className="w-full flex items-center justify-center gap-3 py-4 bg-violet-600 hover:bg-violet-700 disabled:opacity-50 text-white rounded-2xl text-[10px] font-extrabold uppercase tracking-[0.2em] transition-all shadow-lg shadow-violet-100 hover:shadow-violet-200 active:scale-[0.98]"
                                 >
                                     {isSubmitting ? (
                                         <Loader2 className="w-4 h-4 animate-spin" />
@@ -106,7 +106,7 @@ export function ForgotPasswordModal({ open, onOpenChange }: ForgotPasswordModalP
                                 </button>
                             </form>
 
-                            <p className="text-center text-[10px] text-zinc-400 font-bold uppercase tracking-widest">
+                            <p className="text-center text-[10px] text-zinc-400 font-extrabold uppercase tracking-widest">
                                 Lembrou a senha?{' '}
                                 <button
                                     onClick={handleClose}
@@ -132,7 +132,7 @@ export function ForgotPasswordModal({ open, onOpenChange }: ForgotPasswordModalP
 
                         <button
                             onClick={handleClose}
-                            className="w-full py-4 bg-zinc-900 hover:bg-black text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all shadow-xl shadow-zinc-100 active:scale-[0.98]"
+                            className="w-full py-4 bg-zinc-900 hover:bg-black text-white rounded-2xl text-[10px] font-extrabold uppercase tracking-[0.2em] transition-all shadow-xl shadow-zinc-100 active:scale-[0.98]"
                         >
                             Entendi
                         </button>

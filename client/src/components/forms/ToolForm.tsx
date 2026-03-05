@@ -12,7 +12,7 @@ import api from '@/lib/api';
 import { Loader2, Plus } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { CategoryForm } from './CategoryForm';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
@@ -71,6 +71,8 @@ export function ToolForm({ initialData, onSubmit, isLoading }: ToolFormProps) {
 
     const queryClient = useQueryClient();
     const [isCategoryDialogOpen, setIsCategoryDialogOpen] = useState(false);
+    const [newCategoryName, setNewCategoryName] = useState('');
+    const [isCreatingCategory, setIsCreatingCategory] = useState(false);
 
     const { data: categories } = useQuery({
         queryKey: ['categories'],
@@ -111,36 +113,75 @@ export function ToolForm({ initialData, onSubmit, isLoading }: ToolFormProps) {
 
                         <div className="space-y-2 text-foreground">
                             <Label>Categoria</Label>
-                            <Select
-                                onValueChange={(v) => {
-                                    if (v === 'ADD_NEW') {
-                                        setTimeout(() => setIsCategoryDialogOpen(true), 50);
-                                    } else {
-                                        setValue('categoryId', v);
-                                    }
-                                }}
-                                defaultValue={initialData?.categoryId}
-                                value={watch('categoryId')}
-                            >
-                                <SelectTrigger className="h-12 bg-white border-zinc-200 rounded-xl">
-                                    <SelectValue placeholder="Selecione..." />
-                                </SelectTrigger>
-                                <SelectContent className="max-h-[300px] bg-white border-zinc-100 shadow-xl z-[100] text-foreground">
-                                    <SelectItem
-                                        value="ADD_NEW"
-                                        className="flex items-center gap-2 p-3 text-[10px] font-extrabold text-violet-600 uppercase tracking-widest hover:bg-violet-50 focus:bg-violet-50 border-b border-zinc-50 mb-1 cursor-pointer"
-                                    >
-                                        <Plus className="w-3.5 h-3.5 mr-2 inline" />
-                                        Nova Categoria
-                                    </SelectItem>
-
-                                    {categories?.map((cat: any) => (
-                                        <SelectItem key={cat.id} value={cat.id} className="cursor-pointer">
-                                            {cat.name}
+                            {!isCreatingCategory ? (
+                                <Select
+                                    onValueChange={(v) => {
+                                        if (v === 'ADD_NEW') {
+                                            setIsCreatingCategory(true);
+                                            setValue('categoryId', '');
+                                        } else {
+                                            setValue('categoryId', v);
+                                        }
+                                    }}
+                                    value={watch('categoryId')}
+                                >
+                                    <SelectTrigger className="h-12 bg-white border-zinc-200 rounded-xl">
+                                        <SelectValue placeholder="Selecione..." />
+                                    </SelectTrigger>
+                                    <SelectContent className="max-h-[300px] bg-white border-zinc-100 shadow-xl z-[100] text-foreground">
+                                        <SelectItem
+                                            value="ADD_NEW"
+                                            className="flex items-center gap-2 p-3 text-[10px] font-extrabold text-violet-600 uppercase tracking-widest hover:bg-violet-50 focus:bg-violet-50 border-b border-zinc-50 mb-1 cursor-pointer"
+                                        >
+                                            <Plus className="w-3.5 h-3.5 mr-2 inline" />
+                                            Nova Categoria
                                         </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
+
+                                        {categories?.map((cat: any) => (
+                                            <SelectItem key={cat.id} value={cat.id} className="cursor-pointer">
+                                                {cat.name}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            ) : (
+                                <div className="flex gap-2">
+                                    <Input
+                                        value={newCategoryName}
+                                        onChange={(e) => setNewCategoryName(e.target.value)}
+                                        placeholder="Nome da categoria"
+                                        className="h-12 rounded-xl flex-1"
+                                        autoFocus
+                                    />
+                                    <Button
+                                        type="button"
+                                        onClick={async () => {
+                                            if (!newCategoryName) return;
+                                            try {
+                                                const res = await api.post('/tool-categories', { name: newCategoryName });
+                                                const newCat = res.data.data;
+                                                await queryClient.invalidateQueries({ queryKey: ['categories'] });
+                                                setValue('categoryId', newCat.id);
+                                                setIsCreatingCategory(false);
+                                                setNewCategoryName('');
+                                                toast.success('Categoria criada!');
+                                            } catch (err) {
+                                                toast.error('Erro ao criar categoria');
+                                            }
+                                        }}
+                                        className="h-12 w-12 bg-violet-500 text-white rounded-xl hover:bg-violet-600 p-0"
+                                    >
+                                        <Plus className="w-5 h-5" />
+                                    </Button>
+                                    <Button
+                                        type="button"
+                                        onClick={() => setIsCreatingCategory(false)}
+                                        className="h-12 w-12 bg-zinc-100 text-zinc-500 rounded-xl hover:bg-zinc-200 p-0"
+                                    >
+                                        <Plus className="w-5 h-5 rotate-45" />
+                                    </Button>
+                                </div>
+                            )}
                             <Dialog open={isCategoryDialogOpen} onOpenChange={setIsCategoryDialogOpen}>
                                 <DialogContent className="sm:max-w-[400px] p-0 overflow-hidden shadow-2xl">
                                     <div className="px-8 py-6 border-b border-zinc-100 bg-zinc-50/50">
@@ -186,15 +227,24 @@ export function ToolForm({ initialData, onSubmit, isLoading }: ToolFormProps) {
                     <div className="grid grid-cols-3 gap-4">
                         <div className="space-y-2">
                             <Label htmlFor="dailyRate">Diária (R$)</Label>
-                            <Input id="dailyRate" type="number" step="0.01" {...register('dailyRate')} className="h-12 rounded-xl font-bold text-violet-600" />
+                            <div className="relative">
+                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 font-bold text-xs pointer-events-none">R$</span>
+                                <Input id="dailyRate" type="number" step="0.01" {...register('dailyRate')} className="h-12 rounded-xl pl-10 font-bold text-violet-600" />
+                            </div>
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="minRentalValue">Valor Mínimo (R$)</Label>
-                            <Input id="minRentalValue" type="number" step="0.01" {...register('minRentalValue')} className="h-12 rounded-xl" />
+                            <div className="relative">
+                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 font-bold text-xs pointer-events-none">R$</span>
+                                <Input id="minRentalValue" type="number" step="0.01" {...register('minRentalValue')} className="h-12 rounded-xl pl-10" />
+                            </div>
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="cleaningFee">Taxa Limpeza (R$)</Label>
-                            <Input id="cleaningFee" type="number" step="0.01" {...register('cleaningFee')} className="h-12 rounded-xl" />
+                            <div className="relative">
+                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 font-bold text-xs pointer-events-none">R$</span>
+                                <Input id="cleaningFee" type="number" step="0.01" {...register('cleaningFee')} className="h-12 rounded-xl pl-10" />
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -207,7 +257,10 @@ export function ToolForm({ initialData, onSubmit, isLoading }: ToolFormProps) {
                     <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
                             <Label htmlFor="acquisitionCost">Custo de Aquisição (R$)</Label>
-                            <Input id="acquisitionCost" type="number" step="0.01" {...register('acquisitionCost')} className="h-12 rounded-xl" />
+                            <div className="relative">
+                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 font-bold text-xs pointer-events-none">R$</span>
+                                <Input id="acquisitionCost" type="number" step="0.01" {...register('acquisitionCost')} className="h-12 rounded-xl pl-10" />
+                            </div>
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="acquisitionDate">Data de Compra</Label>

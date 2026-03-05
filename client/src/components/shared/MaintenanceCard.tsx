@@ -46,14 +46,14 @@ export function MaintenanceCard({ log }: MaintenanceCardProps) {
                 <div className="flex items-center gap-2">
                     <Calendar className="w-3.5 h-3.5 text-zinc-400" />
                     <div className="flex flex-col">
-                        <span className="text-[8px] font-bold text-zinc-400 uppercase tracking-tighter">Concluído em</span>
+                        <span className="text-[8px] font-bold text-zinc-400 uppercase tracking-tight">Concluído em</span>
                         <span className="text-[10px] font-bold text-zinc-900 tabular-nums">{formatDate(log.maintenanceDate)}</span>
                     </div>
                 </div>
                 <div className="flex items-center gap-2 justify-end">
                     <DollarSign className="w-3.5 h-3.5 text-emerald-500" />
                     <div className="flex flex-col items-end">
-                        <span className="text-[8px] font-bold text-zinc-400 uppercase tracking-tighter">Custo OS</span>
+                        <span className="text-[8px] font-bold text-zinc-400 uppercase tracking-tight">Custo OS</span>
                         <span className="text-[10px] font-bold text-emerald-600 tabular-nums">{formatCurrency(log.cost)}</span>
                     </div>
                 </div>

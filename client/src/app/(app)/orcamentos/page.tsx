@@ -90,18 +90,18 @@ export default function OrcamentosPage() {
             {/* Dashboard Stats */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6 animate-in fade-in slide-in-from-top-4 duration-1000 delay-200">
                 <div className="bg-white p-6 rounded-2xl border border-border/40 shadow-soft">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-zinc-400 mb-2">Total em Aberto</p>
+                    <p className="text-[10px] font-extrabold uppercase tracking-widest text-zinc-400 mb-2">Total em Aberto</p>
                     <div className="flex items-baseline gap-2">
-                        <span className="text-2xl font-black text-zinc-900">
+                        <span className="text-2xl font-extrabold text-zinc-900">
                             {formatCurrency(quotes?.filter((q: any) => q.status === 'sent' || q.status === 'draft').reduce((acc: number, q: any) => acc + parseFloat(q.totalAmount), 0) || 0)}
                         </span>
                     </div>
                 </div>
 
                 <div className="bg-white p-6 rounded-2xl border border-border/40 shadow-soft">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-zinc-400 mb-2">Taxa de Conversão</p>
+                    <p className="text-[10px] font-extrabold uppercase tracking-widest text-zinc-400 mb-2">Taxa de Conversão</p>
                     <div className="flex items-baseline gap-2">
-                        <span className="text-2xl font-black text-emerald-600">
+                        <span className="text-2xl font-extrabold text-emerald-600">
                             {quotes?.length > 0
                                 ? ((quotes.filter((q: any) => q.status === 'accepted' || q.status === 'converted').length / quotes.length) * 100).toFixed(0)
                                 : 0}%
@@ -110,18 +110,18 @@ export default function OrcamentosPage() {
                 </div>
 
                 <div className="bg-white p-6 rounded-2xl border border-border/40 shadow-soft">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-zinc-400 mb-2">Enviados</p>
+                    <p className="text-[10px] font-extrabold uppercase tracking-widest text-zinc-400 mb-2">Enviados</p>
                     <div className="flex items-baseline gap-2">
-                        <span className="text-2xl font-black text-blue-600">
+                        <span className="text-2xl font-extrabold text-blue-600">
                             {quotes?.filter((q: any) => q.status === 'sent').length || 0}
                         </span>
                     </div>
                 </div>
 
                 <div className="bg-white p-6 rounded-2xl border border-border/40 shadow-soft">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-zinc-400 mb-2">Ticket Médio</p>
+                    <p className="text-[10px] font-extrabold uppercase tracking-widest text-zinc-400 mb-2">Ticket Médio</p>
                     <div className="flex items-baseline gap-2">
-                        <span className="text-2xl font-black text-zinc-900">
+                        <span className="text-2xl font-extrabold text-zinc-900">
                             {formatCurrency(quotes?.length > 0
                                 ? quotes.reduce((acc: number, q: any) => acc + parseFloat(q.totalAmount), 0) / quotes.length
                                 : 0)}
@@ -167,7 +167,7 @@ export default function OrcamentosPage() {
                                         <td className="px-8 py-6 text-xs font-bold text-zinc-700">
                                             {format(new Date(q.startDate), 'dd/MM/yy')} → {format(new Date(q.endDateExpected), 'dd/MM/yy')}
                                         </td>
-                                        <td className="px-8 py-6 text-sm font-black text-violet-600">
+                                        <td className="px-8 py-6 text-sm font-extrabold text-violet-600">
                                             {formatCurrency(q.totalAmount)}
                                         </td>
                                         <td className="px-8 py-6">

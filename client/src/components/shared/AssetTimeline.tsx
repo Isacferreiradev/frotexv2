@@ -114,7 +114,7 @@ export function AssetTimeline({ events, loading }: AssetTimelineProps) {
                         <div className="flex-1 pt-0.5 pl-10">
                             <div className="flex items-center justify-between gap-4">
                                 <span className={cn(
-                                    "text-[9px] font-black uppercase tracking-[0.2em] px-2 py-0.5 rounded border mb-2 inline-block",
+                                    "text-[9px] font-extrabold uppercase tracking-[0.2em] px-2 py-0.5 rounded border mb-2 inline-block",
                                     config.bg,
                                     config.color,
                                     config.border

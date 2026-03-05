@@ -73,7 +73,7 @@ export function CustomerSearch({ onSelect, selectedId }: CustomerSearchProps) {
                                 <div>
                                     <div className="flex items-center gap-2">
                                         <p className="text-sm font-bold text-foreground">{customer.fullName}</p>
-                                        {customer.isBlocked && <span className="text-[8px] font-black bg-red-500 text-white px-1.5 py-0.5 rounded uppercase tracking-widest">Bloqueado</span>}
+                                        {customer.isBlocked && <span className="text-[8px] font-extrabold bg-red-500 text-white px-1.5 py-0.5 rounded uppercase tracking-widest">Bloqueado</span>}
                                     </div>
                                     <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-tight">
                                         {customer.documentNumber} · {customer.phoneNumber}

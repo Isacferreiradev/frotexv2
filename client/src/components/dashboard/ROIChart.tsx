@@ -18,7 +18,7 @@ export function ROIChart({ data, loading }: ROIChartProps) {
     return (
         <Card glass className="col-span-1 xl:col-span-1 border-none">
             <CardHeader>
-                <CardTitle className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400">
+                <CardTitle className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-zinc-400">
                     ROI por Categoria
                 </CardTitle>
             </CardHeader>

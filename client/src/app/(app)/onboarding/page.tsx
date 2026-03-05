@@ -114,6 +114,8 @@ export default function OnboardingPage() {
     const [step, setStep] = useState(1);
     const [createdTool, setCreatedTool] = useState<any>(null);
     const [createdCustomer, setCreatedCustomer] = useState<any>(null);
+    const [newCategoryName, setNewCategoryName] = useState('');
+    const [isCreatingCategory, setIsCreatingCategory] = useState(false);
 
     // Queries
     const { data: categories } = useQuery({
@@ -221,12 +223,14 @@ export default function OnboardingPage() {
                         ))}
                     </div>
 
-                    <button
-                        onClick={() => setStep(2)}
-                        className="btn-primary w-full max-w-xs h-14 text-lg"
-                    >
-                        Começar configuração <ChevronRight className="w-5 h-5 ml-2" />
-                    </button>
+                    <div className="flex justify-center">
+                        <button
+                            onClick={() => setStep(2)}
+                            className="btn-primary w-full max-w-xs h-14 text-lg"
+                        >
+                            Começar configuração <ChevronRight className="w-5 h-5 ml-2" />
+                        </button>
+                    </div>
 
                     <p className="text-zinc-400 text-sm">Tempo estimado: 3 minutos</p>
                 </div>
@@ -256,27 +260,75 @@ export default function OnboardingPage() {
 
                         <div className="space-y-1.5">
                             <label className="label">Categoria</label>
-                            <select
-                                {...toolForm.register('categoryId')}
-                                className="input-field appearance-none"
-                            >
-                                <option value="">Selecione uma categoria</option>
-                                {categories?.map((cat: any) => (
-                                    <option key={cat.id} value={cat.id}>{cat.name}</option>
-                                ))}
-                            </select>
+                            {!isCreatingCategory ? (
+                                <div className="space-y-2">
+                                    <select
+                                        {...toolForm.register('categoryId')}
+                                        onChange={(e) => {
+                                            if (e.target.value === 'NEW') {
+                                                setIsCreatingCategory(true);
+                                                toolForm.setValue('categoryId', '' as any);
+                                            }
+                                        }}
+                                        className="input-field appearance-none"
+                                    >
+                                        <option value="">Selecione uma categoria</option>
+                                        <option value="NEW" className="text-violet-600 font-bold">+ Criar nova categoria</option>
+                                        {categories?.map((cat: any) => (
+                                            <option key={cat.id} value={cat.id}>{cat.name}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                            ) : (
+                                <div className="flex gap-2">
+                                    <input
+                                        value={newCategoryName}
+                                        onChange={(e) => setNewCategoryName(e.target.value)}
+                                        placeholder="Nome da nova categoria"
+                                        className="input-field"
+                                        autoFocus
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={async () => {
+                                            if (!newCategoryName) return;
+                                            try {
+                                                const res = await api.post('/tool-categories', { name: newCategoryName });
+                                                const newCat = res.data.data;
+                                                await queryClient.invalidateQueries({ queryKey: ['categories'] });
+                                                toolForm.setValue('categoryId', newCat.id);
+                                                setIsCreatingCategory(false);
+                                                setNewCategoryName('');
+                                                toast.success('Categoria criada!');
+                                            } catch (err) {
+                                                toast.error('Erro ao criar categoria');
+                                            }
+                                        }}
+                                        className="px-4 bg-violet-500 text-white rounded-xl hover:bg-violet-600 transition-colors"
+                                    >
+                                        <Check className="w-5 h-5" />
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setIsCreatingCategory(false)}
+                                        className="px-4 bg-zinc-100 text-zinc-500 rounded-xl hover:bg-zinc-200 transition-colors"
+                                    >
+                                        <Plus className="w-5 h-5 rotate-45" />
+                                    </button>
+                                </div>
+                            )}
                             {toolForm.formState.errors.categoryId && <p className="text-xs text-red-500">{toolForm.formState.errors.categoryId.message}</p>}
                         </div>
 
                         <div className="space-y-1.5">
                             <label className="label">Valor do aluguel (por dia)</label>
                             <div className="relative">
-                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 font-bold">R$</span>
+                                <span className="absolute left-5 top-1/2 -translate-y-1/2 text-zinc-400 font-bold select-none pointer-events-none">R$</span>
                                 <input
                                     type="number"
                                     step="0.01"
                                     {...toolForm.register('dailyRate')}
-                                    className="input-field pl-12"
+                                    className="input-field pl-14"
                                     placeholder="0,00"
                                 />
                             </div>
@@ -370,12 +422,12 @@ export default function OnboardingPage() {
                         <div className="space-y-1.5">
                             <label className="label">Valor Total Acordado</label>
                             <div className="relative">
-                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 font-bold">R$</span>
+                                <span className="absolute left-5 top-1/2 -translate-y-1/2 text-zinc-400 font-bold select-none pointer-events-none">R$</span>
                                 <input
                                     type="number"
                                     step="0.01"
                                     {...rentalForm.register('dailyRateAgreed')}
-                                    className="input-field pl-12"
+                                    className="input-field pl-14"
                                     placeholder="0,00"
                                 />
                             </div>

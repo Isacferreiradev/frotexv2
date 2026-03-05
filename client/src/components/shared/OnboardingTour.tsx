@@ -99,7 +99,7 @@ export function OnboardingTour() {
                         </div>
 
                         <div className="space-y-2">
-                            <h3 className="text-2xl font-black text-zinc-900 tracking-tight">{ActiveStep.title}</h3>
+                            <h3 className="text-2xl font-extrabold text-zinc-900 tracking-tight">{ActiveStep.title}</h3>
                             <p className="text-zinc-500 text-sm leading-relaxed max-w-[280px] mx-auto font-medium">
                                 {ActiveStep.description}
                             </p>

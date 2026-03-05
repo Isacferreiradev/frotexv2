@@ -76,7 +76,7 @@ export function AvailabilityCalendar({ toolId }: AvailabilityCalendarProps) {
                     <>
                         <div className="grid grid-cols-7 gap-2 mb-4">
                             {['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'].map(d => (
-                                <div key={d} className="text-center text-[9px] font-black text-zinc-400 uppercase tracking-tighter py-2">
+                                <div key={d} className="text-center text-[9px] font-extrabold text-zinc-400 uppercase tracking-tight py-2">
                                     {d}
                                 </div>
                             ))}
@@ -114,15 +114,15 @@ export function AvailabilityCalendar({ toolId }: AvailabilityCalendarProps) {
                         <div className="mt-8 pt-6 border-t border-violet-50 grid grid-cols-3 gap-4">
                             <div className="flex items-center gap-2">
                                 <div className="w-2.5 h-2.5 rounded-full bg-emerald-400" />
-                                <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-tighter">Livre</span>
+                                <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-tight">Livre</span>
                             </div>
                             <div className="flex items-center gap-2">
                                 <div className="w-2.5 h-2.5 rounded-full bg-red-400" />
-                                <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-tighter">Alugado</span>
+                                <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-tight">Alugado</span>
                             </div>
                             <div className="flex items-center gap-2">
                                 <div className="w-2.5 h-2.5 rounded-full bg-amber-400" />
-                                <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-tighter">Revisão</span>
+                                <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-tight">Revisão</span>
                             </div>
                         </div>
                     </>

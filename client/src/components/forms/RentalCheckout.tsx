@@ -115,7 +115,7 @@ export function RentalCheckout({ onSubmit, isLoading, initialToolId, initialCust
                 {[1, 2, 3].map((s) => (
                     <div key={s} className="flex items-center">
                         <div className={cn(
-                            "w-10 h-10 rounded-full flex items-center justify-center text-[11px] font-black transition-all duration-500 border-2",
+                            "w-10 h-10 rounded-full flex items-center justify-center text-[11px] font-extrabold transition-all duration-500 border-2",
                             step === s
                                 ? "bg-primary text-white border-primary shadow-premium scale-110"
                                 : step > s
@@ -132,8 +132,8 @@ export function RentalCheckout({ onSubmit, isLoading, initialToolId, initialCust
             {step === 1 && (
                 <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-500">
                     <div className="flex items-center justify-between border-b border-border pb-4">
-                        <Label className="text-xs font-black uppercase tracking-[0.2em] text-foreground">1. Equipamento para Locação</Label>
-                        {selectedTool && <span className="text-[10px] text-primary font-black uppercase tracking-widest bg-primary/5 px-2 py-1 rounded">Ativo: {selectedTool.name}</span>}
+                        <Label className="text-xs font-extrabold uppercase tracking-[0.2em] text-foreground">1. Equipamento para Locação</Label>
+                        {selectedTool && <span className="text-[10px] text-primary font-extrabold uppercase tracking-widest bg-primary/5 px-2 py-1 rounded">Ativo: {selectedTool.name}</span>}
                     </div>
                     <ToolSearch onSelect={handleToolSelect} selectedId={selectedTool?.id} />
                 </div>
@@ -142,8 +142,8 @@ export function RentalCheckout({ onSubmit, isLoading, initialToolId, initialCust
             {step === 2 && (
                 <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-500">
                     <div className="flex items-center justify-between border-b border-border pb-4">
-                        <Label className="text-xs font-black uppercase tracking-[0.2em] text-foreground">2. Responsável / Cliente</Label>
-                        {selectedCustomer && <span className="text-[10px] text-primary font-black uppercase tracking-widest bg-primary/5 px-2 py-1 rounded">Selecionado: {selectedCustomer.fullName}</span>}
+                        <Label className="text-xs font-extrabold uppercase tracking-[0.2em] text-foreground">2. Responsável / Cliente</Label>
+                        {selectedCustomer && <span className="text-[10px] text-primary font-extrabold uppercase tracking-widest bg-primary/5 px-2 py-1 rounded">Selecionado: {selectedCustomer.fullName}</span>}
                     </div>
                     <CustomerSearch onSelect={handleCustomerSelect} selectedId={selectedCustomer?.id} />
                 </div>
@@ -151,17 +151,17 @@ export function RentalCheckout({ onSubmit, isLoading, initialToolId, initialCust
 
             {step === 3 && (
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-500">
-                    <Label className="text-xs font-black uppercase tracking-[0.2em] text-foreground border-b border-border pb-4 block">3. Detalhes de Locação</Label>
+                    <Label className="text-xs font-extrabold uppercase tracking-[0.2em] text-foreground border-b border-border pb-4 block">3. Detalhes de Locação</Label>
 
                     <div className="grid grid-cols-2 gap-6">
                         <div className="col-span-2 bg-muted/30 border border-dashed border-border rounded-premium p-6 grid grid-cols-2 gap-6">
                             <div>
-                                <p className="text-[10px] uppercase text-muted-foreground font-black tracking-widest mb-2">Item Vinculado</p>
+                                <p className="text-[10px] uppercase text-muted-foreground font-extrabold tracking-widest mb-2">Item Vinculado</p>
                                 <p className="text-sm font-bold text-foreground">{selectedTool?.name}</p>
                                 <p className="text-[10px] font-semibold text-primary mt-1 uppercase">{selectedTool?.brand} · {selectedTool?.assetTag}</p>
                             </div>
                             <div>
-                                <p className="text-[10px] uppercase text-muted-foreground font-black tracking-widest mb-2">Locatário</p>
+                                <p className="text-[10px] uppercase text-muted-foreground font-extrabold tracking-widest mb-2">Locatário</p>
                                 <p className="text-sm font-bold text-foreground">{selectedCustomer?.fullName}</p>
                                 <p className="text-[10px] font-semibold text-muted-foreground mt-1 uppercase">{selectedCustomer?.documentNumber}</p>
                             </div>
@@ -189,8 +189,8 @@ export function RentalCheckout({ onSubmit, isLoading, initialToolId, initialCust
                         </div>
 
                         <div className="bg-foreground rounded-premium p-8 flex flex-col justify-center items-center text-white col-span-2 shadow-float group">
-                            <p className="text-[10px] uppercase text-white/50 font-black tracking-[0.2em] mb-2 group-hover:text-primary transition-colors">Estimativa de Faturamento</p>
-                            <p className="text-3xl font-black tracking-tighter">{formatCurrency(calculateTotal())}</p>
+                            <p className="text-[10px] uppercase text-white/50 font-extrabold tracking-[0.2em] mb-2 group-hover:text-primary transition-colors">Estimativa de Faturamento</p>
+                            <p className="text-3xl font-extrabold tracking-tight">{formatCurrency(calculateTotal())}</p>
                             <p className="text-[10px] font-bold text-white/30 mt-2 uppercase tracking-widest italic">Baseado em diárias simples</p>
                         </div>
                     </div>
@@ -213,7 +213,7 @@ export function RentalCheckout({ onSubmit, isLoading, initialToolId, initialCust
                         type="button"
                         onClick={nextStep}
                         disabled={(step === 1 && !selectedTool) || (step === 2 && !selectedCustomer)}
-                        className="bg-primary hover:bg-primary/90 text-white rounded-button px-10 h-12 font-black uppercase text-[10px] tracking-widest shadow-premium transition-all"
+                        className="bg-primary hover:bg-primary/90 text-white rounded-button px-10 h-12 font-extrabold uppercase text-[10px] tracking-widest shadow-premium transition-all"
                     >
                         Próximo Passo <ArrowRight className="w-4 h-4 ml-2" />
                     </Button>
@@ -222,7 +222,7 @@ export function RentalCheckout({ onSubmit, isLoading, initialToolId, initialCust
                         type="button"
                         onClick={handleSubmit(onSubmit)}
                         disabled={isLoading}
-                        className="bg-emerald-600 hover:bg-emerald-500 text-white rounded-button px-12 h-12 font-black uppercase text-[10px] tracking-widest shadow-lg shadow-emerald-500/20 transition-all group"
+                        className="bg-emerald-600 hover:bg-emerald-500 text-white rounded-button px-12 h-12 font-extrabold uppercase text-[10px] tracking-widest shadow-lg shadow-emerald-500/20 transition-all group"
                     >
                         {isLoading ? (
                             <Loader2 className="w-4 h-4 mr-2 animate-spin" />

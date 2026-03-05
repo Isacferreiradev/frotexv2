@@ -65,7 +65,7 @@ export default function LoginPage() {
                     <div className="absolute bottom-[-10%] right-[-10%] w-[70%] h-[70%] bg-indigo-600/20 rounded-full blur-[100px]" />
                 </div>
 
-                <div className="relative z-10 space-y-24">
+                <div className="relative z-10 space-y-32">
                     {/* Logo */}
                     <Link href="/">
                         <div className="flex items-center gap-2 group cursor-pointer">
@@ -149,7 +149,7 @@ export default function LoginPage() {
                                 type="email"
                                 {...register('email')}
                                 placeholder="seu@email.com"
-                                className="w-full h-14 px-6 bg-white border border-slate-100 rounded-2xl text-sm font-bold text-slate-950 placeholder:text-slate-300 focus:outline-none focus:ring-4 focus:ring-violet-500/5 focus:border-violet-600 transition-all shadow-sm"
+                                className="w-full h-14 px-6 bg-white border border-slate-100 rounded-2xl text-sm font-medium text-slate-950 placeholder:text-slate-300 focus:outline-none focus:ring-4 focus:ring-violet-500/5 focus:border-violet-600 transition-all shadow-sm"
                             />
                             {errors.email && <p className="mt-2 text-[10px] text-red-500 font-extrabold uppercase tracking-widest ml-1">{errors.email.message}</p>}
                         </div>
@@ -170,7 +170,7 @@ export default function LoginPage() {
                                     type={showPassword ? 'text' : 'password'}
                                     {...register('password')}
                                     placeholder="••••••••"
-                                    className="w-full h-14 px-6 bg-white border border-slate-100 rounded-2xl text-sm font-bold text-slate-950 placeholder:text-slate-300 focus:outline-none focus:ring-4 focus:ring-violet-500/5 focus:border-violet-600 transition-all shadow-sm"
+                                    className="w-full h-14 px-6 bg-white border border-slate-100 rounded-2xl text-sm font-medium text-slate-950 placeholder:text-slate-300 focus:outline-none focus:ring-4 focus:ring-violet-500/5 focus:border-violet-600 transition-all shadow-sm"
                                 />
                                 <button
                                     type="button"
@@ -198,10 +198,10 @@ export default function LoginPage() {
                         </div>
                     </form>
 
-                    <div className="mt-12 pt-8 border-t border-slate-50 text-center">
+                    <div className="mt-6 text-center">
                         <p className="text-sm text-slate-400 font-medium">
                             Novo por aqui?{' '}
-                            <Link href="/register" className="text-violet-600 font-black hover:text-violet-700 transition-colors uppercase text-xs tracking-widest ml-2">
+                            <Link href="/register" className="text-violet-600 font-bold hover:text-violet-700 transition-colors uppercase text-xs tracking-widest ml-2">
                                 Criar conta gratuita
                             </Link>
                         </p>
