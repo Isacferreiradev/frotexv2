@@ -99,6 +99,13 @@
       "when": 1772671000000,
       "tag": "0013_add_tenant_onboarding_fields",
       "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1772672000000,
+      "tag": "0014_add_user_is_active",
+      "breakpoints": true
     }
   ]
 }
