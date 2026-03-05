@@ -10,21 +10,9 @@ import {
     Eye,
     EyeOff,
     Loader2,
-    ArrowRight,
     ArrowLeft,
-    Check,
-    Shield,
-    Building2,
-    BarChart3,
-    Sparkles,
-    Lock,
-    Users,
     ChevronRight,
-    Zap,
-    TrendingUp,
-    MapPin,
-    Smartphone,
-    Mail
+    Check,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import api from '@/lib/api';
@@ -40,7 +28,7 @@ const registerSchema = z.object({
     documentNumber: z.string().min(11, 'Documento inválido'),
     phoneNumber: z.string().min(10, 'Telefone inválido'),
     city: z.string().min(2, 'Cidade obrigatória'),
-    state: z.string().length(2, 'UF obrigatória'),
+    state: z.string().length(2, 'UF inválida (ex: SP)'),
 
     // Step 3: Profile
     toolCountRange: z.string().optional(),
@@ -51,10 +39,14 @@ const registerSchema = z.object({
 type RegisterForm = z.infer<typeof registerSchema>;
 
 const STEPS = [
-    { id: 1, title: 'Segurança' },
-    { id: 2, title: 'Empresa' },
-    { id: 3, title: 'Operação' },
+    { id: 1, label: 'Conta' },
+    { id: 2, label: 'Empresa' },
+    { id: 3, label: 'Operação' },
 ];
+
+const TOOL_RANGES = ['1–10', '11–50', '51–200', '200+'];
+const RENTAL_RANGES = ['1–5 por mês', '6–20 por mês', '21–50 por mês', '50+ por mês'];
+const METHODS = ['Planilha Excel', 'Caderno/Papel', 'Outro sistema', 'Nenhum controle'];
 
 export default function RegisterPage() {
     const router = useRouter();
@@ -62,21 +54,19 @@ export default function RegisterPage() {
     const [serverError, setServerError] = useState('');
     const [showPassword, setShowPassword] = useState(false);
 
-    const { register, handleSubmit, trigger, watch, formState: { errors, isSubmitting } } = useForm<RegisterForm>({
+    const { register, handleSubmit, trigger, watch, setValue, formState: { errors, isSubmitting } } = useForm<RegisterForm>({
         resolver: zodResolver(registerSchema),
         mode: 'onChange'
     });
 
     const nextStep = async () => {
-        let fieldsToValidate: (keyof RegisterForm)[] = [];
-        if (step === 1) fieldsToValidate = ['email', 'password', 'fullName'];
-        if (step === 2) fieldsToValidate = ['tenantName', 'documentNumber', 'phoneNumber', 'city', 'state'];
-
-        const isValid = await trigger(fieldsToValidate);
+        const fieldsMap: Record<number, (keyof RegisterForm)[]> = {
+            1: ['email', 'password', 'fullName'],
+            2: ['tenantName', 'documentNumber', 'phoneNumber', 'city', 'state'],
+        };
+        const isValid = await trigger(fieldsMap[step]);
         if (isValid) setStep(s => s + 1);
     };
-
-    const prevStep = () => setStep(s => s - 1);
 
     const onSubmit = async (data: RegisterForm) => {
         setServerError('');
@@ -84,330 +74,276 @@ export default function RegisterPage() {
             await api.post('/auth/register', data);
             router.push('/registration-success');
         } catch (err: any) {
-            setServerError(err.response?.data?.message || 'Erro ao cadastrar');
+            setServerError(err.response?.data?.message || 'Erro ao cadastrar. Tente novamente.');
         }
     };
 
-    const passwordValue = watch('password') || '';
-    const passwordStrength = passwordValue.length === 0 ? 0 :
-        (passwordValue.length >= 8 ? 1 : 0) +
-        (/[A-Z]/.test(passwordValue) ? 1 : 0) +
-        (/[0-9]/.test(passwordValue) ? 1 : 0);
+    const password = watch('password') || '';
+    const strength = [password.length >= 8, /[A-Z]/.test(password), /[0-9]/.test(password)].filter(Boolean).length;
+    const strengthLabels = ['', 'Fraca', 'Média', 'Forte'];
+    const strengthColors = ['', 'bg-red-400', 'bg-amber-400', 'bg-green-500'];
+
+    const [toolRange, setToolRange] = useState('');
+    const [method, setMethod] = useState('');
+    const [rentalRange, setRentalRange] = useState('');
 
     return (
-        <div className="min-h-screen bg-white flex flex-col md:flex-row font-inter text-zinc-950 overflow-hidden selection:bg-violet-100 selection:text-violet-900">
+        <div className="min-h-screen bg-white flex flex-col selection:bg-violet-100 selection:text-violet-900">
 
-            {/* ─── PAINEL ESQUERDO: Hero (Futuristic & Dynamic) ─── */}
-            <div className="hidden lg:flex lg:w-[45%] relative bg-zinc-950 p-16 flex-col justify-between overflow-hidden border-r border-white/5">
-                {/* Advanced Mesh Background */}
-                <div className="absolute inset-0 z-0">
-                    <div className="absolute top-[-20%] left-[-10%] w-[100%] h-[100%] bg-violet-600/20 rounded-full blur-[160px] animate-pulse" />
-                    <div className="absolute bottom-[-10%] right-[-10%] w-[80%] h-[80%] bg-indigo-600/10 rounded-full blur-[140px]" />
-                    <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 contrast-150 brightness-100 mix-blend-overlay" />
-                    <div className="absolute inset-0 bg-gradient-to-b from-transparent via-zinc-950/50 to-zinc-950" />
-                </div>
+            {/* Top Bar */}
+            <header className="flex items-center justify-between px-8 py-5 border-b border-zinc-100">
+                <Link href="/" className="flex items-center gap-2">
+                    <div className="w-8 h-8 bg-violet-500 rounded-lg flex items-center justify-center text-white font-bold text-sm">L</div>
+                    <span className="font-bold text-lg text-zinc-900 font-heading">Locatus</span>
+                </Link>
+                <span className="text-sm text-zinc-500">
+                    Já tem conta?{' '}
+                    <Link href="/login" className="text-violet-500 font-semibold hover:text-violet-600 transition-colors">Entrar</Link>
+                </span>
+            </header>
 
-                <div className="relative z-10 space-y-32">
-                    {/* Logo */}
-                    <Link href="/" className="flex items-center gap-4 group">
-                        <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-zinc-950 font-black text-xl shadow-[0_0_40px_rgba(255,255,255,0.15)] group-hover:scale-105 transition-all duration-500">L</div>
-                        <span className="font-bold text-3xl tracking-tight text-white font-outfit">Locatus</span>
-                    </Link>
-
-                    {/* Value Propositions */}
-                    <div className="space-y-16">
-                        <div className="space-y-6">
-                            <h1 className="text-6xl font-black text-white leading-[1.05] tracking-tight font-outfit">
-                                Transforme sua <br />
-                                <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 via-indigo-400 to-violet-200 text-glow">
-                                    locação em ativo.
-                                </span>
-                            </h1>
-                            <p className="text-zinc-400 text-xl font-medium leading-relaxed max-w-sm">
-                                A infraestrutura definitiva para locadoras que buscam escala e precisão absoluta.
-                            </p>
-                        </div>
-
-                        <div className="grid grid-cols-1 gap-8">
-                            {[
-                                { icon: Zap, title: 'Ativação Instantânea', desc: 'Interface intuitiva projetada para velocidade.' },
-                                { icon: Shield, title: 'Segurança Enterprise', desc: 'Dados protegidos com padrões bancários.' },
-                                { icon: TrendingUp, title: 'Algoritmos de ROI', desc: 'Dashboard de rentabilidade em tempo real.' }
-                            ].map((item, i) => (
-                                <div key={i} className="flex gap-6 items-start group">
-                                    <div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-violet-400 group-hover:bg-violet-500 transition-all duration-500 shrink-0">
-                                        <item.icon className="w-6 h-6" />
-                                    </div>
-                                    <div className="space-y-1.5">
-                                        <h3 className="text-white font-bold text-base tracking-tight font-outfit">{item.title}</h3>
-                                        <p className="text-zinc-500 text-sm leading-relaxed font-medium">{item.desc}</p>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </div>
-
-                {/* Status / Footer */}
-                <div className="relative z-10 flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                        <div className="flex gap-1.5">
-                            <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-                            <div className="w-1.5 h-1.5 rounded-full bg-green-500/40" />
-                        </div>
-                        <p className="text-[10px] text-zinc-500 font-black uppercase tracking-[0.3em] font-outfit">
-                            System Live — Onboarding Mode
-                        </p>
-                    </div>
-                </div>
+            {/* Progress Bar */}
+            <div className="h-1 bg-zinc-100">
+                <div
+                    className="h-full bg-violet-500 transition-all duration-500"
+                    style={{ width: `${(step / 3) * 100}%` }}
+                />
             </div>
 
-            {/* ─── PAINEL DIREITO: Onboarding (Glass & Flow) ─── */}
-            <div className="flex-1 flex flex-col bg-white relative overflow-y-auto mesh-gradient">
+            {/* Main Content */}
+            <div className="flex-1 flex flex-col items-center justify-center px-6 py-12">
+                <div className="w-full max-w-md">
 
-                <div className="flex-1 flex flex-col items-center justify-center p-8 md:p-24 max-w-3xl mx-auto w-full relative z-10">
-
-                    {/* Floating Progress Bar (Breadcrumbs Evolution) */}
-                    <div className="w-full mb-16 flex items-center justify-between px-2">
+                    {/* Step Indicators */}
+                    <div className="flex items-center gap-3 mb-8">
                         {STEPS.map((s, i) => (
-                            <div key={i} className="flex items-center flex-1 group">
-                                <div className="flex flex-col gap-3 flex-1">
-                                    <div className="flex items-center gap-3">
-                                        <div className={cn(
-                                            "w-8 h-8 rounded-xl flex items-center justify-center text-[10px] font-black transition-all duration-500 border",
-                                            step === s.id ? "bg-zinc-950 text-white border-zinc-950 shadow-xl" : (step > s.id ? "bg-violet-600 text-white border-violet-600" : "bg-zinc-50 text-zinc-300 border-zinc-100")
-                                        )}>
-                                            {step > s.id ? <Check className="w-3.5 h-3.5" /> : `0${s.id}`}
-                                        </div>
-                                        <span className={cn(
-                                            "text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-500 font-outfit",
-                                            step === s.id ? "text-zinc-950" : (step > s.id ? "text-violet-600" : "text-zinc-300")
-                                        )}>
-                                            {s.title}
-                                        </span>
-                                    </div>
-                                    <div className={cn(
-                                        "h-1.5 w-full rounded-full transition-all duration-1000",
-                                        step > s.id ? "bg-violet-600" : (step === s.id ? "bg-zinc-950" : "bg-zinc-100")
-                                    )} />
+                            <div key={s.id} className="flex items-center gap-3">
+                                <div className={cn(
+                                    "w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300",
+                                    step > s.id ? "bg-violet-500 text-white" :
+                                        step === s.id ? "bg-violet-500 text-white ring-4 ring-violet-100" :
+                                            "bg-zinc-100 text-zinc-400"
+                                )}>
+                                    {step > s.id ? <Check className="w-3.5 h-3.5" /> : s.id}
                                 </div>
-                                {i < STEPS.length - 1 && <div className="w-8" />}
+                                <span className={cn(
+                                    "text-sm font-medium",
+                                    step >= s.id ? "text-zinc-900" : "text-zinc-400"
+                                )}>{s.label}</span>
+                                {i < STEPS.length - 1 && (
+                                    <div className={cn(
+                                        "flex-1 h-px w-8",
+                                        step > s.id ? "bg-violet-300" : "bg-zinc-200"
+                                    )} />
+                                )}
                             </div>
                         ))}
                     </div>
 
-                    {/* Surgical Glass Form Container */}
-                    <div className="w-full glass-surgical p-10 md:p-14 rounded-[3rem] border border-zinc-200/50 space-y-12 animate-in slide-in-from-bottom-8 duration-1000">
-                        {serverError && (
-                            <div className="p-5 bg-red-50/50 border border-red-100 rounded-2xl animate-in shake duration-500 text-center">
-                                <p className="text-red-600 text-[10px] font-black uppercase tracking-widest">{serverError}</p>
+                    {serverError && (
+                        <div className="mb-6 p-3.5 bg-red-50 border border-red-100 rounded-xl">
+                            <p className="text-red-600 text-sm font-medium text-center">{serverError}</p>
+                        </div>
+                    )}
+
+                    {/* ─── STEP 1: Conta ─── */}
+                    {step === 1 && (
+                        <div className="space-y-5 animate-in fade-in slide-in-from-right-4 duration-300">
+                            <div className="mb-7">
+                                <h1 className="text-2xl font-bold text-zinc-900 font-heading tracking-tight">Crie sua conta</h1>
+                                <p className="text-zinc-500 text-[15px] mt-1">Seus dados de acesso ao sistema.</p>
                             </div>
-                        )}
 
-                        {/* ─── ETAPA 1: Segurança ─── */}
-                        {step === 1 && (
-                            <div className="space-y-10 animate-in fade-in slide-in-from-left-4 duration-700">
-                                <div className="space-y-4">
-                                    <h2 className="text-5xl font-black tracking-tight text-zinc-950 font-outfit leading-none">Identidade.</h2>
-                                    <p className="text-zinc-500 text-lg font-medium tracking-tight">Crie sua conta mestra de administração.</p>
+                            <div>
+                                <label className="label">Nome completo</label>
+                                <input {...register('fullName')} placeholder="João da Silva" className="input-field" />
+                                {errors.fullName && <p className="mt-1.5 text-sm text-red-500">{errors.fullName.message}</p>}
+                            </div>
+
+                            <div>
+                                <label className="label">Email</label>
+                                <input type="email" {...register('email')} placeholder="seu@email.com" className="input-field" />
+                                {errors.email && <p className="mt-1.5 text-sm text-red-500">{errors.email.message}</p>}
+                            </div>
+
+                            <div>
+                                <label className="label">Senha</label>
+                                <div className="relative">
+                                    <input
+                                        type={showPassword ? 'text' : 'password'}
+                                        {...register('password')}
+                                        placeholder="Mínimo 8 caracteres"
+                                        className="input-field pr-12"
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowPassword(!showPassword)}
+                                        className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600 transition-colors"
+                                    >
+                                        {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                                    </button>
                                 </div>
-
-                                <div className="space-y-6">
-                                    <div className="group space-y-2">
-                                        <label className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em] ml-1 flex items-center gap-2 group-focus-within:text-violet-600 transition-colors">
-                                            <Users className="w-3.5 h-3.5" /> Nome do Administrador
-                                        </label>
-                                        <input {...register('fullName')} placeholder="Ex: Rodrigo Freitas" className="w-full px-7 py-5 bg-zinc-50/50 border border-zinc-200 rounded-2xl text-base placeholder:text-zinc-400 focus:bg-white focus:ring-4 focus:ring-violet-500/5 focus:border-violet-500 transition-all font-medium" />
-                                        {errors.fullName && <p className="text-[10px] text-red-500 font-black ml-1 uppercase">{errors.fullName.message}</p>}
-                                    </div>
-
-                                    <div className="group space-y-2">
-                                        <label className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em] ml-1 flex items-center gap-2 group-focus-within:text-violet-600 transition-colors">
-                                            <Mail className="w-3.5 h-3.5" /> E-mail Profissional
-                                        </label>
-                                        <input type="email" {...register('email')} placeholder="rodrigo@suaempresa.com" className="w-full px-7 py-5 bg-zinc-50/50 border border-zinc-200 rounded-2xl text-base placeholder:text-zinc-400 focus:bg-white focus:ring-4 focus:ring-violet-500/5 focus:border-violet-500 transition-all font-medium" />
-                                        {errors.email && <p className="text-[10px] text-red-500 font-black ml-1 uppercase">{errors.email.message}</p>}
-                                    </div>
-
-                                    <div className="space-y-4">
-                                        <div className="group space-y-2">
-                                            <label className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em] ml-1 flex items-center gap-2 group-focus-within:text-violet-600 transition-colors">
-                                                <Lock className="w-3.5 h-3.5" /> Chave de Segurança
-                                            </label>
-                                            <div className="relative">
-                                                <input
-                                                    type={showPassword ? 'text' : 'password'}
-                                                    {...register('password')}
-                                                    placeholder="Mínimo 8 caracteres"
-                                                    className="w-full px-7 py-5 bg-zinc-50/50 border border-zinc-200 rounded-2xl text-base placeholder:text-zinc-400 focus:bg-white focus:ring-4 focus:ring-violet-500/5 focus:border-violet-500 transition-all font-medium pr-16"
-                                                />
-                                                <button
-                                                    type="button"
-                                                    onClick={() => setShowPassword(!showPassword)}
-                                                    className="absolute right-6 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-violet-600 transition-colors"
-                                                >
-                                                    {showPassword ? <EyeOff className="w-6 h-6" /> : <Eye className="w-6 h-6" />}
-                                                </button>
-                                            </div>
-                                        </div>
-
-                                        <div className="flex gap-2 px-1">
-                                            {[1, 2, 3].map((s) => (
-                                                <div key={s} className={cn(
-                                                    "h-1.5 flex-1 rounded-full transition-all duration-700 shadow-sm",
-                                                    passwordStrength >= s ? "bg-violet-600 shadow-violet-200/50" : "bg-zinc-100"
-                                                )} />
+                                {errors.password && <p className="mt-1.5 text-sm text-red-500">{errors.password.message}</p>}
+                                {password.length > 0 && (
+                                    <div className="mt-2 space-y-1">
+                                        <div className="flex gap-1.5">
+                                            {[1, 2, 3].map(i => (
+                                                <div key={i} className={cn("h-1 flex-1 rounded-full transition-all", strength >= i ? strengthColors[strength] : "bg-zinc-200")} />
                                             ))}
                                         </div>
+                                        <p className="text-xs text-zinc-500">Força: <span className="font-semibold">{strengthLabels[strength]}</span></p>
                                     </div>
-                                </div>
+                                )}
+                            </div>
 
-                                <div className="pt-8">
-                                    <button onClick={nextStep} className="w-full py-6 bg-zinc-950 hover:bg-zinc-900 text-white font-black rounded-2xl transition-all shadow-2xl hover:-translate-y-1 active:scale-[0.98] text-xs uppercase tracking-[0.3em] flex items-center justify-center gap-3 group">
-                                        Iniciar Protocolo <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                                    </button>
-                                    <p className="text-center mt-10 text-sm text-zinc-500 font-medium">
-                                        Já possui acesso? <Link href="/login" className="text-violet-600 font-black hover:text-violet-700 uppercase text-[11px] tracking-widest">Protocolo de Login</Link>
-                                    </p>
+                            <button type="button" onClick={nextStep} className="btn-primary mt-2">
+                                Continuar <ChevronRight className="w-4 h-4" />
+                            </button>
+                        </div>
+                    )}
+
+                    {/* ─── STEP 2: Empresa ─── */}
+                    {step === 2 && (
+                        <div className="space-y-5 animate-in fade-in slide-in-from-right-4 duration-300">
+                            <div className="mb-7">
+                                <h1 className="text-2xl font-bold text-zinc-900 font-heading tracking-tight">Sua empresa</h1>
+                                <p className="text-zinc-500 text-[15px] mt-1">Dados da sua locadora.</p>
+                            </div>
+
+                            <div>
+                                <label className="label">Nome da locadora</label>
+                                <input {...register('tenantName')} placeholder="Locadora Silva & Filhos" className="input-field" />
+                                {errors.tenantName && <p className="mt-1.5 text-sm text-red-500">{errors.tenantName.message}</p>}
+                            </div>
+
+                            <div>
+                                <label className="label">CPF ou CNPJ</label>
+                                <input {...register('documentNumber')} placeholder="00.000.000/0001-00" className="input-field" />
+                                {errors.documentNumber && <p className="mt-1.5 text-sm text-red-500">{errors.documentNumber.message}</p>}
+                            </div>
+
+                            <div>
+                                <label className="label">WhatsApp / Telefone</label>
+                                <input {...register('phoneNumber')} placeholder="(11) 99999-9999" className="input-field" />
+                                {errors.phoneNumber && <p className="mt-1.5 text-sm text-red-500">{errors.phoneNumber.message}</p>}
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="label">Cidade</label>
+                                    <input {...register('city')} placeholder="São Paulo" className="input-field" />
+                                    {errors.city && <p className="mt-1.5 text-sm text-red-500">{errors.city.message}</p>}
+                                </div>
+                                <div>
+                                    <label className="label">UF</label>
+                                    <input {...register('state')} placeholder="SP" maxLength={2} className="input-field uppercase" />
+                                    {errors.state && <p className="mt-1.5 text-sm text-red-500">{errors.state.message}</p>}
                                 </div>
                             </div>
-                        )}
 
-                        {/* ─── ETAPA 2: Empresa ─── */}
-                        {step === 2 && (
-                            <div className="space-y-10 animate-in fade-in slide-in-from-right-4 duration-700">
-                                <div className="space-y-4">
-                                    <h2 className="text-5xl font-black tracking-tight text-zinc-950 font-outfit leading-none">Infraestrutura.</h2>
-                                    <p className="text-zinc-500 text-lg font-medium tracking-tight">Defina os parâmetros jurídicos de sua operação.</p>
-                                </div>
-
-                                <div className="space-y-6">
-                                    <div className="group space-y-2">
-                                        <label className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em] ml-1 flex items-center gap-2 group-focus-within:text-violet-600 transition-colors">
-                                            <Building2 className="w-3.5 h-3.5" /> Nome da Locadora (Razão/Fantasia)
-                                        </label>
-                                        <input {...register('tenantName')} placeholder="Ex: AlugaFácil Infra" className="w-full px-7 py-5 bg-zinc-50/50 border border-zinc-200 rounded-2xl text-base placeholder:text-zinc-400 focus:bg-white focus:ring-4 focus:ring-violet-500/5 focus:border-violet-500 transition-all font-medium" />
-                                    </div>
-
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                        <div className="group space-y-2">
-                                            <label className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em] ml-1 flex items-center gap-2">
-                                                <Smartphone className="w-3.5 h-3.5" /> WhatsApp Business
-                                            </label>
-                                            <input {...register('phoneNumber')} placeholder="(11) 99999-9999" className="w-full px-7 py-5 bg-zinc-50/50 border border-zinc-200 rounded-2xl text-base focus:bg-white focus:ring-4 focus:ring-violet-500/5 focus:border-violet-500 transition-all" />
-                                        </div>
-                                        <div className="group space-y-2">
-                                            <label className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em] ml-1 flex items-center gap-2">
-                                                <Shield className="w-3.5 h-3.5" /> CPF ou CNPJ
-                                            </label>
-                                            <input {...register('documentNumber')} placeholder="00.000.000/0000-00" className="w-full px-7 py-5 bg-zinc-50/50 border border-zinc-200 rounded-2xl text-base focus:bg-white focus:ring-4 focus:ring-violet-500/5 focus:border-violet-500 transition-all" />
-                                        </div>
-                                    </div>
-
-                                    <div className="grid grid-cols-4 gap-6">
-                                        <div className="col-span-3 group space-y-2">
-                                            <label className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em] ml-1 flex items-center gap-2">
-                                                <MapPin className="w-3.5 h-3.5" /> Cidade Sede
-                                            </label>
-                                            <input {...register('city')} placeholder="Ex: São Paulo" className="w-full px-7 py-5 bg-zinc-50/50 border border-zinc-200 rounded-2xl text-base focus:bg-white focus:ring-4 focus:ring-violet-500/5 focus:border-violet-500 transition-all" />
-                                        </div>
-                                        <div className="col-span-1 group space-y-2 text-center">
-                                            <label className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em]">UF</label>
-                                            <input {...register('state')} maxLength={2} placeholder="SP" className="w-full py-5 bg-zinc-50/50 border border-zinc-200 rounded-2xl text-base text-center focus:bg-white focus:ring-4 focus:ring-violet-500/5 focus:border-violet-500 transition-all uppercase" />
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="pt-8 space-y-4">
-                                    <button onClick={nextStep} className="w-full py-6 bg-zinc-950 hover:bg-zinc-900 text-white font-black rounded-2xl transition-all shadow-2xl hover:-translate-y-1 active:scale-[0.98] text-xs uppercase tracking-[0.2em] flex items-center justify-center gap-3">
-                                        Verificar Parâmetros <ArrowRight className="w-5 h-5" />
-                                    </button>
-                                    <button onClick={prevStep} className="w-full py-4 text-zinc-400 hover:text-zinc-600 font-black text-[10px] uppercase tracking-widest transition-colors flex items-center justify-center gap-2">
-                                        <ArrowLeft className="w-3 h-3" /> Revisar Identidade
-                                    </button>
-                                </div>
+                            <div className="flex gap-3 pt-1">
+                                <button type="button" onClick={() => setStep(1)} className="btn-secondary">
+                                    <ArrowLeft className="w-4 h-4" /> Voltar
+                                </button>
+                                <button type="button" onClick={nextStep} className="btn-primary">
+                                    Continuar <ChevronRight className="w-4 h-4" />
+                                </button>
                             </div>
-                        )}
+                        </div>
+                    )}
 
-                        {/* ─── ETAPA 3: Perfil Operacional ─── */}
-                        {step === 3 && (
-                            <div className="space-y-10 animate-in fade-in slide-in-from-right-4 duration-700">
-                                <div className="space-y-4">
-                                    <h2 className="text-5xl font-black tracking-tight text-zinc-950 font-outfit leading-none">Operação.</h2>
-                                    <p className="text-zinc-500 text-lg font-medium tracking-tight">Sintonize sua interface com seu volume de frotas.</p>
-                                </div>
+                    {/* ─── STEP 3: Perfil Operacional ─── */}
+                    {step === 3 && (
+                        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
+                            <div className="mb-7">
+                                <h1 className="text-2xl font-bold text-zinc-900 font-heading tracking-tight">Seu perfil</h1>
+                                <p className="text-zinc-500 text-[15px] mt-1">Nos conte sobre sua operação (opcional).</p>
+                            </div>
 
-                                <form onSubmit={handleSubmit(onSubmit)} className="space-y-10">
-                                    <div className="space-y-8">
-                                        <div className="space-y-4">
-                                            <label className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em] ml-1">Frota Ativa Estimada (Unidades)</label>
-                                            <div className="grid grid-cols-3 gap-4">
-                                                {['0-100', '101-500', '500+'].map((range) => (
-                                                    <label key={range} className="cursor-pointer group">
-                                                        <input type="radio" {...register('toolCountRange')} value={range} className="sr-only peer" />
-                                                        <div className="p-5 bg-zinc-50/50 border border-zinc-200 rounded-2xl peer-checked:border-violet-600 peer-checked:bg-violet-600 peer-checked:text-white peer-checked:shadow-xl peer-checked:shadow-violet-200 transition-all text-center text-sm font-black font-outfit">
-                                                            {range}
-                                                        </div>
-                                                    </label>
-                                                ))}
-                                            </div>
-                                        </div>
-
-                                        <div className="group space-y-2">
-                                            <label className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em] ml-1 flex items-center gap-2">
-                                                <BarChart3 className="w-3.5 h-3.5" /> Metodologia Atual de Controle
-                                            </label>
-                                            <select {...register('currentControlMethod')} className="w-full px-7 py-5 bg-zinc-50/50 border border-zinc-200 rounded-2xl text-base appearance-none cursor-pointer focus:bg-white focus:ring-4 focus:ring-violet-500/5 focus:border-violet-500 transition-all font-medium">
-                                                <option value="none">Nenhuma (Início de Operação)</option>
-                                                <option value="paper">Protocolos Manuais / Papel</option>
-                                                <option value="spreadsheet">Clusters em Planilhas</option>
-                                                <option value="other_system">Software Legado / Outros</option>
-                                            </select>
-                                        </div>
-
-                                        <div className="space-y-4">
-                                            <label className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em] ml-1">Volume de Recorrência Mensal</label>
-                                            <div className="grid grid-cols-3 gap-4">
-                                                {['Small', 'Scale', 'High'].map((range) => (
-                                                    <label key={range} className="cursor-pointer group">
-                                                        <input type="radio" {...register('activeRentalsRange')} value={range} className="sr-only peer" />
-                                                        <div className="p-5 bg-zinc-50/50 border border-zinc-200 rounded-2xl peer-checked:border-violet-600 peer-checked:bg-violet-600 peer-checked:text-white peer-checked:shadow-xl peer-checked:shadow-violet-200 transition-all text-center text-sm font-black font-outfit uppercase tracking-tighter">
-                                                            {range}
-                                                        </div>
-                                                    </label>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div className="pt-8 space-y-4">
+                            <div>
+                                <label className="label">Quantas ferramentas você tem?</label>
+                                <div className="grid grid-cols-2 gap-2">
+                                    {TOOL_RANGES.map(range => (
                                         <button
-                                            type="submit"
-                                            disabled={isSubmitting}
-                                            className="w-full py-6 bg-zinc-950 hover:bg-zinc-900 disabled:opacity-50 text-white font-black rounded-2xl transition-all shadow-2xl hover:-translate-y-1 active:scale-[0.98] text-xs uppercase tracking-[0.3em] flex items-center justify-center gap-3 group relative overflow-hidden"
-                                        >
-                                            <div className="absolute inset-0 bg-gradient-to-r from-violet-600/20 to-indigo-600/20 opacity-0 group-hover:opacity-100 transition-opacity" />
-                                            {isSubmitting ? (
-                                                <Loader2 className="w-6 h-6 animate-spin" />
-                                            ) : (
-                                                <>Implantar Sistema <Sparkles className="w-5 h-5 group-hover:scale-125 transition-transform" /></>
+                                            key={range}
+                                            type="button"
+                                            onClick={() => { setToolRange(range); setValue('toolCountRange', range); }}
+                                            className={cn(
+                                                "py-2.5 px-4 rounded-xl border text-sm font-medium transition-all",
+                                                toolRange === range
+                                                    ? "border-violet-500 bg-violet-50 text-violet-700"
+                                                    : "border-zinc-200 text-zinc-600 hover:border-violet-300 hover:bg-violet-50/50"
                                             )}
+                                        >
+                                            {range}
                                         </button>
-                                        <button type="button" onClick={prevStep} className="w-full py-4 text-zinc-400 hover:text-zinc-600 font-black text-[10px] uppercase tracking-widest transition-colors flex items-center justify-center gap-2">
-                                            <ArrowLeft className="w-3 h-3" /> Revisar Infraestrutura
-                                        </button>
-                                    </div>
-                                </form>
+                                    ))}
+                                </div>
                             </div>
-                        )}
-                    </div>
 
-                    {/* Minimalist Policy Action */}
-                    <div className="mt-20 text-center w-full max-w-md">
-                        <p className="text-[9px] text-zinc-400 font-black uppercase tracking-[0.5em] leading-loose">
-                            Ao prosseguir você autentica nossos <span className="text-violet-600">Termos de Protocolo</span> <br /> e <span className="text-violet-600">Diretrizes de Identidade v2.0</span>.
-                        </p>
-                    </div>
+                            <div>
+                                <label className="label">Como você controla hoje?</label>
+                                <div className="grid grid-cols-2 gap-2">
+                                    {METHODS.map(m => (
+                                        <button
+                                            key={m}
+                                            type="button"
+                                            onClick={() => { setMethod(m); setValue('currentControlMethod', m); }}
+                                            className={cn(
+                                                "py-2.5 px-4 rounded-xl border text-sm font-medium transition-all text-left",
+                                                method === m
+                                                    ? "border-violet-500 bg-violet-50 text-violet-700"
+                                                    : "border-zinc-200 text-zinc-600 hover:border-violet-300 hover:bg-violet-50/50"
+                                            )}
+                                        >
+                                            {m}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            <div>
+                                <label className="label">Volume de locações por mês?</label>
+                                <div className="grid grid-cols-2 gap-2">
+                                    {RENTAL_RANGES.map(r => (
+                                        <button
+                                            key={r}
+                                            type="button"
+                                            onClick={() => { setRentalRange(r); setValue('activeRentalsRange', r); }}
+                                            className={cn(
+                                                "py-2.5 px-4 rounded-xl border text-sm font-medium transition-all",
+                                                rentalRange === r
+                                                    ? "border-violet-500 bg-violet-50 text-violet-700"
+                                                    : "border-zinc-200 text-zinc-600 hover:border-violet-300 hover:bg-violet-50/50"
+                                            )}
+                                        >
+                                            {r}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            <div className="flex gap-3 pt-1">
+                                <button type="button" onClick={() => setStep(2)} className="btn-secondary">
+                                    <ArrowLeft className="w-4 h-4" /> Voltar
+                                </button>
+                                <button type="submit" disabled={isSubmitting} className="btn-primary">
+                                    {isSubmitting ? (
+                                        <Loader2 className="w-5 h-5 animate-spin" />
+                                    ) : (
+                                        <>Criar conta <ChevronRight className="w-4 h-4" /></>
+                                    )}
+                                </button>
+                            </div>
+                        </form>
+                    )}
+
+                    <p className="mt-8 text-center text-xs text-zinc-400">
+                        Ao criar sua conta, você concorda com os{' '}
+                        <a href="#" className="underline hover:text-zinc-600 transition-colors">Termos de Uso</a>
+                        {' '}e a{' '}
+                        <a href="#" className="underline hover:text-zinc-600 transition-colors">Política de Privacidade</a>.
+                    </p>
                 </div>
             </div>
         </div>

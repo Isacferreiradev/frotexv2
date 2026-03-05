@@ -13,10 +13,10 @@ import {
     ArrowRight,
     Lock,
     Mail,
-    Sparkles,
     Shield,
     Zap,
-    TrendingUp
+    TrendingUp,
+    ChevronRight
 } from 'lucide-react';
 import api from '@/lib/api';
 import { useAuthStore } from '@/store/authStore';
@@ -52,59 +52,55 @@ export default function LoginPage() {
                 router.push('/registration-success');
                 return;
             }
-            setServerError(err.response?.data?.message || 'Credenciais inválidas');
+            setServerError(err.response?.data?.message || 'Email ou senha incorretos.');
         }
     };
 
     return (
-        <div className="min-h-screen bg-white flex flex-col md:flex-row font-inter text-zinc-950 overflow-hidden selection:bg-violet-100 selection:text-violet-900">
+        <div className="min-h-screen bg-white flex overflow-hidden">
 
-            {/* ─── PAINEL ESQUERDO: Hero (Futuristic & Dynamic) ─── */}
-            <div className="hidden lg:flex lg:w-[45%] relative bg-zinc-950 p-16 flex-col justify-between overflow-hidden border-r border-white/5">
-                {/* Advanced Mesh Background */}
+            {/* ─── PAINEL ESQUERDO: Hero ─── */}
+            <div className="hidden lg:flex lg:w-[48%] relative bg-zinc-950 p-14 flex-col justify-between overflow-hidden">
+                {/* Background glow */}
                 <div className="absolute inset-0 z-0">
-                    <div className="absolute top-[-20%] left-[-10%] w-[100%] h-[100%] bg-violet-600/20 rounded-full blur-[160px] animate-pulse" />
-                    <div className="absolute bottom-[-10%] right-[-10%] w-[80%] h-[80%] bg-indigo-600/10 rounded-full blur-[140px]" />
-                    <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 contrast-150 brightness-100 mix-blend-overlay" />
-                    <div className="absolute inset-0 bg-gradient-to-b from-transparent via-zinc-950/50 to-zinc-950" />
+                    <div className="absolute -top-1/4 -left-1/4 w-[80%] h-[80%] bg-violet-600/25 rounded-full blur-[120px]" />
+                    <div className="absolute -bottom-1/4 -right-1/4 w-[70%] h-[70%] bg-indigo-600/15 rounded-full blur-[100px]" />
                 </div>
 
-                <div className="relative z-10 space-y-32">
-                    {/* Logo: Ultra-Minimalist Glow */}
-                    <Link href="/" className="flex items-center gap-4 group">
-                        <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-zinc-950 font-black text-xl shadow-[0_0_40px_rgba(255,255,255,0.15)] group-hover:scale-105 group-hover:shadow-[0_0_60px_rgba(255,255,255,0.25)] transition-all duration-500">
+                <div className="relative z-10 space-y-20">
+                    {/* Logo */}
+                    <Link href="/" className="flex items-center gap-3 group">
+                        <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-violet-600 font-bold text-lg shadow-lg group-hover:scale-105 transition-transform duration-300">
                             L
                         </div>
-                        <span className="font-bold text-3xl tracking-tight text-white font-outfit">Locatus</span>
+                        <span className="font-bold text-2xl text-white tracking-tight font-heading">Locatus</span>
                     </Link>
 
-                    {/* Value Propositions: Surgical Precision */}
-                    <div className="space-y-16">
-                        <div className="space-y-6">
-                            <h1 className="text-6xl font-black text-white leading-[1.05] tracking-tight font-outfit">
-                                A Próxima Era <br />
-                                <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 via-indigo-400 to-violet-200 text-glow">
-                                    da Gestão.
-                                </span>
+                    {/* Headline */}
+                    <div className="space-y-10">
+                        <div className="space-y-5">
+                            <h1 className="text-5xl font-bold text-white leading-[1.1] tracking-tight font-heading">
+                                Gestão completa <br />
+                                <span className="text-violet-400">para sua locadora.</span>
                             </h1>
-                            <p className="text-zinc-400 text-xl font-medium leading-relaxed max-w-sm">
-                                Infraestrutura inteligente para escalar sua locadora com precisão cirúrgica.
+                            <p className="text-zinc-400 text-base leading-relaxed max-w-sm">
+                                Controle de ferramentas, contratos, clientes e faturamento em um único sistema.
                             </p>
                         </div>
 
-                        <div className="grid grid-cols-1 gap-8">
+                        <div className="space-y-5">
                             {[
-                                { icon: Zap, title: 'Ativação Instantânea', desc: 'Integre sua operação em milissegundos.' },
-                                { icon: Shield, title: 'Protocolo de Segurança', desc: 'Arquitetura bancária para dados sensíveis.' },
-                                { icon: TrendingUp, title: 'Predição por IA', desc: 'Insights futuristas sobre seu faturamento.' }
+                                { icon: Zap, title: 'Rápido e eficiente', desc: 'Interface ágil para o dia a dia da operação.' },
+                                { icon: Shield, title: 'Dados seguros', desc: 'Criptografia e backups automáticos.' },
+                                { icon: TrendingUp, title: 'Relatórios inteligentes', desc: 'Insights sobre rentabilidade e inadimplência.' }
                             ].map((item, i) => (
-                                <div key={i} className="flex gap-6 items-start group">
-                                    <div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-violet-400 group-hover:bg-violet-500 group-hover:text-white group-hover:border-violet-400 transition-all duration-500 shrink-0">
-                                        <item.icon className="w-6 h-6" />
+                                <div key={i} className="flex gap-4 items-start group">
+                                    <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-violet-400 group-hover:bg-violet-500/20 group-hover:text-violet-300 transition-all duration-300 shrink-0">
+                                        <item.icon className="w-5 h-5" />
                                     </div>
-                                    <div className="space-y-1.5">
-                                        <h3 className="text-white font-bold text-base tracking-tight font-outfit">{item.title}</h3>
-                                        <p className="text-zinc-500 text-sm leading-relaxed font-medium">{item.desc}</p>
+                                    <div>
+                                        <p className="text-white font-semibold text-sm">{item.title}</p>
+                                        <p className="text-zinc-500 text-sm mt-0.5">{item.desc}</p>
                                     </div>
                                 </div>
                             ))}
@@ -112,119 +108,93 @@ export default function LoginPage() {
                     </div>
                 </div>
 
-                {/* Footer / Status Label */}
-                <div className="relative z-10 flex items-center gap-4">
-                    <div className="flex gap-1.5">
-                        <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-                        <div className="w-1.5 h-1.5 rounded-full bg-green-500/40" />
-                        <div className="w-1.5 h-1.5 rounded-full bg-green-500/20" />
-                    </div>
-                    <p className="text-[10px] text-zinc-500 font-black uppercase tracking-[0.3em] font-outfit">
-                        Locatus OS — Core v4.2.0 Active
-                    </p>
+                <div className="relative z-10">
+                    <p className="text-zinc-600 text-xs">© 2026 Locatus — Todos os direitos reservados.</p>
                 </div>
             </div>
 
-            {/* ─── PAINEL DIREITO: Login (Glass & Precision) ─── */}
-            <div className="flex-1 flex flex-col bg-white relative overflow-y-auto mesh-gradient">
+            {/* ─── PAINEL DIREITO: Form ─── */}
+            <div className="flex-1 flex flex-col items-center justify-center p-8 md:p-16 bg-white">
+                <div className="w-full max-w-sm">
 
-                <div className="flex-1 flex flex-col items-center justify-center p-8 md:p-24 max-w-2xl mx-auto w-full relative z-10">
-
-                    {/* Floating Form Container: Surgical Glass */}
-                    <div className="w-full glass-surgical p-10 md:p-14 rounded-[2.5rem] border border-zinc-200/50 space-y-12 animate-in slide-in-from-bottom-8 duration-1000">
-
-                        {/* Header */}
-                        <div className="w-full space-y-4">
-                            <h2 className="text-5xl font-black tracking-tight text-zinc-950 font-outfit leading-none">Acesso.</h2>
-                            <p className="text-zinc-500 text-lg font-medium tracking-tight">Insira suas credenciais para gerenciar a operação.</p>
-                        </div>
-
-                        <div className="w-full space-y-10">
-                            {serverError && (
-                                <div className="p-5 bg-red-50/50 border border-red-100 rounded-2xl animate-in shake duration-500">
-                                    <p className="text-red-600 text-xs font-bold text-center uppercase tracking-widest">{serverError}</p>
-                                </div>
-                            )}
-
-                            <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
-                                <div className="space-y-6">
-                                    {/* Email Field */}
-                                    <div className="group space-y-2">
-                                        <label className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em] ml-1 flex items-center gap-2 group-focus-within:text-violet-600 transition-colors">
-                                            <Mail className="w-3.5 h-3.5" /> Identificador Profissional
-                                        </label>
-                                        <input
-                                            type="email"
-                                            {...register('email')}
-                                            placeholder="nome@corporativo.com"
-                                            className="w-full px-7 py-5 bg-zinc-50/50 border border-zinc-200 rounded-2xl text-base placeholder:text-zinc-400 focus:bg-white focus:ring-4 focus:ring-violet-500/5 focus:border-violet-500 transition-all duration-300 font-medium"
-                                        />
-                                        {errors.email && <p className="text-[10px] text-red-500 font-black ml-1 uppercase tracking-widest">{errors.email.message}</p>}
-                                    </div>
-
-                                    {/* Password Field */}
-                                    <div className="group space-y-2">
-                                        <div className="flex items-center justify-between ml-1">
-                                            <label className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em] flex items-center gap-2 group-focus-within:text-violet-600 transition-colors">
-                                                <Lock className="w-3.5 h-3.5" /> Chave de Acesso
-                                            </label>
-                                            <button
-                                                type="button"
-                                                onClick={() => setIsForgotModalOpen(true)}
-                                                className="text-[10px] font-black text-zinc-400 uppercase tracking-widest hover:text-violet-600 transition-colors"
-                                            >
-                                                Esqueceu?
-                                            </button>
-                                        </div>
-                                        <div className="relative">
-                                            <input
-                                                type={showPassword ? 'text' : 'password'}
-                                                {...register('password')}
-                                                placeholder="••••••••••••"
-                                                className="w-full px-7 py-5 bg-zinc-50/50 border border-zinc-200 rounded-2xl text-base placeholder:text-zinc-400 focus:bg-white focus:ring-4 focus:ring-violet-500/5 focus:border-violet-500 transition-all duration-300 font-medium pr-16"
-                                            />
-                                            <button
-                                                type="button"
-                                                onClick={() => setShowPassword(!showPassword)}
-                                                className="absolute right-6 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-violet-600 transition-colors"
-                                            >
-                                                {showPassword ? <EyeOff className="w-6 h-6" /> : <Eye className="w-6 h-6" />}
-                                            </button>
-                                        </div>
-                                        {errors.password && <p className="text-[10px] text-red-500 font-black ml-1 uppercase tracking-widest">{errors.password.message}</p>}
-                                    </div>
-                                </div>
-
-                                <button
-                                    type="submit"
-                                    disabled={isSubmitting}
-                                    className="w-full py-6 bg-zinc-950 hover:bg-zinc-900 disabled:opacity-50 text-white font-black rounded-2xl transition-all shadow-[0_20px_40px_rgba(0,0,0,0.1)] hover:shadow-[0_25px_50px_rgba(0,0,0,0.15)] hover:-translate-y-1 active:scale-[0.98] text-xs uppercase tracking-[0.3em] flex items-center justify-center gap-3 group overflow-hidden relative"
-                                >
-                                    <div className="absolute inset-0 bg-gradient-to-r from-violet-600/20 to-indigo-600/20 opacity-0 group-hover:opacity-100 transition-opacity" />
-                                    {isSubmitting ? (
-                                        <Loader2 className="w-6 h-6 animate-spin" />
-                                    ) : (
-                                        <>Entrar no Ecossistema <Sparkles className="w-5 h-5 group-hover:scale-125 transition-transform" /></>
-                                    )}
-                                </button>
-                            </form>
-
-                            <div className="pt-8 text-center border-t border-zinc-100">
-                                <p className="text-sm text-zinc-500 font-medium leading-relaxed">
-                                    Nova operação? <br />
-                                    <Link href="/register" className="text-violet-600 font-black hover:text-violet-700 inline-flex items-center gap-2 group mt-2 uppercase text-[11px] tracking-widest">
-                                        Ativar Locadora <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
-                                    </Link>
-                                </p>
-                            </div>
-                        </div>
+                    {/* Mobile logo */}
+                    <div className="flex items-center gap-2 mb-10 lg:hidden">
+                        <div className="w-8 h-8 bg-violet-500 rounded-lg flex items-center justify-center text-white font-bold text-sm">L</div>
+                        <span className="font-bold text-lg text-zinc-900 font-heading">Locatus</span>
                     </div>
-                </div>
 
-                {/* Micro branding Action */}
-                <div className="absolute bottom-12 left-1/2 -translate-x-1/2 text-center w-full max-w-md">
-                    <p className="text-[9px] text-zinc-400 font-black uppercase tracking-[0.5em]">
-                        Locatus Modular Infrastructure © 2026
+                    <div className="space-y-2 mb-8">
+                        <h2 className="text-3xl font-bold text-zinc-900 tracking-tight font-heading">Entrar</h2>
+                        <p className="text-zinc-500 text-[15px]">Acesse sua conta para continuar.</p>
+                    </div>
+
+                    {serverError && (
+                        <div className="mb-6 p-3.5 bg-red-50 border border-red-100 rounded-xl">
+                            <p className="text-red-600 text-sm font-medium text-center">{serverError}</p>
+                        </div>
+                    )}
+
+                    <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+                        <div>
+                            <label className="label">Email</label>
+                            <input
+                                type="email"
+                                {...register('email')}
+                                placeholder="seu@email.com"
+                                className="input-field"
+                            />
+                            {errors.email && <p className="mt-1.5 text-sm text-red-500">{errors.email.message}</p>}
+                        </div>
+
+                        <div>
+                            <div className="flex items-center justify-between mb-1.5">
+                                <label className="label mb-0">Senha</label>
+                                <button
+                                    type="button"
+                                    onClick={() => setIsForgotModalOpen(true)}
+                                    className="text-sm text-violet-500 hover:text-violet-600 font-medium transition-colors"
+                                >
+                                    Esqueceu a senha?
+                                </button>
+                            </div>
+                            <div className="relative">
+                                <input
+                                    type={showPassword ? 'text' : 'password'}
+                                    {...register('password')}
+                                    placeholder="Sua senha"
+                                    className="input-field pr-12"
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600 transition-colors"
+                                >
+                                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                                </button>
+                            </div>
+                            {errors.password && <p className="mt-1.5 text-sm text-red-500">{errors.password.message}</p>}
+                        </div>
+
+                        <div className="pt-1">
+                            <button
+                                type="submit"
+                                disabled={isSubmitting}
+                                className="btn-primary"
+                            >
+                                {isSubmitting ? (
+                                    <Loader2 className="w-5 h-5 animate-spin" />
+                                ) : (
+                                    <>Entrar <ChevronRight className="w-4 h-4" /></>
+                                )}
+                            </button>
+                        </div>
+                    </form>
+
+                    <p className="mt-8 text-center text-[15px] text-zinc-500">
+                        Não tem uma conta?{' '}
+                        <Link href="/register" className="text-violet-500 font-semibold hover:text-violet-600 transition-colors">
+                            Criar conta
+                        </Link>
                     </p>
                 </div>
             </div>

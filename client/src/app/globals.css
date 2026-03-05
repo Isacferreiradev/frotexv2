@@ -1,56 +1,64 @@
 @import "tailwindcss";
 
 @theme inline {
-    /* ─── FUTURISTIC & SURGICAL PALETTE ─── */
+    /* ─── LOCATUS PALETTE: White / Light Purple / Black ─── */
     --color-background: #FFFFFF;
-    --color-foreground: #09090B; /* Zinc 950 */
+    --color-foreground: #09090B;
 
-    --color-primary: #7C3AED; /* Violet 600 */
+    --color-primary: #8B5CF6;
+    /* Violet 500 – light purple */
+    --color-primary-light: #EDE9FE;
+    /* Violet 100 */
     --color-primary-foreground: #FFFFFF;
 
-    --color-secondary: #F4F4F5; /* Zinc 100 */
-    --color-secondary-foreground: #09090B;
+    --color-secondary: #F5F3FF;
+    /* Violet 50 */
+    --color-secondary-foreground: #5B21B6;
 
     --color-muted: #F4F4F5;
-    --color-muted-foreground: #71717A; /* Zinc 500 */
+    --color-muted-foreground: #71717A;
 
-    --color-accent: #F5F3FF;
-    --color-accent-foreground: #7C3AED;
+    --color-accent: #EDE9FE;
+    /* Violet 100 */
+    --color-accent-foreground: #6D28D9;
 
-    --color-border: #E4E4E7; /* Zinc 200 */
-    --color-input: #E4E4E7;
-    --color-ring: #A78BFA; /* Violet 400 */
+    --color-border: #E4E4E7;
+    --color-input: #F4F4F5;
+    --color-ring: #C4B5FD;
+    /* Violet 300 */
 
     /* Typography */
-    --font-outfit: var(--font-outfit);
-    --font-inter: var(--font-inter);
+    --font-heading: var(--font-outfit);
+    --font-body: var(--font-inter);
 
-    /* Radius & Spacing */
-    --radius-futuristic: 24px;
-    --radius-surgical: 12px;
-
-    /* Shadows & Glows */
-    --shadow-premium: 0 10px 40px -10px rgba(0, 0, 0, 0.05);
-    --shadow-glow-violet: 0 0 20px rgba(124, 58, 237, 0.15);
+    /* Radius */
+    --radius-lg: 16px;
+    --radius-xl: 24px;
 }
 
 @layer utilities {
-    .glass-surgical {
-        @apply backdrop-blur-xl bg-white/60 border border-white/40 shadow-premium;
-        transform: translateZ(0);
+    .font-heading {
+        font-family: var(--font-outfit), sans-serif;
     }
 
-    .mesh-gradient {
-        background-color: #ffffff;
-        background-image: 
-            radial-gradient(at 0% 0%, rgba(124, 58, 237, 0.05) 0px, transparent 50%),
-            radial-gradient(at 100% 0%, rgba(79, 70, 229, 0.05) 0px, transparent 50%),
-            radial-gradient(at 100% 100%, rgba(124, 58, 237, 0.05) 0px, transparent 50%),
-            radial-gradient(at 0% 100%, rgba(79, 70, 229, 0.05) 0px, transparent 50%);
+    .glass-card {
+        @apply bg-white/80 backdrop-blur-2xl border border-violet-100/60 shadow-lg shadow-violet-50;
     }
 
-    .text-glow {
-        text-shadow: 0 0 30px rgba(124, 58, 237, 0.3);
+    .input-field {
+        @apply w-full px-4 py-3.5 bg-white border border-zinc-200 rounded-xl text-[15px] text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-violet-300/50 focus:border-violet-400 transition-all duration-200 font-medium;
+    }
+
+    .btn-primary {
+        @apply w-full py-3.5 bg-violet-500 hover:bg-violet-600 text-white font-semibold rounded-xl transition-all duration-200 flex items-center justify-center gap-2 text-[15px] shadow-md shadow-violet-200 hover:shadow-violet-300 active:scale-[0.99];
+    }
+
+    .btn-secondary {
+        @apply w-full py-3.5 bg-violet-50 hover:bg-violet-100 text-violet-700 font-semibold rounded-xl transition-all duration-200 flex items-center justify-center gap-2 text-[15px] border border-violet-200;
+    }
+
+    .label {
+        @apply block text-sm font-medium text-zinc-700 mb-1.5;
     }
 
     .no-scrollbar::-webkit-scrollbar {
@@ -66,25 +74,28 @@
 
 body {
     font-family: var(--font-inter), system-ui, sans-serif;
+    font-size: 15px;
     color: #09090B;
     background-color: #FFFFFF;
-    font-weight: 450;
+    font-weight: 400;
     line-height: 1.6;
-    letter-spacing: -0.01em;
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
     font-family: var(--font-outfit), sans-serif;
     letter-spacing: -0.02em;
-    font-weight: 700;
 }
 
 @layer base {
-    * {
-        @apply border-border/60 transition-colors duration-300;
-    }
 
-    input, select, textarea {
-        @apply outline-none focus:ring-2 focus:ring-violet-100 transition-all;
+    input,
+    select,
+    textarea {
+        @apply outline-none;
     }
 }
