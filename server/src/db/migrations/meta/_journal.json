@@ -92,6 +92,13 @@
       "when": 1772670650721,
       "tag": "0012_broad_dracula",
       "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1772671000000,
+      "tag": "0013_add_tenant_onboarding_fields",
+      "breakpoints": true
     }
   ]
 }
