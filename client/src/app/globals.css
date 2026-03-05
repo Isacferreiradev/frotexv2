@@ -1,84 +1,56 @@
 @import "tailwindcss";
 
 @theme inline {
-    /* Premium & Clean Palette - WORLD CLASS REFINEMENT */
+    /* ─── FUTURISTIC & SURGICAL PALETTE ─── */
     --color-background: #FFFFFF;
-    --color-foreground: #1F2937;
-    /* Graphite */
+    --color-foreground: #09090B; /* Zinc 950 */
 
-    --color-card: #FFFFFF;
-    --color-card-foreground: #1F2937;
-
-    --color-popover: #FFFFFF;
-    --color-popover-foreground: #1F2937;
-
-    --color-primary: #6D28D9;
-    /* Modern Deep Purple */
+    --color-primary: #7C3AED; /* Violet 600 */
     --color-primary-foreground: #FFFFFF;
 
-    --color-secondary: #F5F3FF;
-    /* Lavender */
-    --color-secondary-foreground: #6D28D9;
+    --color-secondary: #F4F4F5; /* Zinc 100 */
+    --color-secondary-foreground: #09090B;
 
-    --color-muted: #F9FAFB;
-    --color-muted-foreground: #6B7280;
-    /* Medium Gray */
+    --color-muted: #F4F4F5;
+    --color-muted-foreground: #71717A; /* Zinc 500 */
 
     --color-accent: #F5F3FF;
-    --color-accent-foreground: #6D28D9;
+    --color-accent-foreground: #7C3AED;
 
-    --color-destructive: #EF4444;
-    --color-destructive-foreground: #F9FAFB;
+    --color-border: #E4E4E7; /* Zinc 200 */
+    --color-input: #E4E4E7;
+    --color-ring: #A78BFA; /* Violet 400 */
 
-    --color-border: #E5E7EB;
-    /* Ice Gray - Refined */
-    --color-input: #E5E7EB;
-    --color-ring: #C4B5FD;
+    /* Typography */
+    --font-outfit: var(--font-outfit);
+    --font-inter: var(--font-inter);
 
-    /* Spacing & Radius - MATHEMATICAL PRECISION */
-    --radius-premium: 16px;
-    --radius-button: 10px;
+    /* Radius & Spacing */
+    --radius-futuristic: 24px;
+    --radius-surgical: 12px;
 
-    /* Shadows - Elegantly Diffuse (Nearly Invisible) */
-    --shadow-soft: 0 2px 12px rgba(109, 40, 217, 0.03);
-    --shadow-premium: 0 8px 30px rgba(0, 0, 0, 0.04);
-    --shadow-float: 0 20px 50px rgba(0, 0, 0, 0.06);
-
-    --font-jakarta: var(--font-jakarta);
+    /* Shadows & Glows */
+    --shadow-premium: 0 10px 40px -10px rgba(0, 0, 0, 0.05);
+    --shadow-glow-violet: 0 0 20px rgba(124, 58, 237, 0.15);
 }
 
 @layer utilities {
-    .glass-v2 {
-        @apply backdrop-blur-md bg-white/70;
+    .glass-surgical {
+        @apply backdrop-blur-xl bg-white/60 border border-white/40 shadow-premium;
         transform: translateZ(0);
-        /* GPU acceleration */
     }
 
-    .shadow-premium {
-        box-shadow: var(--shadow-premium);
+    .mesh-gradient {
+        background-color: #ffffff;
+        background-image: 
+            radial-gradient(at 0% 0%, rgba(124, 58, 237, 0.05) 0px, transparent 50%),
+            radial-gradient(at 100% 0%, rgba(79, 70, 229, 0.05) 0px, transparent 50%),
+            radial-gradient(at 100% 100%, rgba(124, 58, 237, 0.05) 0px, transparent 50%),
+            radial-gradient(at 0% 100%, rgba(79, 70, 229, 0.05) 0px, transparent 50%);
     }
 
-    .shadow-soft {
-        box-shadow: var(--shadow-soft);
-    }
-
-    .shadow-float {
-        box-shadow: var(--shadow-float);
-    }
-
-    .card-premium {
-        @apply bg-white rounded-[12px] transition-all duration-300;
-        box-shadow: var(--shadow-soft);
-    }
-
-    .card-premium:hover {
-        box-shadow: var(--shadow-premium);
-        transform: translateY(-1px);
-    }
-
-    .no-scrollbar {
-        scrollbar-width: none;
-        -ms-overflow-style: none;
+    .text-glow {
+        text-shadow: 0 0 30px rgba(124, 58, 237, 0.3);
     }
 
     .no-scrollbar::-webkit-scrollbar {
@@ -93,26 +65,26 @@
 }
 
 body {
-    font-family: var(--font-jakarta), system-ui, -apple-system, sans-serif;
-    color: #1F2937;
+    font-family: var(--font-inter), system-ui, sans-serif;
+    color: #09090B;
     background-color: #FFFFFF;
-    /* High clarity dominance */
-    font-weight: 400;
+    font-weight: 450;
     line-height: 1.6;
     letter-spacing: -0.01em;
 }
 
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-outfit), sans-serif;
+    letter-spacing: -0.02em;
+    font-weight: 700;
+}
+
 @layer base {
     * {
-        @apply border-border/40 transition-colors duration-200;
+        @apply border-border/60 transition-colors duration-300;
     }
 
-    h1,
-    h2,
-    h3,
-    h4,
-    h5,
-    h6 {
-        @apply tracking-tight font-semibold;
+    input, select, textarea {
+        @apply outline-none focus:ring-2 focus:ring-violet-100 transition-all;
     }
 }
