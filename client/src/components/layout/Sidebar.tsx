@@ -14,7 +14,6 @@ import {
     PenToolIcon,
     DollarSign,
     Calculator,
-    Zap,
     Brain,
     BarChart3
 } from 'lucide-react';
@@ -39,7 +38,7 @@ const NAV_ITEMS = [
     { href: '/configuracoes', label: 'Configurações', icon: Settings },
 ];
 
-export function Sidebar() {
+export function Sidebar({ mobileOpen, onClose }: { mobileOpen?: boolean; onClose?: () => void }) {
     const pathname = usePathname();
     const router = useRouter();
     const queryClient = useQueryClient();
@@ -90,8 +89,9 @@ export function Sidebar() {
     return (
         <aside
             className={cn(
-                'relative flex flex-col h-screen bg-white transition-[width] duration-300 shrink-0 select-none shadow-soft z-50',
-                collapsed ? 'w-20' : 'w-64'
+                'fixed inset-y-0 left-0 lg:relative flex flex-col h-screen bg-white transition-all duration-300 shrink-0 select-none shadow-soft z-50',
+                collapsed ? 'w-20' : 'w-64',
+                !mobileOpen ? '-translate-x-full lg:translate-x-0' : 'translate-x-0'
             )}
         >
             {/* Logo */}
@@ -114,6 +114,7 @@ export function Sidebar() {
                             href={item.href}
                             prefetch={true}
                             onMouseEnter={() => prefetchData(item.href)}
+                            onClick={onClose}
                             className={cn(
                                 'flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group relative',
                                 isActive
@@ -157,10 +158,10 @@ export function Sidebar() {
                 </button>
             </div>
 
-            {/* Collapse toggle */}
+            {/* Collapse toggle (Desktop only) */}
             <button
                 onClick={() => setCollapsed(!collapsed)}
-                className="absolute -right-3 top-24 w-6 h-6 bg-white border border-violet-100 shadow-sm rounded-full flex items-center justify-center text-zinc-400 hover:text-violet-600 transition-all z-20"
+                className="absolute -right-3 top-24 w-6 h-6 bg-white border border-violet-100 shadow-sm rounded-full hidden lg:flex items-center justify-center text-zinc-400 hover:text-violet-600 transition-all z-20"
             >
                 {collapsed ? <ChevronRight className="w-3 h-3" /> : <ChevronLeft className="w-3 h-3" />}
             </button>

@@ -1,6 +1,6 @@
-import { and, eq, lt, gte, sql } from 'drizzle-orm';
+import { and, eq, lt, gte, sql, isNull } from 'drizzle-orm';
 import { db } from '../db';
-import { rentals, tools, quotes } from '../db/schema';
+import { rentals, tools, quotes, dismissedAlerts } from '../db/schema';
 
 export interface Alert {
     id: string;
@@ -15,6 +15,11 @@ export interface Alert {
 export async function getActiveAlerts(tenantId: string): Promise<Alert[]> {
     const now = new Date();
     const soon = new Date(now.getTime() + 48 * 60 * 60 * 1000); // 48 hours
+
+    const dismissed = await db.select({ alertId: dismissedAlerts.alertId })
+        .from(dismissedAlerts)
+        .where(eq(dismissedAlerts.tenantId, tenantId));
+    const dismissedIds = new Set(dismissed.map(d => d.alertId));
 
     const alerts: Alert[] = [];
 
@@ -71,6 +76,7 @@ export async function getActiveAlerts(tenantId: string): Promise<Alert[]> {
     const maintenanceDue = await db.query.tools.findMany({
         where: and(
             eq(tools.tenantId, tenantId),
+            isNull(tools.deletedAt),
             sql`${tools.currentUsageHours} >= ${tools.nextMaintenanceDueHours}`
         )
     });
@@ -87,5 +93,15 @@ export async function getActiveAlerts(tenantId: string): Promise<Alert[]> {
         });
     });
 
-    return alerts.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+    return alerts
+        .filter(a => !dismissedIds.has(a.id))
+        .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+}
+
+export async function dismissAlerts(tenantId: string, alertIds: string[]) {
+    const values = alertIds.map(alertId => ({
+        tenantId,
+        alertId,
+    }));
+    await db.insert(dismissedAlerts).values(values).onConflictDoNothing();
 }

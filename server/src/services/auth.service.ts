@@ -7,6 +7,7 @@ import { AppError } from '../middleware/error.middleware';
 import { z } from 'zod';
 import { v4 as uuidv4 } from 'uuid';
 import { sendVerificationEmail, sendPasswordResetEmail } from './email.service';
+import logger from '../utils/logger';
 
 export const registerSchema = z.object({
     // Step 1: Account
@@ -42,7 +43,7 @@ export const resetPasswordSchema = z.object({
 });
 
 export async function register(data: z.infer<typeof registerSchema>) {
-    console.log(`[AUTH] Iniciando registro profissional Locattus para: ${data.email}`);
+    logger.info(`[AUTH] Initiating registration for user`);
     try {
         const email = data.email.toLowerCase().trim();
         const result = await db.transaction(async (tx) => {
@@ -119,14 +120,14 @@ export async function checkVerification(email: string) {
     const userEmail = email.toLowerCase().trim();
     const [user] = await db.select({ isVerified: users.isVerified }).from(users).where(sql`lower(${users.email}) = ${userEmail}`);
     if (!user) {
-        throw new AppError(404, 'Usuário não encontrado');
+        return false; // Don't throw 404 to prevent enumeration
     }
     return user.isVerified;
 }
 
 export async function resendVerification(email: string) {
     const userEmail = email.toLowerCase().trim();
-    console.log(`📧 [AUTH-SERVICE] Looking for user with email: ${userEmail}`);
+    logger.info(`📧 [AUTH-SERVICE] Resend verification requested`);
     // Use case-insensitive search
     const [user] = await db.select().from(users).where(sql`lower(${users.email}) = ${userEmail}`);
 
@@ -136,10 +137,7 @@ export async function resendVerification(email: string) {
         return { success: true, message: 'Se o e-mail estiver cadastrado, um novo link será enviado.' };
     }
 
-    console.log(`📧 [AUTH-SERVICE] User found: ${user.id} (${user.fullName}). Verified? ${user.isVerified}`);
-
     if (user.isVerified) {
-        console.warn(`📧 [AUTH-SERVICE] User ${userEmail} is already verified.`);
         throw new AppError(400, 'Este e-mail já foi verificado.');
     }
 
@@ -156,27 +154,21 @@ export async function resendVerification(email: string) {
 
 export async function login(data: z.infer<typeof loginSchema>) {
     const email = data.email.toLowerCase().trim();
-    console.log(`[AUTH] Tentativa de login para: ${email}`);
     try {
         const [user] = await db.select().from(users).where(sql`lower(${users.email}) = ${email}`);
 
         if (!user) {
-            console.warn(`[AUTH] Usuário não encontrado: ${data.email}`);
             throw new AppError(401, 'Credenciais inválidas');
         }
 
         const isPasswordValid = await bcrypt.compare(data.password, user.passwordHash);
         if (!isPasswordValid) {
-            console.warn(`[AUTH] Senha inválida para: ${data.email}`);
             throw new AppError(401, 'Credenciais inválidas');
         }
 
         if (!user.isVerified) {
-            console.warn(`[AUTH] Usuário não verificado: ${email}`);
             throw new AppError(403, 'Por favor, verifique seu e-mail antes de fazer login');
         }
-
-        console.log(`[AUTH] Assinando tokens para: ${user.id}`);
         const accessToken = signAccessToken({
             userId: user.id,
             email: user.email,
@@ -186,12 +178,11 @@ export async function login(data: z.infer<typeof loginSchema>) {
 
         const refreshToken = signRefreshToken({ userId: user.id, tenantId: user.tenantId });
 
-        console.log(`[AUTH] Atualizando último login...`);
         await db.update(users)
             .set({ lastLoginAt: new Date(), lastActiveAt: new Date() })
             .where(eq(users.id, user.id));
 
-        console.log(`[AUTH] Login bem-sucedido: ${user.id}`);
+        logger.info(`[AUTH] Login success`);
         return {
             user: {
                 id: user.id,
@@ -205,7 +196,7 @@ export async function login(data: z.infer<typeof loginSchema>) {
             refreshToken,
         };
     } catch (error: any) {
-        console.error(`[AUTH-CRITICAL] Falha no login para ${data.email}:`, error);
+        logger.error(`[AUTH] Login failure`);
         throw error;
     }
 }

@@ -60,7 +60,7 @@ export function CustomerCard({ customer, onEdit, onToggleBlock }: CustomerCardPr
             </div>
 
             {/* Content */}
-            <div className="p-6 flex-1 flex flex-col">
+            <div className="p-4 sm:p-6 flex-1 flex flex-col">
                 <div className="flex-1">
                     <h4 className="font-bold text-zinc-900 text-lg tracking-tight leading-tight group-hover:text-violet-600 transition-colors line-clamp-1">
                         {customer.fullName}

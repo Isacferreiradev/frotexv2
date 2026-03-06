@@ -73,7 +73,7 @@ const MetricCard = memo(({
                 {loading
                     ? <Skeleton className="h-10 w-32 rounded-lg" />
                     : <span className={cn(
-                        'text-4xl font-bold tracking-tight font-jakarta',
+                        'text-2xl sm:text-4xl font-bold tracking-tight font-jakarta',
                         variant === 'critical' ? 'text-red-500' : 'text-foreground'
                     )}>{value}</span>
                 }
@@ -98,7 +98,7 @@ function ROIRow({ tool, rank, onClick }: { tool: any; rank: number; onClick?: ()
     return (
         <div
             onClick={onClick}
-            className="flex items-center gap-6 py-5 border-b border-border/50 last:border-0 group cursor-pointer"
+            className="flex items-center gap-4 sm:gap-6 py-5 border-b border-border/50 last:border-0 group cursor-pointer"
         >
             <div className={cn(
                 'w-10 h-10 rounded-xl flex items-center justify-center text-[11px] font-extrabold shrink-0 transition-all border border-transparent',
@@ -212,11 +212,11 @@ export default function DashboardPage() {
     const today = new Intl.DateTimeFormat('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' }).format(new Date());
 
     return (
-        <div className="space-y-10 max-w-[1600px] mx-auto py-10 px-8">
+        <div className="space-y-6 sm:space-y-10 max-w-[1600px] mx-auto py-6 sm:py-10 px-4 sm:px-8">
             {/* ── Welcome Header & Quick Filters ── */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-8">
                 <div>
-                    <h1 className="text-4xl font-bold text-foreground tracking-tight sm:text-5xl font-jakarta">
+                    <h1 className="text-3xl font-bold text-foreground tracking-tight sm:text-5xl font-jakarta">
                         {greeting}, <span className="text-primary italic">{firstName}</span>
                     </h1>
                     <div className="flex items-center gap-4 mt-4">
@@ -226,7 +226,7 @@ export default function DashboardPage() {
                     </div>
                 </div>
 
-                <div className="flex items-center gap-2 glass-v2 p-1.5 rounded-2xl border border-white/20 shadow-premium">
+                <div className="flex items-center gap-1 sm:gap-2 glass-v2 p-1 rounded-2xl border border-white/20 shadow-premium overflow-x-auto no-scrollbar">
                     {[
                         { id: 'today', label: 'Hoje' },
                         { id: '7d', label: '7 dias' },
@@ -236,7 +236,7 @@ export default function DashboardPage() {
                             key={range.id}
                             onClick={() => setTimeRange(range.id as any)}
                             className={cn(
-                                "px-6 py-2.5 rounded-xl text-[10px] font-extrabold uppercase tracking-widest transition-all",
+                                "px-4 sm:px-6 py-2 rounded-xl text-[10px] font-extrabold uppercase tracking-widest transition-all whitespace-nowrap",
                                 timeRange === range.id
                                     ? "bg-primary text-white shadow-premium scale-105"
                                     : "text-muted-foreground hover:bg-white/10"
@@ -297,7 +297,7 @@ export default function DashboardPage() {
                             Relatório Completo <ArrowUpRight className="ml-2 w-3 h-3" />
                         </Button>
                     </CardHeader>
-                    <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-8 relative z-10 py-6">
+                    <CardContent className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 sm:gap-8 relative z-10 py-6">
                         <div className="space-y-2">
                             <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">ROI Médio Real</p>
                             <p className="text-4xl font-extrabold font-jakarta text-emerald-400">
@@ -389,9 +389,9 @@ export default function DashboardPage() {
                     setIsDetailOpen(true);
                 }} />
 
-                {/* Health & Zombies */}
-                <div className="space-y-6">
-                    <Card glass className="bg-red-500/5 border-red-500/10 border-none">
+                {/* Modified Health & Zombies Layout */}
+                <div className="lg:col-span-3 grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <Card glass className="md:col-span-1 bg-red-500/5 border-red-500/10 border-none">
                         <CardHeader className="flex flex-row items-center justify-between">
                             <CardTitle className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-red-500">Equipamentos Zumbis</CardTitle>
                             <Skull className="w-4 h-4 text-red-500" />
@@ -414,23 +414,37 @@ export default function DashboardPage() {
                         </CardContent>
                     </Card>
 
-                    <Card glass className="border-none">
+                    <Card glass className="md:col-span-2 border-none relative overflow-hidden group">
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 blur-[50px] rounded-full group-hover:bg-primary/10 transition-all" />
                         <CardHeader className="flex flex-row items-center justify-between">
-                            <CardTitle className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-zinc-400">Saúde da Frota</CardTitle>
-                            <Wrench className="w-4 h-4 text-primary" />
-                        </CardHeader>
-                        <CardContent className="space-y-4">
-                            <div className="flex justify-between items-end">
-                                <span className="text-3xl font-bold font-jakarta">
-                                    {stats?.total > 0 ? (100 - (stats.maintenanceAlertsCount / stats.total * 100)).toFixed(0) : 100}%
-                                </span>
-                                <span className="text-[10px] font-bold text-primary uppercase tracking-widest">{stats?.maintenanceAlertsCount ?? 0} pendências</span>
+                            <div className="flex items-center gap-3">
+                                <Wrench className="w-4 h-4 text-primary" />
+                                <CardTitle className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-zinc-400">Saúde da Frota (Visão Geral)</CardTitle>
                             </div>
-                            <div className="h-2 bg-muted rounded-full overflow-hidden">
-                                <div
-                                    className="h-full bg-primary"
-                                    style={{ width: `${stats?.total > 0 ? (100 - (stats.maintenanceAlertsCount / stats.total * 100)) : 100}%` }}
-                                />
+                            <Activity className="w-4 h-4 text-primary opacity-20" />
+                        </CardHeader>
+                        <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center py-4">
+                            <div className="space-y-4">
+                                <div className="flex justify-between items-end">
+                                    <span className="text-4xl font-bold font-jakarta tracking-tight">
+                                        {stats?.total > 0 ? (100 - (stats.maintenanceAlertsCount / stats.total * 100)).toFixed(0) : 100}%
+                                    </span>
+                                    <span className="text-[10px] font-bold text-primary uppercase tracking-widest">{stats?.maintenanceAlertsCount ?? 0} pendências</span>
+                                </div>
+                                <div className="h-2.5 bg-muted rounded-full overflow-hidden shadow-inner">
+                                    <div
+                                        className="h-full bg-primary shadow-[0_0_12px_rgba(109,40,217,0.4)] transition-all duration-1000"
+                                        style={{ width: `${stats?.total > 0 ? (100 - (stats.maintenanceAlertsCount / stats.total * 100)) : 100}%` }}
+                                    />
+                                </div>
+                            </div>
+                            <div className="space-y-2 border-l border-zinc-100 pl-8 hidden md:block">
+                                <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-1">Status Preditivo</p>
+                                <p className="text-sm font-medium text-zinc-600 leading-relaxed">
+                                    {stats?.maintenanceAlertsCount > 0
+                                        ? `Existem ${stats.maintenanceAlertsCount} equipamentos que exigem atenção imediata para evitar paradas não planejadas.`
+                                        : "Toda a sua frota está operando dentro dos parâmetros ideais de manutenção."}
+                                </p>
                             </div>
                         </CardContent>
                     </Card>

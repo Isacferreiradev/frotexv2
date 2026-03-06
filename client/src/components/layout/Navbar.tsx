@@ -1,7 +1,7 @@
 'use client';
 
 import { usePathname } from 'next/navigation';
-import { Bell, Search } from 'lucide-react';
+import { Bell, Search, Menu } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import { CommandMenu } from '../shared/CommandMenu';
 import { NotificationCenter } from '../shared/NotificationCenter';
@@ -16,7 +16,7 @@ const pageTitles: Record<string, string> = {
     '/configuracoes': 'Configurações',
 };
 
-export function Navbar() {
+export function Navbar({ onMenuClick }: { onMenuClick?: () => void }) {
     const pathname = usePathname();
     const user = useAuthStore((s) => s.user);
 
@@ -28,8 +28,16 @@ export function Navbar() {
     };
 
     return (
-        <header className="sticky top-0 z-40 px-8 py-4 flex items-center justify-between glass-v2 shadow-soft">
-            <div className="flex items-center gap-8">
+        <header className="sticky top-0 z-40 px-4 lg:px-8 py-4 flex items-center justify-between glass-v2 shadow-soft">
+            <div className="flex items-center gap-4 lg:gap-8">
+                {/* Mobile Menu Trigger */}
+                <button
+                    onClick={onMenuClick}
+                    className="p-2 -ml-2 text-muted-foreground hover:text-foreground lg:hidden rounded-xl bg-muted/30"
+                >
+                    <Menu className="w-5 h-5" />
+                </button>
+
                 <div>
                     <h1 className="text-base font-bold text-foreground tracking-tight">{getTitle()}</h1>
                     <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mt-0.5 opacity-60">

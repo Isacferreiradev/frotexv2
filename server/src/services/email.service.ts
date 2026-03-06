@@ -10,9 +10,8 @@ async function getTransporter(): Promise<nodemailer.Transporter> {
     logger.info(`📧 [SMTP-DEBUG] IngetTransporter: Singleton Check...`);
     if (transporter) return transporter;
 
-    logger.info(`📧 [SMTP-DEBUG] Checking Credentials...`);
     if (env.SMTP_USER && env.SMTP_PASS) {
-        logger.info(`📧 [SMTP-DEBUG] Config: ${env.SMTP_USER} via ${env.SMTP_HOST}:${env.SMTP_PORT}`);
+        logger.info(`📧 [SMTP] Initializing transporter via ${env.SMTP_HOST}`);
         // Use real credentials
         transporter = nodemailer.createTransport({
             host: env.SMTP_HOST,
@@ -31,19 +30,18 @@ async function getTransporter(): Promise<nodemailer.Transporter> {
         });
 
         try {
-            logger.info(`📧 [SMTP-DEBUG] Verifying Connection (10s timeout)...`);
+            logger.info(`📧 [SMTP] Verifying Connection...`);
             await transporter.verify();
-            logger.info(`✅ [SMTP-DEBUG] Verified for ${env.SMTP_USER}`);
+            logger.info(`✅ [SMTP] Connection verified`);
         } catch (error: any) {
-            logger.error(`❌ [SMTP-DEBUG] Verification FAILED for ${env.SMTP_USER}:`, {
-                message: error.message,
+            logger.error(`❌ [SMTP] Verification FAILED:`, {
                 code: error.code
             });
             transporter = null;
             throw error;
         }
     } else {
-        logger.warn(`📧 [SMTP-DEBUG] No Credentials! Falling back to Ethereal...`);
+        logger.warn(`📧 [SMTP] No Credentials! Falling back to Ethereal...`);
         // Mock email using ethereal
         const testAccount = await nodemailer.createTestAccount();
         transporter = nodemailer.createTransport({
@@ -68,10 +66,7 @@ async function sendEmailViaResend(to: string, subject: string, html: string) {
         logger.info(`📧 [RESEND] Attempting API delivery to ${to}...`);
 
         // Use the verified domain email address
-        let fromEmail = env.SMTP_USER || "notificacoes@locattus.com.br";
-        if (fromEmail === 'apikey' || !fromEmail.includes('@')) {
-            fromEmail = 'notificacoes@locattus.com.br';
-        }
+        const fromEmail = "notificacoes@locattus.com.br";
 
         const response = await fetch('https://api.resend.com/emails', {
             method: 'POST',
@@ -121,10 +116,7 @@ export async function sendVerificationEmail(email: string, fullName: string, tok
         </div>
     `;
 
-    logger.info(`\n==============================================`);
-    logger.info(`📧 VERIFICATION EMAIL FOR: ${email}`);
-    logger.info(`🔗 CLICK HERE TO VERIFY: ${verificationUrl}`);
-    logger.info(`==============================================\n`);
+    logger.info(`📧 Sending verification email to ${email.split('@')[0]}@...`);
 
     // Try Resend first
     const resendSuccess = await sendEmailViaResend(email, subject, html);
@@ -182,10 +174,7 @@ export async function sendPasswordResetEmail(email: string, fullName: string, to
         </div>
     `;
 
-    logger.info(`\n==============================================`);
-    logger.info(`🔑 PASSWORD RESET FOR: ${email}`);
-    logger.info(`🔗 CLICK HERE TO RESET: ${resetUrl}`);
-    logger.info(`==============================================\n`);
+    logger.info(`🔑 Sending password reset email to ${email.split('@')[0]}@...`);
 
     // Try Resend first
     const resendSuccess = await sendEmailViaResend(email, subject, html);

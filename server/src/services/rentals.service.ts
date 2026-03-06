@@ -1,4 +1,4 @@
-import { eq, and, or, desc, sql } from 'drizzle-orm';
+import { eq, and, or, desc, sql, isNull } from 'drizzle-orm';
 import { db } from '../db';
 import { rentals, tools, customers, payments, tenants, users, toolCategories, expenses, maintenanceLogs, quotes, rentalEvents } from '../db/schema';
 import { AppError } from '../middleware/error.middleware';
@@ -47,7 +47,7 @@ async function generateRentalCode(tenantId: string): Promise<string> {
 
 export async function listRentals(tenantId: string, filters: { status?: string; search?: string }) {
     const rows = await db.query.rentals.findMany({
-        where: eq(rentals.tenantId, tenantId),
+        where: and(eq(rentals.tenantId, tenantId), isNull(rentals.deletedAt)),
         with: {
             tool: { columns: { id: true, name: true, serialNumber: true } },
             customer: { columns: { id: true, fullName: true, phoneNumber: true } },
@@ -71,7 +71,7 @@ export async function listRentals(tenantId: string, filters: { status?: string; 
 
 export async function getRental(tenantId: string, id: string) {
     const rental = await db.query.rentals.findFirst({
-        where: and(eq(rentals.tenantId, tenantId), eq(rentals.id, id)),
+        where: and(eq(rentals.tenantId, tenantId), eq(rentals.id, id), isNull(rentals.deletedAt)),
         with: {
             tool: true,
             customer: true,
@@ -290,7 +290,7 @@ export async function cancelRental(tenantId: string, id: string) {
                 status: 'cancelled',
                 updatedAt: new Date(),
             })
-            .where(and(eq(rentals.tenantId, tenantId), eq(rentals.id, id)))
+            .where(and(eq(rentals.tenantId, tenantId), eq(rentals.id, id), isNull(rentals.deletedAt)))
             .returning();
 
         // Update tool back to available
@@ -306,6 +306,16 @@ export async function cancelRental(tenantId: string, id: string) {
     });
 
     return updated;
+}
+
+export async function deleteRental(tenantId: string, id: string) {
+    const [rental] = await db
+        .update(rentals)
+        .set({ deletedAt: new Date(), updatedAt: new Date() })
+        .where(and(eq(rentals.tenantId, tenantId), eq(rentals.id, id), isNull(rentals.deletedAt)))
+        .returning();
+    if (!rental) throw new AppError(404, 'Locação não encontrada');
+    return { success: true };
 }
 
 export async function getDashboardStats(tenantId: string, period?: string) {
@@ -324,9 +334,9 @@ export async function getDashboardStats(tenantId: string, period?: string) {
 
     // Get basic counts and lists for calculation
     const [toolRows, rentalRows, paymentRows, maintenanceRows, newCustomers, expensesRows, quoteRows] = await Promise.all([
-        db.select().from(tools).where(eq(tools.tenantId, tenantId)),
+        db.select().from(tools).where(and(eq(tools.tenantId, tenantId), isNull(tools.deletedAt))),
         db.query.rentals.findMany({
-            where: eq(rentals.tenantId, tenantId),
+            where: and(eq(rentals.tenantId, tenantId), isNull(rentals.deletedAt)),
             with: {
                 tool: true,
                 customer: { columns: { fullName: true } }
@@ -334,9 +344,9 @@ export async function getDashboardStats(tenantId: string, period?: string) {
         }),
         db.select({ amount: payments.amount, status: payments.status, paymentDate: payments.paymentDate }).from(payments).where(eq(payments.tenantId, tenantId)),
         db.select({ toolId: maintenanceLogs.toolId, cost: maintenanceLogs.cost }).from(maintenanceLogs).where(eq(maintenanceLogs.tenantId, tenantId)),
-        db.select({ id: customers.id }).from(customers).where(and(eq(customers.tenantId, tenantId), sql`${customers.createdAt} >= ${lastWeek}`)),
+        db.select({ id: customers.id }).from(customers).where(and(eq(customers.tenantId, tenantId), isNull(customers.deletedAt), sql`${customers.createdAt} >= ${lastWeek}`)),
         db.select({ amount: expenses.amount, category: expenses.category, refId: expenses.refId }).from(expenses).where(eq(expenses.tenantId, tenantId)),
-        db.select({ totalAmount: quotes.totalAmount, status: quotes.status }).from(quotes).where(eq(quotes.tenantId, tenantId))
+        db.select({ totalAmount: quotes.totalAmount, status: quotes.status }).from(quotes).where(and(eq(quotes.tenantId, tenantId), isNull(quotes.deletedAt)))
     ]);
 
     const totalTools = toolRows.length;
@@ -558,6 +568,7 @@ export async function getExpiringRentals(tenantId: string) {
         where: and(
             eq(rentals.tenantId, tenantId),
             eq(rentals.status, 'active'),
+            isNull(rentals.deletedAt),
             sql`${rentals.endDateExpected} >= ${startOfToday}`,
             sql`${rentals.endDateExpected} <= ${endOfTomorrow}`
         ),

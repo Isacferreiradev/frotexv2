@@ -1,7 +1,7 @@
 'use client';
 
 import { Wrench, MoreVertical, QrCode, Zap } from 'lucide-react';
-import { formatCurrency } from '@/lib/utils';
+import { cn, formatCurrency } from '@/lib/utils';
 import { StatusPulse } from './StatusPulse';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 
@@ -13,19 +13,34 @@ interface ToolCardProps {
     onStatusChange?: (id: string, status: string) => void;
     onShowQR?: (tool: any) => void;
     onCheckout?: (tool: any) => void;
+    selected?: boolean;
+    onSelect?: (id: string) => void;
 }
 
-export function ToolCard({ tool, onEdit, onStatusChange, onShowQR, onCheckout }: ToolCardProps) {
+export function ToolCard({ tool, onEdit, onStatusChange, onShowQR, onCheckout, selected, onSelect }: ToolCardProps) {
     const router = useRouter();
 
     return (
         <div
-            onClick={() => router.push(`/ferramentas/${tool.id}`)}
-            className="group bg-white rounded-premium border border-border shadow-soft hover:shadow-premium transition-all duration-300 overflow-hidden flex flex-col h-full cursor-pointer hover:border-primary/20"
+            onClick={() => onSelect ? onSelect(tool.id) : router.push(`/ferramentas/${tool.id}`)}
+            className={cn(
+                "group bg-white rounded-premium border border-border shadow-soft hover:shadow-premium transition-all duration-300 overflow-hidden flex flex-col h-full cursor-pointer hover:border-primary/20",
+                selected && "border-primary ring-2 ring-primary/20 bg-primary/5"
+            )}
         >
             {/* Header / Image Placeholder */}
-            <div className="relative h-40 bg-muted/50 flex items-center justify-center border-b border-border overflow-hidden">
+            <div className="relative h-32 sm:h-40 bg-muted/50 flex items-center justify-center border-b border-border overflow-hidden">
                 <div className="absolute top-4 left-4 z-10 flex gap-2">
+                    {onSelect && (
+                        <div
+                            className={cn(
+                                "w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all",
+                                selected ? "bg-primary border-primary text-white" : "bg-white/50 border-white/80"
+                            )}
+                        >
+                            {selected && <div className="w-2 h-2 bg-white rounded-full" />}
+                        </div>
+                    )}
                     <div className="bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-full border border-border flex items-center gap-2 shadow-sm">
                         <StatusPulse status={tool.status} />
                         <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
@@ -61,7 +76,7 @@ export function ToolCard({ tool, onEdit, onStatusChange, onShowQR, onCheckout }:
             </div>
 
             {/* Content */}
-            <div className="p-8 flex-1 flex flex-col">
+            <div className="p-4 sm:p-8 flex-1 flex flex-col">
                 <div className="flex-1">
                     <p className="text-[10px] font-semibold text-primary uppercase tracking-[0.2em] mb-2">{tool.categoryName || 'Universal'}</p>
                     <h4 className="font-semibold text-foreground text-[15px] tracking-tight leading-tight group-hover:text-primary transition-colors">
@@ -72,7 +87,7 @@ export function ToolCard({ tool, onEdit, onStatusChange, onShowQR, onCheckout }:
                     </p>
                 </div>
 
-                <div className="mt-8 pt-6 border-t border-border/40 flex items-center justify-between gap-4">
+                <div className="mt-4 sm:mt-8 pt-4 sm:pt-6 border-t border-border/40 flex items-center justify-between gap-4">
                     <div className="space-y-1">
                         <p className="text-[9px] font-semibold text-muted-foreground uppercase tracking-[0.15em] leading-none">Diária</p>
                         <p className="text-[15px] font-semibold text-foreground tabular-nums tracking-tight">{formatCurrency(tool.dailyRate)}</p>

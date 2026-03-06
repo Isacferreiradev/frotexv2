@@ -112,7 +112,7 @@ export default function LoginPage() {
             </div>
 
             {/* ─── PAINEL DIREITO: Form ─── */}
-            <div className="flex-1 flex flex-col items-center justify-center p-8 md:p-16 relative">
+            <div className="flex-1 flex flex-col items-center justify-center p-6 sm:p-16 relative">
                 {/* Background decoration in light mode */}
                 <div className="absolute inset-0 z-0 opacity-[0.03] pointer-events-none"
                     style={{ backgroundImage: 'radial-gradient(#7c3aed 1px, transparent 1px)', backgroundSize: '40px 40px' }}
@@ -121,7 +121,7 @@ export default function LoginPage() {
                 <div className="w-full max-w-sm relative z-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
 
                     {/* Mobile logo */}
-                    <div className="flex items-center gap-2 mb-16 lg:hidden">
+                    <div className="flex items-center gap-2 mb-8 sm:mb-16 lg:hidden">
                         <div className="w-10 h-10 bg-zinc-950 rounded-xl flex items-center justify-center text-white font-extrabold shadow-lg">L</div>
                         <span className="text-2xl font-extrabold italic tracking-tight text-zinc-950 font-outfit">Locattus<span className="text-violet-600 not-italic">.</span></span>
                     </div>

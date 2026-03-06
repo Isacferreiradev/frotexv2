@@ -25,6 +25,11 @@ export const db = drizzle(pool, { schema });
  * Must be called before any tenant-scoped query.
  */
 export async function setTenantContext(client: any, tenantId: string) {
+    // Basic UUID validation to prevent SQL Injection
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(tenantId)) {
+        throw new Error('Invalid tenantId format');
+    }
     await client.query(`SET app.current_tenant = '${tenantId}'`);
 }
 

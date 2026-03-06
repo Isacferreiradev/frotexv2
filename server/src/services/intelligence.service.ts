@@ -1,6 +1,6 @@
 import { db } from '../db';
-import { tools, rentals, maintenanceLogs, toolCategories, payments, expenses } from '../db/schema';
-import { eq, and, sql, sum, gte, lte } from 'drizzle-orm';
+import { tools, rentals, maintenanceLogs, toolCategories, payments, expenses, customers } from '../db/schema';
+import { eq, and, sql, sum, gte, lte, isNull } from 'drizzle-orm';
 
 export interface RoiInsight {
     toolId: string;
@@ -47,17 +47,23 @@ export function calculateAssetHealth(tool: any): { score: number, status: 'excel
         score -= 10;
     }
 
-    // 3. Maintenance Recency: If maintenance was very recent (good) or overdue
-    const usageExceeded = tool.currentUsageHours && tool.nextMaintenanceDueHours && parseFloat(tool.currentUsageHours) >= parseFloat(tool.nextMaintenanceDueHours);
-    if (usageExceeded) score -= 30;
+    // 3. Maintenance Recency & Predictive Alert
+    const usageHours = parseFloat(tool.currentUsageHours || '0');
+    const nextMaint = parseFloat(tool.nextMaintenanceDueHours || '0');
+
+    if (nextMaint > 0) {
+        const usagePercent = (usageHours / nextMaint) * 100;
+        if (usagePercent >= 100) score -= 40; // Overdue
+        else if (usagePercent >= 90) score -= 25; // Critical (Alert!)
+        else if (usagePercent >= 80) score -= 10; // Warning
+    }
 
     // 4. Critical Status
     if (tool.status === 'lost' || tool.status === 'unavailable') score = 0;
     if (tool.status === 'maintenance') score = Math.min(score, 40);
 
     let status: 'excellent' | 'good' | 'fair' | 'poor' | 'critical' = 'excellent';
-    if (score < 20) status = 'critical';
-    else if (score < 40) status = 'critical'; // Adjusted status names
+    if (score < 40) status = 'critical';
     else if (score < 60) status = 'poor';
     else if (score < 80) status = 'fair';
     else if (score < 90) status = 'good';
@@ -68,7 +74,7 @@ export function calculateAssetHealth(tool: any): { score: number, status: 'excel
 export async function getRoiInsights(tenantId: string): Promise<RoiInsight[]> {
     // 1. Fetch all tools for the tenant
     const allTools = await db.query.tools.findMany({
-        where: eq(tools.tenantId, tenantId),
+        where: and(eq(tools.tenantId, tenantId), isNull(tools.deletedAt)),
         with: {
             category: true,
             maintenanceLogs: true,
@@ -79,8 +85,9 @@ export async function getRoiInsights(tenantId: string): Promise<RoiInsight[]> {
     const insights: RoiInsight[] = allTools.map((tool) => {
         const acquisitionCost = parseFloat(tool.acquisitionCost || '0');
 
-        // Sum revenue from actual rentals
+        // Sum revenue from actual rentals (excluding deleted ones)
         const revenue = tool.rentals.reduce((acc, r) => {
+            if (r.deletedAt) return acc;
             return acc + parseFloat(r.totalAmountActual || '0');
         }, 0);
 
@@ -202,7 +209,7 @@ export async function getCashFlowIntelligence(tenantId: string): Promise<CashFlo
         db.select().from(expenses).where(and(eq(expenses.tenantId, tenantId), gte(expenses.createdAt, thirtyDaysAgo))),
         db.select({ totalAmountExpected: rentals.totalAmountExpected, endDateExpected: rentals.endDateExpected })
             .from(rentals)
-            .where(and(eq(rentals.tenantId, tenantId), eq(rentals.status, 'active')))
+            .where(and(eq(rentals.tenantId, tenantId), eq(rentals.status, 'active'), isNull(rentals.deletedAt)))
     ]);
 
     const revenue30d = paymentRows.filter(p => p.status === 'completed').reduce((acc, p) => acc + parseFloat(p.amount || '0'), 0);
@@ -239,5 +246,43 @@ export async function getCashFlowIntelligence(tenantId: string): Promise<CashFlo
         },
         breakEvenDays: Math.min(31, breakEvenDays),
         healthScore: Math.max(0, Math.min(100, healthScore))
+    };
+}
+
+export async function getNewCustomersReport(tenantId: string, startDate: Date, endDate: Date) {
+    const data = await db.query.customers.findMany({
+        where: and(
+            eq(customers.tenantId, tenantId),
+            isNull(customers.deletedAt),
+            gte(customers.createdAt, startDate),
+            lte(customers.createdAt, endDate)
+        )
+    });
+    return data;
+}
+
+export async function getOperationalSummary(tenantId: string, startDate: Date, endDate: Date) {
+    const rentalsCreated = await db.select({ count: sql`count(*)` })
+        .from(rentals)
+        .where(and(
+            eq(rentals.tenantId, tenantId),
+            isNull(rentals.deletedAt),
+            gte(rentals.createdAt, startDate),
+            lte(rentals.createdAt, endDate)
+        ));
+
+    const rentalsReturned = await db.select({ count: sql`count(*)` })
+        .from(rentals)
+        .where(and(
+            eq(rentals.tenantId, tenantId),
+            isNull(rentals.deletedAt),
+            eq(rentals.status, 'returned'),
+            gte(rentals.updatedAt, startDate),
+            lte(rentals.updatedAt, endDate)
+        ));
+
+    return {
+        rentalsCreated: Number((rentalsCreated[0] as any).count),
+        rentalsReturned: Number((rentalsReturned[0] as any).count)
     };
 }

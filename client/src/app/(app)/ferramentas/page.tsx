@@ -4,7 +4,8 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Plus, Search, Pencil, Trash2, LayoutGrid, List, Wrench, Filter, QrCode, Zap, Folder } from 'lucide-react';
+import { Plus, Search, Pencil, Trash2, LayoutGrid, List, Wrench, Filter, QrCode, Zap, Folder, Loader2 } from 'lucide-react';
+import { AnimatePresence, motion } from 'framer-motion';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { AssetTimeline } from '@/components/shared/AssetTimeline';
 import { QRCodeGenerator } from '@/components/shared/QRCodeGenerator';
@@ -22,7 +23,6 @@ import { toast } from 'sonner';
 import { Skeleton, SkeletonCard, SkeletonList } from '@/components/shared/SkeletonLoader';
 import { EmptyState } from '@/components/shared/EmptyState';
 import { DataTable } from '@/components/shared/DataTable';
-import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 
 const STATUS_OPTIONS = [
@@ -47,6 +47,7 @@ export default function FerramentasPage() {
     const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
     const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
     const [editingCategory, setEditingCategory] = useState<any>(null);
+    const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
 
     const queryClient = useQueryClient();
@@ -140,9 +141,20 @@ export default function FerramentasPage() {
         mutationFn: (id: string) => api.delete(`/tools/${id}`),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['tools'] });
+            setSelectedIds(prev => prev.filter(selectedId => selectedId !== (editingTool?.id || '')));
             toast.success('Equipamento removido');
         },
         onError: () => toast.error('Erro ao remover equipamento'),
+    });
+
+    const bulkDeleteMutation = useMutation({
+        mutationFn: (ids: string[]) => api.post('/tools/bulk-delete', { ids }),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['tools'] });
+            setSelectedIds([]);
+            toast.success(`${selectedIds.length} equipamentos removidos`);
+        },
+        onError: () => toast.error('Erro ao remover equipamentos em massa'),
     });
 
     const quickStatusMutation = useMutation({
@@ -381,6 +393,14 @@ export default function FerramentasPage() {
                             >
                                 <ToolCard
                                     tool={tool}
+                                    selected={selectedIds.includes(tool.id)}
+                                    onSelect={(id) => {
+                                        setSelectedIds(prev =>
+                                            prev.includes(id)
+                                                ? prev.filter(i => i !== id)
+                                                : [...prev, id]
+                                        );
+                                    }}
                                     onEdit={(t) => {
                                         setEditingTool(t);
                                         setIsSheetOpen(true);
@@ -583,6 +603,50 @@ export default function FerramentasPage() {
                     </div>
                 </SheetContent>
             </Sheet>
+
+            {/* Bulk Action Bar */}
+            <AnimatePresence>
+                {selectedIds.length > 0 && (
+                    <motion.div
+                        initial={{ y: 100, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        exit={{ y: 100, opacity: 0 }}
+                        className="fixed bottom-10 left-1/2 -translate-x-1/2 z-50 flex items-center gap-6 px-8 py-4 bg-zinc-900 text-white rounded-3xl shadow-float border border-white/10 backdrop-blur-xl"
+                    >
+                        <div className="flex items-center gap-3 pr-6 border-r border-white/10">
+                            <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center font-bold text-xs ring-4 ring-primary/20 animate-pulse">
+                                {selectedIds.length}
+                            </div>
+                            <p className="text-[11px] font-bold uppercase tracking-widest text-zinc-400">Selecionados</p>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                className="text-zinc-400 hover:text-white hover:bg-white/5 text-[10px] font-bold uppercase tracking-widest"
+                                onClick={() => setSelectedIds([])}
+                            >
+                                Cancelar
+                            </Button>
+                            <Button
+                                variant="destructive"
+                                size="sm"
+                                className="bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white border border-red-500/20 text-[10px] font-bold uppercase tracking-widest px-6 h-10 rounded-xl transition-all"
+                                onClick={() => {
+                                    if (confirm(`Deseja excluir ${selectedIds.length} equipamentos?`)) {
+                                        bulkDeleteMutation.mutate(selectedIds);
+                                    }
+                                }}
+                                disabled={bulkDeleteMutation.isPending}
+                            >
+                                {bulkDeleteMutation.isPending ? <Loader2 className="w-3 h-3 animate-spin mr-2" /> : <Trash2 className="w-3 h-3 mr-2" />}
+                                Excluir Todos
+                            </Button>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div >
     );
 }

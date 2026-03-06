@@ -22,8 +22,8 @@ export function RentalCard({ rental, onReturn, onDetail }: RentalCardProps) {
                 isOverdue && "border-red-100 shadow-red-50/50"
             )}
         >
-            {/* Header Section */}
-            <div className="relative h-20 bg-muted/20 flex items-center px-8 border-b border-border/40">
+            {/* Header / Avatar Section */}
+            <div className="relative h-20 sm:h-24 bg-slate-50 flex items-center justify-center border-b border-violet-50">
                 <div className="flex items-center gap-4">
                     <div className="bg-white px-3 py-1.5 rounded-xl border border-border/40 shadow-sm">
                         <span className="text-[10px] font-semibold text-primary tabular-nums uppercase tracking-widest">#{rental.rentalCode}</span>
@@ -47,7 +47,7 @@ export function RentalCard({ rental, onReturn, onDetail }: RentalCardProps) {
             </div>
 
             {/* Content Area */}
-            <div className="p-8 flex-1 flex flex-col space-y-6">
+            <div className="p-4 sm:p-6 flex-1 flex flex-col">
                 {/* Main Info */}
                 <div className="space-y-5">
                     <div className="flex gap-4">

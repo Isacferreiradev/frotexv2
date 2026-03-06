@@ -9,6 +9,13 @@ import fs from 'fs';
 export async function register(req: Request, res: Response, next: NextFunction) {
     try {
         const data = authService.registerSchema.parse(req.body);
+
+        // Honeypot check for bots
+        if ((req.body as any).website) {
+            logger.warn(`🤖 [AUTH-CONTROLLER] Bot detected via honeypot field: ${(req.body as any).website}`);
+            return res.status(201).json({ success: true, data: { id: 'bot-blocked' } }); // Fake success
+        }
+
         const result = await authService.register(data);
         res.status(201).json({ success: true, data: result });
     } catch (err: any) {

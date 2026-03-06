@@ -34,8 +34,8 @@ export function DataTable<T extends { id: string | number }>({
 }: DataTableProps<T>) {
     return (
         <div className={cn("flex flex-col gap-4", glass && "animate-in fade-in duration-700")}>
-            <div className="bg-white/50 backdrop-blur-sm rounded-2xl border border-border/40 p-4 flex flex-col md:flex-row gap-4 items-center justify-between">
-                <div className="relative w-full md:w-96 group">
+            <div className="bg-white/50 backdrop-blur-sm rounded-2xl border border-border/40 p-3 sm:p-4 flex flex-col lg:flex-row gap-4 items-center justify-between">
+                <div className="relative w-full lg:w-96 group">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
                     <input
                         type="text"
@@ -44,8 +44,8 @@ export function DataTable<T extends { id: string | number }>({
                         onChange={(e) => onSearchChange?.(e.target.value)}
                     />
                 </div>
-                <div className="flex items-center gap-2">
-                    <Button variant="outline" size="sm" className="hidden md:flex gap-2 rounded-xl">
+                <div className="flex items-center gap-2 w-full lg:w-auto justify-end">
+                    <Button variant="outline" size="sm" className="hidden sm:flex gap-2 rounded-xl">
                         <Download className="w-4 h-4" /> Exportar
                     </Button>
                     <Button variant="outline" size="sm" className="flex gap-2 rounded-xl">
@@ -81,7 +81,7 @@ export function DataTable<T extends { id: string | number }>({
                                     Array(5).fill(0).map((_, i) => (
                                         <tr key={`skeleton-${i}`} className="animate-pulse">
                                             {columns.map((_, j) => (
-                                                <td key={j} className="px-6 py-6 font-jakarta">
+                                                <td key={j} className="px-3 sm:px-6 py-4 sm:py-6 font-jakarta">
                                                     <div className="h-4 bg-muted/40 rounded-md w-full" />
                                                 </td>
                                             ))}
@@ -111,7 +111,7 @@ export function DataTable<T extends { id: string | number }>({
                                                 <td
                                                     key={i}
                                                     className={cn(
-                                                        "px-6 py-6 text-sm text-foreground font-medium font-jakarta",
+                                                        "px-3 sm:px-6 py-4 sm:py-6 text-sm text-foreground font-medium font-jakarta",
                                                         col.className
                                                     )}
                                                 >

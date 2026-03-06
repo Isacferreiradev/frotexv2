@@ -46,3 +46,14 @@ export async function remove(req: Request, res: Response, next: NextFunction) {
         res.json({ success: true });
     } catch (err) { next(err); }
 }
+
+export async function bulkRemove(req: Request, res: Response, next: NextFunction) {
+    try {
+        const { ids } = req.body;
+        if (!Array.isArray(ids)) {
+            return res.status(400).json({ success: false, message: 'Invalid IDs' });
+        }
+        await toolsService.bulkDeleteTools(req.user!.tenantId, ids);
+        res.json({ success: true });
+    } catch (err) { next(err); }
+}

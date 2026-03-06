@@ -1,4 +1,4 @@
-import { eq, and, or, ilike, SQL, desc } from 'drizzle-orm';
+import { eq, and, or, ilike, SQL, desc, isNull } from 'drizzle-orm';
 import { db } from '../db';
 import { customers } from '../db/schema';
 import { AppError } from '../middleware/error.middleware';
@@ -29,7 +29,7 @@ export async function listCustomers(tenantId: string, filters: { isBlocked?: boo
     const rows = await db
         .select()
         .from(customers)
-        .where(eq(customers.tenantId, tenantId))
+        .where(and(eq(customers.tenantId, tenantId), isNull(customers.deletedAt)))
         .orderBy(customers.fullName);
 
     let result = rows;
@@ -49,7 +49,7 @@ export async function listCustomers(tenantId: string, filters: { isBlocked?: boo
 }
 
 export async function getCustomer(tenantId: string, id: string) {
-    const [customer] = await db.select().from(customers).where(and(eq(customers.tenantId, tenantId), eq(customers.id, id)));
+    const [customer] = await db.select().from(customers).where(and(eq(customers.tenantId, tenantId), eq(customers.id, id), isNull(customers.deletedAt)));
     if (!customer) throw new AppError(404, 'Cliente não encontrado');
     return customer;
 }
@@ -73,21 +73,25 @@ export async function updateCustomer(tenantId: string, id: string, data: Partial
             creditLimit: data.creditLimit !== undefined ? String(data.creditLimit) : undefined,
             updatedAt: new Date()
         })
-        .where(and(eq(customers.tenantId, tenantId), eq(customers.id, id)))
+        .where(and(eq(customers.tenantId, tenantId), eq(customers.id, id), isNull(customers.deletedAt)))
         .returning();
     if (!customer) throw new AppError(404, 'Cliente não encontrado');
     return customer;
 }
 
 export async function deleteCustomer(tenantId: string, id: string) {
-    const [customer] = await db.delete(customers).where(and(eq(customers.tenantId, tenantId), eq(customers.id, id))).returning();
+    const [customer] = await db
+        .update(customers)
+        .set({ deletedAt: new Date(), updatedAt: new Date() })
+        .where(and(eq(customers.tenantId, tenantId), eq(customers.id, id), isNull(customers.deletedAt)))
+        .returning();
     if (!customer) throw new AppError(404, 'Cliente não encontrado');
     return { success: true };
 }
 
 export async function getCustomer360(tenantId: string, id: string) {
     const customer = await db.query.customers.findFirst({
-        where: and(eq(customers.tenantId, tenantId), eq(customers.id, id)),
+        where: and(eq(customers.tenantId, tenantId), eq(customers.id, id), isNull(customers.deletedAt)),
         with: {
             rentals: {
                 with: {

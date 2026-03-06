@@ -83,9 +83,9 @@ const features = [
     span: "col-span-2 row-span-2"
   },
   {
-    title: "Faturamento Auto",
-    desc: "Emissão de cobranças automática via Stripe ou Asaas.",
-    icon: Zap,
+    title: "Gestão de Clientes",
+    desc: "CRM completo para gerir sua base de clientes, contatos e histórico.",
+    icon: Users2,
     color: "bg-amber-400",
     span: "col-span-1"
   },

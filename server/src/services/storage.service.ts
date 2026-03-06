@@ -50,6 +50,18 @@ export class StorageService {
     }
 
     async upload(file: Buffer, originalName: string, mimeType: string): Promise<string> {
+        // Security checks
+        const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'];
+        const maxFileSize = 5 * 1024 * 1024; // 5MB
+
+        if (!allowedMimeTypes.includes(mimeType)) {
+            throw new AppError(400, 'Tipo de arquivo não permitido');
+        }
+
+        if (file.length > maxFileSize) {
+            throw new AppError(400, 'Arquivo muito grande (máximo 5MB)');
+        }
+
         const ext = path.extname(originalName);
         const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}${ext}`;
         return this.provider.uploadFile(file, fileName, mimeType);

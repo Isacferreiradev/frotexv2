@@ -36,15 +36,29 @@ import hpp from 'hpp';
 const app = express();
 
 // Global Rate limiting
-// app.use(globalLimiter); // Disabled temporarily for deployment debugging
+app.use(globalLimiter);
 
 // Security
 app.set('trust proxy', 1);
 app.use(helmet({
-    contentSecurityPolicy: false,
+    contentSecurityPolicy: {
+        directives: {
+            defaultSrc: ["'self'"],
+            scriptSrc: ["'self'", "'unsafe-inline'", "https://va.vercel-scripts.com"],
+            styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+            imgSrc: ["'self'", "data:", "https://images.unsplash.com", "https://api.qrserver.com"],
+            connectSrc: ["'self'", "https://api.resend.com", "https://api.stripe.com"],
+            fontSrc: ["'self'", "https://fonts.gstatic.com"],
+            objectSrc: ["'none'"],
+            upgradeInsecureRequests: [],
+        },
+    },
 }));
 app.use(hpp());
-app.use(cors()); // Temporarily wide open for health checks
+app.use(cors({
+    origin: env.CORS_ORIGIN,
+    credentials: true,
+}));
 
 // Stripe Webhooks & Routes (Handles raw body internally)
 app.use('/api/subscriptions', stripeRoutes);
@@ -65,9 +79,6 @@ app.get('/health', async (req, res) => {
         res.status(200).json({
             status: 'ok',
             database: 'connected',
-            ssl: !env.DATABASE_URL.includes('localhost') && !env.DATABASE_URL.includes('127.0.0.1')
-                ? { rejectUnauthorized: false }
-                : false,
             timestamp: new Date().toISOString()
         });
     } catch (err: any) {

@@ -12,5 +12,6 @@ router.get('/logs', authenticate, async (req: any, res: Response) => {
 });
 
 router.get('/alerts', authenticate, alertsController.getAlerts);
+router.post('/alerts/dismiss', authenticate, alertsController.dismissAlerts);
 
 export default router;

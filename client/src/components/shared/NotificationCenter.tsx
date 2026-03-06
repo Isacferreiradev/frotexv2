@@ -1,9 +1,9 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { Bell, AlertTriangle, Clock, Hammer, ExternalLink, X, CheckCircle2 } from 'lucide-react';
+import { Bell, AlertTriangle, Clock, Hammer, ExternalLink, X, CheckCircle2, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import Link from 'next/link';
@@ -24,6 +24,7 @@ export function NotificationCenter() {
     const [isOpen, setIsOpen] = useState(false);
     const containerRef = useRef<HTMLDivElement>(null);
 
+    const queryClient = useQueryClient();
     const { data: alerts, isLoading } = useQuery({
         queryKey: ['alerts'],
         queryFn: async () => {
@@ -32,6 +33,21 @@ export function NotificationCenter() {
         },
         refetchInterval: 30000, // Refetch every 30 seconds
     });
+
+    const dismissMutation = useMutation({
+        mutationFn: async (ids: string[]) => {
+            await api.post('/activity/alerts/dismiss', { alertIds: ids });
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['alerts'] });
+        }
+    });
+
+    const handleDismissAll = () => {
+        if (alerts && alerts.length > 0) {
+            dismissMutation.mutate(alerts.map(a => a.id));
+        }
+    };
 
     useEffect(() => {
         function handleClickOutside(event: MouseEvent) {
@@ -159,7 +175,12 @@ export function NotificationCenter() {
 
                         {alerts && alerts.length > 0 && (
                             <div className="p-4 bg-zinc-50/50 border-t border-border/40">
-                                <button className="w-full py-2.5 text-[11px] font-bold text-muted-foreground hover:text-foreground transition-all uppercase tracking-[0.15em]">
+                                <button
+                                    onClick={handleDismissAll}
+                                    disabled={dismissMutation.isPending}
+                                    className="w-full py-2.5 text-[11px] font-bold text-muted-foreground hover:text-foreground transition-all uppercase tracking-[0.15em] flex items-center justify-center gap-2 disabled:opacity-50"
+                                >
+                                    {dismissMutation.isPending && <Loader2 className="w-3 h-3 animate-spin" />}
                                     Marcar tudo como lido
                                 </button>
                             </div>

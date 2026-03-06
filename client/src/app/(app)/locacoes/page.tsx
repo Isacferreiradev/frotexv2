@@ -394,6 +394,7 @@ export default function LocacoesPage() {
                             key={rental.id}
                             rental={rental}
                             onReturn={(r) => {
+                                setIsDetailOpen(false);
                                 setSelectedRental(r);
                                 setIsReturnOpen(true);
                             }}
@@ -471,6 +472,7 @@ export default function LocacoesPage() {
                                                             <button
                                                                 onClick={(e) => {
                                                                     e.stopPropagation();
+                                                                    setIsDetailOpen(false);
                                                                     setSelectedRental(rental);
                                                                     setReturnDate(new Date().toISOString().split('T')[0]);
                                                                     setIsReturnOpen(true);

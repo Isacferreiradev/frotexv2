@@ -52,7 +52,7 @@ export function ForgotPasswordModal({ open, onOpenChange }: ForgotPasswordModalP
             <DialogContent className="sm:max-w-md rounded-[32px] p-0 overflow-hidden border-none shadow-2xl">
                 {!isSuccess ? (
                     <div className="flex flex-col">
-                        <div className="bg-violet-600 p-10 text-white relative overflow-hidden">
+                        <div className="bg-violet-600 p-6 sm:p-10 text-white relative overflow-hidden">
                             {/* Decorative elements */}
                             <div className="absolute -top-10 -right-10 w-40 h-40 bg-white/10 rounded-full blur-2xl" />
                             <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-violet-400/20 rounded-full blur-xl" />
@@ -68,7 +68,7 @@ export function ForgotPasswordModal({ open, onOpenChange }: ForgotPasswordModalP
                             </div>
                         </div>
 
-                        <div className="p-10 space-y-6 bg-white">
+                        <div className="p-6 sm:p-10 space-y-6 bg-white">
                             {serverError && (
                                 <div className="p-4 bg-red-50 border border-red-100 rounded-2xl text-[11px] font-bold text-red-600 uppercase tracking-widest animate-in fade-in slide-in-from-top-2">
                                     {serverError}

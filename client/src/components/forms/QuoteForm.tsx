@@ -105,9 +105,11 @@ export function QuoteForm({ initialData, onSubmit, isLoading }: QuoteFormProps) 
                             <SelectValue placeholder="Selecione o cliente" />
                         </SelectTrigger>
                         <SelectContent>
-                            {customers?.map((c: any) => (
+                            {customers?.length ? customers.map((c: any) => (
                                 <SelectItem key={c.id} value={c.id}>{c.fullName}</SelectItem>
-                            ))}
+                            )) : (
+                                <div className="p-4 text-center text-[10px] text-muted-foreground uppercase font-bold">Nenhum cliente encontrado</div>
+                            )}
                         </SelectContent>
                     </Select>
                     {errors.customerId && <p className="text-[10px] text-red-500 font-medium ml-1">{errors.customerId.message}</p>}
@@ -163,9 +165,11 @@ export function QuoteForm({ initialData, onSubmit, isLoading }: QuoteFormProps) 
                                             <SelectValue placeholder="Selecione..." />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            {tools?.map((t: any) => (
+                                            {tools?.length ? tools.map((t: any) => (
                                                 <SelectItem key={t.id} value={t.id}>{t.name} ({t.assetTag})</SelectItem>
-                                            ))}
+                                            )) : (
+                                                <div className="p-4 text-center text-[10px] text-muted-foreground uppercase font-bold">Nenhum equipamento disponível</div>
+                                            )}
                                         </SelectContent>
                                     </Select>
                                     <div className="h-[1px] bg-zinc-100 w-full" />
@@ -182,7 +186,21 @@ export function QuoteForm({ initialData, onSubmit, isLoading }: QuoteFormProps) 
                                 </div>
 
                                 <div className="col-span-5 md:col-span-3 space-y-2">
-                                    <Label className="text-[9px] font-bold uppercase tracking-widest text-zinc-400 ml-1">Diária (R$)</Label>
+                                    <div className="flex items-center justify-between ml-1">
+                                        <Label className="text-[9px] font-bold uppercase tracking-widest text-zinc-400">Diária (R$)</Label>
+                                        {selectedToolId && (
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    const tool = tools?.find((t: any) => t.id === selectedToolId);
+                                                    if (tool) setValue(`items.${index}.dailyRate`, parseFloat(tool.dailyRate));
+                                                }}
+                                                className="text-[8px] font-extrabold text-primary uppercase bg-primary/5 px-1.5 py-0.5 rounded hover:bg-primary/10 transition-colors"
+                                            >
+                                                Sugerir
+                                            </button>
+                                        )}
+                                    </div>
                                     <Input
                                         type="number"
                                         step="0.01"

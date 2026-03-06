@@ -1,4 +1,4 @@
-import { eq, and, ilike, or, SQL, desc } from 'drizzle-orm';
+import { eq, and, ilike, or, SQL, desc, isNull } from 'drizzle-orm';
 import { db } from '../db';
 import { tools, toolCategories } from '../db/schema';
 import { AppError } from '../middleware/error.middleware';
@@ -29,7 +29,7 @@ export const toolSchema = z.object({
 });
 
 export async function listTools(tenantId: string, filters: { status?: string; categoryId?: string; search?: string }) {
-    const conditions: SQL[] = [eq(tools.tenantId, tenantId)];
+    const conditions: SQL[] = [eq(tools.tenantId, tenantId), isNull(tools.deletedAt)];
 
     if (filters.status) {
         conditions.push(eq(tools.status, filters.status as any));
@@ -108,7 +108,7 @@ export async function getTool(tenantId: string, id: string) {
         })
         .from(tools)
         .leftJoin(toolCategories, eq(tools.categoryId, toolCategories.id))
-        .where(and(eq(tools.tenantId, tenantId), eq(tools.id, id)));
+        .where(and(eq(tools.tenantId, tenantId), eq(tools.id, id), isNull(tools.deletedAt)));
 
     if (!tool) throw new AppError(404, 'Ferramenta não encontrada');
     return tool;
@@ -160,15 +160,27 @@ export async function updateTool(tenantId: string, id: string, data: Partial<z.i
             acquisitionCost: data.acquisitionCost !== undefined ? String(data.acquisitionCost) : undefined,
             updatedAt: new Date(),
         })
-        .where(and(eq(tools.tenantId, tenantId), eq(tools.id, id)))
+        .where(and(eq(tools.tenantId, tenantId), eq(tools.id, id), isNull(tools.deletedAt)))
         .returning();
     if (!tool) throw new AppError(404, 'Ferramenta não encontrada');
     return tool;
 }
 
 export async function deleteTool(tenantId: string, id: string) {
-    const [tool] = await db.delete(tools).where(and(eq(tools.tenantId, tenantId), eq(tools.id, id))).returning();
+    const [tool] = await db
+        .update(tools)
+        .set({ deletedAt: new Date(), updatedAt: new Date() })
+        .where(and(eq(tools.tenantId, tenantId), eq(tools.id, id), isNull(tools.deletedAt)))
+        .returning();
     if (!tool) throw new AppError(404, 'Ferramenta não encontrada');
+    return { success: true };
+}
+
+export async function bulkDeleteTools(tenantId: string, ids: string[]) {
+    await db
+        .update(tools)
+        .set({ deletedAt: new Date(), updatedAt: new Date() })
+        .where(and(eq(tools.tenantId, tenantId), sql`${tools.id} IN ${ids}`, isNull(tools.deletedAt)));
     return { success: true };
 }
 
@@ -176,7 +188,7 @@ import { calculateAssetHealth } from './intelligence.service';
 
 export async function getTool360(tenantId: string, id: string) {
     const tool = await db.query.tools.findFirst({
-        where: and(eq(tools.tenantId, tenantId), eq(tools.id, id)),
+        where: and(eq(tools.tenantId, tenantId), eq(tools.id, id), isNull(tools.deletedAt)),
         with: {
             category: true,
             maintenanceLogs: {
