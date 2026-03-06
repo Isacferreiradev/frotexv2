@@ -358,7 +358,7 @@ export default function OnboardingPage() {
                                     type="number"
                                     step="0.01"
                                     {...toolForm.register('dailyRate')}
-                                    className="input-field pl-14"
+                                    className="input-field pl-12"
                                     placeholder="0,00"
                                 />
                             </div>

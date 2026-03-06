@@ -183,7 +183,7 @@ export function ToolForm({ initialData, onSubmit, isLoading }: ToolFormProps) {
                                 </div>
                             )}
                             <Dialog open={isCategoryDialogOpen} onOpenChange={setIsCategoryDialogOpen}>
-                                <DialogContent className="sm:max-w-[400px] p-0 overflow-hidden shadow-2xl">
+                                <DialogContent className="sm:max-w-[400px] p-0 overflow-y-auto max-h-[90vh] shadow-2xl">
                                     <div className="px-8 py-6 border-b border-zinc-100 bg-zinc-50/50">
                                         <DialogTitle className="font-bold text-xl text-foreground">Nova Categoria</DialogTitle>
                                     </div>

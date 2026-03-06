@@ -443,7 +443,7 @@ export const toolsRelations = relations(tools, ({ one, many }) => ({
     category: one(toolCategories, { fields: [tools.categoryId], references: [toolCategories.id] }),
     rentals: many(rentals),
     maintenanceLogs: many(maintenanceLogs),
-    quoteItems: many(quoteItems) // Changed from quotes: many(quotes)
+    quoteItems: many(quoteItems) // This is correct, a tool can be in many quoteItems
 }));
 
 export const customersRelations = relations(customers, ({ one, many }) => ({
