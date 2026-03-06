@@ -364,8 +364,6 @@ export const storeAutomationSettings = pgTable('store_automation_settings', {
     id: uuid('id').primaryKey().defaultRandom().notNull(),
     tenantId: uuid('tenant_id').notNull().references(() => tenants.id, { onDelete: 'cascade' }),
     whatsappEnabled: boolean('whatsapp_enabled').notNull().default(false),
-    whatsappInstanceName: text('whatsapp_instance_name'),
-    whatsappInstanceStatus: text('whatsapp_instance_status', { enum: ['disconnected', 'connecting', 'connected'] }).default('disconnected'),
     notifyOnDueDate: boolean('notify_on_due_date').notNull().default(true),
     daysAfterDue: integer('days_after_due').notNull().default(1),
     finePerDay: numeric('fine_per_day', { precision: 10, scale: 2 }).notNull().default('0.00'),
@@ -455,18 +453,6 @@ export const customersRelations = relations(customers, ({ one, many }) => ({
     clientCommunications: many(clientCommunications),
 }));
 
-export const quotesRelations = relations(quotes, ({ one, many }) => ({
-    tenant: one(tenants, { fields: [quotes.tenantId], references: [tenants.id] }),
-    customer: one(customers, { fields: [quotes.customerId], references: [customers.id] }),
-    items: many(quoteItems),
-}));
-
-export const quoteItemsRelations = relations(quoteItems, ({ one }) => ({
-    tenant: one(tenants, { fields: [quoteItems.tenantId], references: [tenants.id] }),
-    quote: one(quotes, { fields: [quoteItems.quoteId], references: [quotes.id] }),
-    tool: one(tools, { fields: [quoteItems.toolId], references: [tools.id] }),
-}));
-
 export const rentalsRelations = relations(rentals, ({ one, many }) => ({
     tenant: one(tenants, { fields: [rentals.tenantId], references: [tenants.id] }),
     tool: one(tools, { fields: [rentals.toolId], references: [tools.id] }),
@@ -503,6 +489,18 @@ export const activityLogsRelations = relations(activityLogs, ({ one }) => ({
 
 export const contractTemplatesRelations = relations(contractTemplates, ({ one }) => ({
     tenant: one(tenants, { fields: [contractTemplates.tenantId], references: [tenants.id] }),
+}));
+
+export const quotesRelations = relations(quotes, ({ one, many }) => ({
+    tenant: one(tenants, { fields: [quotes.tenantId], references: [tenants.id] }),
+    customer: one(customers, { fields: [quotes.customerId], references: [customers.id] }),
+    items: many(quoteItems),
+}));
+
+export const quoteItemsRelations = relations(quoteItems, ({ one }) => ({
+    tenant: one(tenants, { fields: [quoteItems.tenantId], references: [tenants.id] }),
+    quote: one(quotes, { fields: [quoteItems.quoteId], references: [quotes.id] }),
+    tool: one(tools, { fields: [quoteItems.toolId], references: [tools.id] }),
 }));
 
 export const clientCommunicationsRelations = relations(clientCommunications, ({ one }) => ({
