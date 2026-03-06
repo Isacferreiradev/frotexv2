@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
+import { env } from '../config/env';
 import * as stripeService from '../services/stripe.service';
 import { db } from '../db';
 import { tenants } from '../db/schema';
@@ -39,8 +40,8 @@ export async function stripeWebhook(req: Request, res: Response) {
             let plan = 'free';
             const priceId = session.line_items?.data[0]?.price?.id || session.metadata?.priceId;
 
-            if (priceId === process.env.STRIPE_PRICE_PRO_ID) plan = 'pro';
-            else if (priceId === process.env.STRIPE_PRICE_SCALE_ID) plan = 'scale';
+            if (priceId === env.STRIPE_PRICE_PRO_ID) plan = 'pro';
+            else if (priceId === env.STRIPE_PRICE_SCALE_ID) plan = 'scale';
 
             await db.update(tenants)
                 .set({

@@ -24,7 +24,7 @@ export const PLANS = {
     PRO: {
         id: 'pro',
         name: 'Pro',
-        priceId: env.STRIPE_PRICE_PRO_ID,
+        priceId: env.STRIPE_PRICE_PRO_ID!,
         equipmentLimit: Infinity,
         userLimit: 3,
         price: 97,
@@ -32,7 +32,7 @@ export const PLANS = {
     SCALE: {
         id: 'scale',
         name: 'Scale',
-        priceId: env.STRIPE_PRICE_SCALE_ID,
+        priceId: env.STRIPE_PRICE_SCALE_ID!,
         equipmentLimit: Infinity,
         userLimit: Infinity,
         price: 197,
@@ -73,5 +73,6 @@ export async function createPortalSession(customerId: string) {
 }
 
 export const constructEvent = (payload: string | Buffer, sig: string) => {
-    return stripe.webhooks.constructEvent(payload, sig, env.STRIPE_WEBHOOK_SECRET);
+    if (!env.STRIPE_WEBHOOK_SECRET) throw new Error('STRIPE_WEBHOOK_SECRET is not defined');
+    return stripe.webhooks.constructEvent(payload, sig, env.STRIPE_WEBHOOK_SECRET!);
 };

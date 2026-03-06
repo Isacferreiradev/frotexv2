@@ -71,7 +71,7 @@ async function sendEmailViaResend(to: string, subject: string, html: string) {
         const response = await fetch('https://api.resend.com/emails', {
             method: 'POST',
             headers: {
-                'Authorization': `Bearer ${env.RESEND_API_KEY}`,
+                'Authorization': `Bearer ${env.RESEND_API_KEY!}`,
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
