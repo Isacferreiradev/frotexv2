@@ -65,7 +65,7 @@ export default function LoginPage() {
                     <div className="absolute bottom-[-10%] right-[-10%] w-[70%] h-[70%] bg-indigo-600/20 rounded-full blur-[100px]" />
                 </div>
 
-                <div className="relative z-10 space-y-20 flex-1 flex flex-col justify-center">
+                <div className="relative z-10 space-y-32 flex-1 flex flex-col pt-12">
                     {/* Logo */}
                     <Link href="/">
                         <div className="flex items-center gap-2 group cursor-pointer">

@@ -97,7 +97,10 @@ export function RentalCard({ rental, onReturn, onDetail }: RentalCardProps) {
                     {rental.status === 'active' ? (
                         <div className="flex gap-3">
                             <button
-                                onClick={() => onReturn(rental)}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    onReturn(rental);
+                                }}
                                 className="flex-1 bg-primary text-white rounded-xl py-3 text-[11px] font-semibold uppercase tracking-widest hover:bg-primary/90 transition-all shadow-premium active:scale-95"
                             >
                                 Devolver Item

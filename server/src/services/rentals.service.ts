@@ -487,6 +487,21 @@ export async function getDashboardStats(tenantId: string, period?: string) {
         count: stats.count
     })).sort((a, b) => b.value - a.value).slice(0, 5);
 
+    // Advanced Analytics: Customer Ranking
+    const customerStatsMap: Record<string, { name: string, revenue: number, rentalsCount: number }> = {};
+    rentalRows.forEach((r: any) => {
+        const custId = r.customerId;
+        const name = r.customer?.fullName || 'Desconhecido';
+        const amount = parseFloat(r.totalAmountActual || r.totalAmountExpected || '0');
+        if (!customerStatsMap[custId]) customerStatsMap[custId] = { name, revenue: 0, rentalsCount: 0 };
+        customerStatsMap[custId].revenue += amount;
+        customerStatsMap[custId].rentalsCount += 1;
+    });
+
+    const topCustomers = Object.values(customerStatsMap)
+        .sort((a, b) => b.revenue - a.revenue)
+        .slice(0, 5);
+
     // Advanced Analytics: Quote Funnel
     const pendingQuotes = quoteRows.filter((q: any) => q.status === 'draft' || q.status === 'sent');
     const pendingQuotesCount = pendingQuotes.length;
@@ -508,6 +523,7 @@ export async function getDashboardStats(tenantId: string, period?: string) {
         returnsToday,
         revenueHistory,
         categoryStats,
+        topCustomers,
         pendingQuotesCount,
         potentialRevenue
     };

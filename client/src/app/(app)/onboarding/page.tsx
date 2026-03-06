@@ -214,11 +214,15 @@ export default function OnboardingPage() {
 
     // Sync step from backend only once on load
     useEffect(() => {
-        if (!hasSynced && onboardingStatus?.onboardingStep) {
+        if (!hasSynced && onboardingStatus) {
+            if (onboardingStatus.hasOnboarded) {
+                router.push('/dashboard');
+                return;
+            }
             setStep(onboardingStatus.onboardingStep);
             setHasSynced(true);
         }
-    }, [onboardingStatus, hasSynced]);
+    }, [onboardingStatus, hasSynced, router]);
 
     const stepsCount = 5;
 
@@ -368,8 +372,7 @@ export default function OnboardingPage() {
                                     type="number"
                                     step="0.01"
                                     {...toolForm.register('dailyRate')}
-                                    className="input-field"
-                                    style={{ paddingLeft: '3rem' }}
+                                    className="input-field pl-14"
                                     placeholder="0,00"
                                 />
                             </div>

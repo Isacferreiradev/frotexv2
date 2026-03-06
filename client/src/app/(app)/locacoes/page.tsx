@@ -469,7 +469,8 @@ export default function LocacoesPage() {
                                                     {rental.status === 'active' && (
                                                         <>
                                                             <button
-                                                                onClick={() => {
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
                                                                     setSelectedRental(rental);
                                                                     setReturnDate(new Date().toISOString().split('T')[0]);
                                                                     setIsReturnOpen(true);
@@ -479,7 +480,10 @@ export default function LocacoesPage() {
                                                                 Devolver
                                                             </button>
                                                             <button
-                                                                onClick={() => { if (confirm('Cancelar esta locação?')) cancelMutation.mutate(rental.id); }}
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    if (confirm('Cancelar esta locação?')) cancelMutation.mutate(rental.id);
+                                                                }}
                                                                 className="w-10 h-10 flex items-center justify-center bg-white rounded-xl border border-border/40 text-muted-foreground hover:text-red-500 hover:border-red-100 hover:shadow-premium transition-all"
                                                                 title="Cancelar"
                                                             >

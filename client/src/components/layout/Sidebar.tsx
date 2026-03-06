@@ -15,7 +15,8 @@ import {
     DollarSign,
     Calculator,
     Zap,
-    Brain
+    Brain,
+    BarChart3
 } from 'lucide-react';
 
 import { LocattusLogo } from '@/components/shared/LocattusLogo';
@@ -33,8 +34,7 @@ const NAV_ITEMS = [
     { href: '/orcamentos', label: 'Orçamentos', icon: Calculator },
     { href: '/inteligencia', label: 'Inteligência', icon: Brain },
     { href: '/manutencao', label: 'Manutenção', icon: PenToolIcon },
-    { href: '/dashboard/automacao-cobranca', label: 'Automação', icon: Zap },
-
+    { href: '/relatorios', label: 'Relatórios', icon: BarChart3 },
     { href: '/financeiro', label: 'Financeiro', icon: DollarSign },
     { href: '/configuracoes', label: 'Configurações', icon: Settings },
 ];

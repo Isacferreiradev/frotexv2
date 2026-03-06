@@ -159,7 +159,7 @@ export default function OrcamentosPage() {
                                 Array(5).fill(0).map((_, i) => (
                                     <tr key={i}><td colSpan={5} className="px-8 py-4"><Skeleton className="h-12 w-full" /></td></tr>
                                 ))
-                            ) : quotes?.length === 0 ? (
+                            ) : (!quotes || quotes.length === 0) ? (
                                 <tr><td colSpan={5} className="py-20 text-center"><EmptyState icon={Calculator} title="Nenhum orçamento" description="Comece gerando um novo orçamento para seus clientes." /></td></tr>
                             ) : (
                                 quotes.map((q: any) => (

@@ -18,8 +18,8 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: 'AlugaFácil Pro — Gestão de Locadoras',
-  description: 'Sistema de gestão para locadoras de ferramentas e equipamentos. Controle de inventário, locações, clientes e manutenção.',
+  title: 'Locattus — Gestão de Locadoras de Próxima Geração',
+  description: 'O cockpit definitivo para locadoras de ferramentas e equipamentos. Controle total de ROI, faturamento automatizado e inteligência de ativos.',
 };
 
 export default function RootLayout({

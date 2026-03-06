@@ -187,10 +187,10 @@ export default function FerramentasPage() {
                             </button>
                         </DialogTrigger>
                         <DialogContent className="sm:max-w-[500px] border-violet-50 overflow-hidden p-0">
-                            <div className="px-8 py-6 border-b border-violet-50 bg-violet-50/20">
+                            <div className="px-6 md:px-8 py-5 md:py-6 border-b border-violet-50 bg-violet-50/20">
                                 <DialogTitle className="font-bold text-xl text-zinc-900">Gerenciar Categorias</DialogTitle>
                             </div>
-                            <div className="p-8 space-y-8">
+                            <div className="p-6 md:p-8 space-y-8">
                                 <div className="space-y-4">
                                     <h4 className="text-[10px] font-extrabold text-zinc-400 uppercase tracking-widest">Nova Categoria / Editar</h4>
                                     <CategoryForm
@@ -276,15 +276,12 @@ export default function FerramentasPage() {
                             </button>
                         </DialogTrigger>
                         <SheetContent className="sm:max-w-[600px] border-border/40 p-0 overflow-hidden bg-white flex flex-col h-full shadow-float text-foreground">
-                            <div className="px-10 py-10 border-b border-border/40 bg-muted/10">
+                            <div className="px-6 md:px-10 py-8 md:py-10 border-b border-border/40 bg-muted/10">
                                 <SheetTitle className="font-semibold text-2xl tracking-tight text-foreground">Novo Ativo</SheetTitle>
                                 <SheetDescription className="text-primary font-semibold text-[10px] uppercase tracking-[0.2em] mt-2">Cadastro de Ficha Técnica Completa</SheetDescription>
                             </div>
-                            <div className="flex-1 overflow-y-auto p-10 mt-0 animate-in fade-in slide-in-from-left-4 duration-300">
+                            <div className="flex-1 overflow-y-auto p-6 md:p-10 mt-0 animate-in fade-in slide-in-from-left-4 duration-300">
                                 <div className="space-y-8">
-                                    <h3 className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground flex items-center gap-3">
-                                        <div className="w-1.5 h-1.5 rounded-full bg-primary" /> Dados do Equipamento
-                                    </h3>
                                     <ToolForm
                                         onSubmit={(data) => createMutation.mutate(data)}
                                         isLoading={createMutation.isPending}
@@ -529,9 +526,6 @@ export default function FerramentasPage() {
 
                             <TabsContent value="details" className="mt-0 animate-in fade-in slide-in-from-left-4 duration-300">
                                 <div className="space-y-8">
-                                    <h3 className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground flex items-center gap-3">
-                                        <div className="w-1.5 h-1.5 rounded-full bg-primary" /> Dados do Equipamento
-                                    </h3>
                                     <ToolForm
                                         initialData={editingTool}
                                         onSubmit={(data) => updateMutation.mutate(data)}

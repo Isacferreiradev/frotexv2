@@ -4,6 +4,7 @@ import { usePathname } from 'next/navigation';
 import { Bell, Search } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import { CommandMenu } from '../shared/CommandMenu';
+import { NotificationCenter } from '../shared/NotificationCenter';
 
 const pageTitles: Record<string, string> = {
     '/dashboard/automacao-cobranca': 'Automação de Cobrança',
@@ -44,10 +45,7 @@ export function Navbar() {
             </div>
 
             <div className="flex items-center gap-6">
-                <button className="p-2 text-muted-foreground hover:text-primary transition-colors relative group">
-                    <Bell className="w-4 h-4 group-hover:scale-110 transition-transform duration-300" />
-                    <span className="absolute top-2 right-2 w-1.5 h-1.5 bg-primary rounded-full border-2 border-background" />
-                </button>
+                <NotificationCenter />
 
                 <div className="h-4 w-[1px] bg-border mx-1" />
 
