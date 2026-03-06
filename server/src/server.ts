@@ -13,6 +13,10 @@ async function startServer() {
 
         initCronJobs();
 
+        // Check for optional services
+        if (!env.STRIPE_SECRET_KEY) logger.warn('⚠️ STRIPE_SECRET_KEY missing. Payment features will be disabled.');
+        if (!env.RESEND_API_KEY) logger.warn('⚠️ RESEND_API_KEY missing. Email features will be limited.');
+
         const server = app.listen(env.PORT, '0.0.0.0', () => {
             logger.info(`🚀 AlugaFácil Pro API running on port ${env.PORT}`);
             logger.info(`🌐 Binding: 0.0.0.0:${env.PORT}`);

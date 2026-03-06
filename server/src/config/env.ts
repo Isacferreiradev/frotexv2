@@ -17,11 +17,11 @@ const envSchema = z.object({
     SMTP_SECURE: z.coerce.boolean().default(false),
     SMTP_USER: z.string().email().optional(),
     SMTP_PASS: z.string().min(1).optional(),
-    STRIPE_SECRET_KEY: z.string().min(1).default(process.env.NODE_ENV === 'production' ? undefined : 'sk_test_placeholder' as any),
-    STRIPE_PRICE_PRO_ID: z.string().min(1).default(process.env.NODE_ENV === 'production' ? undefined : 'price_placeholder' as any),
-    STRIPE_PRICE_SCALE_ID: z.string().min(1).default(process.env.NODE_ENV === 'production' ? undefined : 'price_placeholder' as any),
-    STRIPE_WEBHOOK_SECRET: z.string().min(1).default(process.env.NODE_ENV === 'production' ? undefined : 'whsec_placeholder' as any),
-    RESEND_API_KEY: z.string().min(1).optional(),
+    STRIPE_SECRET_KEY: z.string().optional(),
+    STRIPE_PRICE_PRO_ID: z.string().optional(),
+    STRIPE_PRICE_SCALE_ID: z.string().optional(),
+    STRIPE_WEBHOOK_SECRET: z.string().optional(),
+    RESEND_API_KEY: z.string().optional(),
 });
 
 const parsed = envSchema.safeParse(process.env);

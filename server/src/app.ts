@@ -82,15 +82,17 @@ app.get('/health', async (req, res) => {
             timestamp: new Date().toISOString()
         });
     } catch (err: any) {
-        logger.error('❌ Healthcheck failed - Database connection error:', {
+        logger.error('❌ Healthcheck failed - Database connectivity issue:', {
             message: err.message,
             code: err.code,
+            database_url: env.DATABASE_URL.split('@')[1] || 'URL HIDDEN',
             stack: err.stack
         });
         res.status(503).json({
             status: 'error',
             database: 'disconnected',
-            message: err.message
+            message: 'Database unavailable',
+            detail: env.NODE_ENV === 'development' ? err.message : undefined
         });
     }
 });

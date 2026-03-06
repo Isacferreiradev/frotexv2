@@ -24,7 +24,7 @@ export async function runMigration() {
     // Look for migrations in both src and dist (production)
     const migrationsFolder = __dirname.includes('dist')
         ? path.join(__dirname, 'migrations')
-        : path.join(__dirname, 'migrations');
+        : path.join(__dirname, '..', 'db', 'migrations');
 
     console.log('⏳ Running migrations from folder:', migrationsFolder);
 
