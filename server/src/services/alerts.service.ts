@@ -48,7 +48,7 @@ export async function getActiveAlerts(tenantId: string): Promise<Alert[]> {
         where: and(
             eq(quotes.tenantId, tenantId),
             eq(quotes.status, 'sent'),
-            lt(quotes.expiresAt, soon)
+            lt(quotes.validUntil, soon)
         ),
         with: {
             customer: { columns: { fullName: true } }
