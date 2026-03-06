@@ -141,7 +141,10 @@ export default function OnboardingPage() {
     });
 
     // Forms
-    const toolForm = useForm<ToolForm>({ resolver: zodResolver(toolSchema) as any });
+    const toolForm = useForm<ToolForm>({
+        resolver: zodResolver(toolSchema) as any,
+        defaultValues: { dailyRate: '' as any }
+    });
     const customerForm = useForm<CustomerForm>({ resolver: zodResolver(customerSchema) as any });
     const rentalForm = useForm<RentalForm>({
         resolver: zodResolver(rentalSchema) as any,
@@ -322,7 +325,7 @@ export default function OnboardingPage() {
                                         value={newCategoryName}
                                         onChange={(e) => setNewCategoryName(e.target.value)}
                                         placeholder="Nome da nova categoria"
-                                        className="input-field bg-violet-50/50 border-violet-200 focus:ring-violet-500/20"
+                                        className="input-field bg-violet-50/50 border-violet-200 focus:ring-violet-500/20 flex-1 min-w-[200px]"
                                         autoFocus
                                     />
                                     <button
@@ -342,14 +345,14 @@ export default function OnboardingPage() {
                                             }
                                         }}
                                         disabled={!newCategoryName.trim()}
-                                        className="btn-primary px-4 shadow-none whitespace-nowrap shrink-0 disabled:opacity-50"
+                                        className="btn-primary px-4 shadow-none whitespace-nowrap shrink-0 disabled:opacity-50 w-auto"
                                     >
                                         Salvar
                                     </button>
                                     <button
                                         type="button"
                                         onClick={() => setIsCreatingCategory(false)}
-                                        className="px-4 bg-zinc-100 text-zinc-500 rounded-xl hover:bg-zinc-200 transition-colors"
+                                        className="px-4 bg-zinc-100 text-zinc-500 rounded-xl hover:bg-zinc-200 transition-colors w-auto"
                                     >
                                         ✕
                                     </button>
@@ -365,7 +368,8 @@ export default function OnboardingPage() {
                                     type="number"
                                     step="0.01"
                                     {...toolForm.register('dailyRate')}
-                                    className="input-field pl-12"
+                                    className="input-field"
+                                    style={{ paddingLeft: '3rem' }}
                                     placeholder="0,00"
                                 />
                             </div>

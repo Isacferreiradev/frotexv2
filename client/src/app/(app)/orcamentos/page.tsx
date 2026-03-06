@@ -15,12 +15,23 @@ import { ptBR } from 'date-fns/locale';
 import { QuotePrintView } from '@/components/QuotePrintView';
 import { Button } from '@/components/ui/button';
 
-const STATUS_MAP: any = {
+const STATUS_MAP: Record<string, { label: string; color: string }> = {
     draft: { label: 'Rascunho', color: 'bg-zinc-100 text-zinc-600' },
     sent: { label: 'Enviado', color: 'bg-blue-100 text-blue-600' },
     accepted: { label: 'Aprovado', color: 'bg-emerald-100 text-emerald-600' },
     rejected: { label: 'Rejeitado', color: 'bg-red-100 text-red-600' },
-    converted: { label: 'Convertido', color: 'bg-violet-100 text-violet-600' }, // Assuming a 'converted' status might exist or be added
+    converted: { label: 'Convertido', color: 'bg-violet-100 text-violet-600' },
+};
+
+const safeFormatDate = (dateStr: string | null | undefined) => {
+    try {
+        if (!dateStr) return '--/--/--';
+        const date = new Date(dateStr);
+        if (isNaN(date.getTime())) return '--/--/--';
+        return format(date, 'dd/MM/yy');
+    } catch {
+        return '--/--/--';
+    }
 };
 
 export default function OrcamentosPage() {
@@ -165,7 +176,7 @@ export default function OrcamentosPage() {
                                             </div>
                                         </td>
                                         <td className="px-8 py-6 text-xs font-bold text-zinc-700">
-                                            {format(new Date(q.startDate), 'dd/MM/yy')} → {format(new Date(q.endDateExpected), 'dd/MM/yy')}
+                                            {safeFormatDate(q.startDate)} → {safeFormatDate(q.endDateExpected)}
                                         </td>
                                         <td className="px-8 py-6 text-sm font-extrabold text-violet-600">
                                             {formatCurrency(q.totalAmount)}
