@@ -96,7 +96,7 @@ export function Sidebar() {
         >
             {/* Logo */}
             {!collapsed && (
-                <div className="px-5 py-6">
+                <div className="px-5 py-6 mb-8">
                     <Link href="/dashboard">
                         <LocattusLogo size="lg" />
                     </Link>

@@ -25,6 +25,7 @@ import api from '@/lib/api';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
+import { useAuthStore } from '@/store/authStore';
 
 // ─── Step Schemas ───────────────────────────────────────────────────────────
 
@@ -190,9 +191,12 @@ export default function OnboardingPage() {
         }
     });
 
+    const updateUser = useAuthStore((s) => s.updateUser);
+
     const completeOnboarding = useMutation({
         mutationFn: async () => await api.post('/onboarding/finish'),
         onSuccess: () => {
+            updateUser({ hasOnboarded: true });
             queryClient.invalidateQueries({ queryKey: ['onboarding-status'] });
             router.push('/dashboard');
         }

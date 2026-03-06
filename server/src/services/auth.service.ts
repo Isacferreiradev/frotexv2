@@ -88,7 +88,8 @@ export async function register(data: z.infer<typeof registerSchema>) {
                 fullName: result.user.fullName,
                 role: result.user.role,
                 tenantId: result.tenant.id,
-                isVerified: result.user.isVerified
+                isVerified: result.user.isVerified,
+                hasOnboarded: result.user.hasOnboarded,
             }
         };
     } catch (error: any) {
@@ -198,6 +199,7 @@ export async function login(data: z.infer<typeof loginSchema>) {
                 fullName: user.fullName,
                 role: user.role,
                 tenantId: user.tenantId,
+                hasOnboarded: user.hasOnboarded,
             },
             accessToken,
             refreshToken,
