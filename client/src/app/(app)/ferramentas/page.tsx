@@ -268,25 +268,31 @@ export default function FerramentasPage() {
                         </button>
                     </div>
 
-                    <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
+                    <Sheet open={isCreateOpen} onOpenChange={setIsCreateOpen}>
                         <DialogTrigger asChild>
                             <button className="flex items-center gap-3 bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-xl font-semibold text-[11px] uppercase tracking-widest transition-all shadow-premium">
                                 <Plus className="w-4.5 h-4.5" />
                                 Novo Item
                             </button>
                         </DialogTrigger>
-                        <DialogContent className="sm:max-w-[600px] rounded-premium border-border/40 p-0 overflow-hidden shadow-float">
-                            <div className="px-8 py-6 border-b border-border/40 bg-muted/30">
-                                <DialogTitle className="font-semibold text-lg tracking-tight">Novo Equipamento</DialogTitle>
+                        <SheetContent className="sm:max-w-[600px] border-border/40 p-0 overflow-hidden bg-white flex flex-col h-full shadow-float text-foreground">
+                            <div className="px-10 py-10 border-b border-border/40 bg-muted/10">
+                                <SheetTitle className="font-semibold text-2xl tracking-tight text-foreground">Novo Ativo</SheetTitle>
+                                <SheetDescription className="text-primary font-semibold text-[10px] uppercase tracking-[0.2em] mt-2">Cadastro de Ficha Técnica Completa</SheetDescription>
                             </div>
-                            <div className="p-8">
-                                <ToolForm
-                                    onSubmit={(data) => createMutation.mutate(data)}
-                                    isLoading={createMutation.isPending}
-                                />
+                            <div className="flex-1 overflow-y-auto p-10 mt-0 animate-in fade-in slide-in-from-left-4 duration-300">
+                                <div className="space-y-8">
+                                    <h3 className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground flex items-center gap-3">
+                                        <div className="w-1.5 h-1.5 rounded-full bg-primary" /> Dados do Equipamento
+                                    </h3>
+                                    <ToolForm
+                                        onSubmit={(data) => createMutation.mutate(data)}
+                                        isLoading={createMutation.isPending}
+                                    />
+                                </div>
                             </div>
-                        </DialogContent>
-                    </Dialog>
+                        </SheetContent>
+                    </Sheet>
                 </div>
             </div >
 

@@ -286,7 +286,7 @@ export default function OnboardingPage() {
                             <label className="label">Nome do Equipamento</label>
                             <input
                                 {...toolForm.register('name')}
-                                placeholder="Ex: Betoneira 400L CSM"
+                                placeholder="Nome. Ex: Furadeira, Andaime..."
                                 className="input-field"
                             />
                             {toolForm.formState.errors.name && <p className="text-xs text-red-500">{toolForm.formState.errors.name.message}</p>}
@@ -299,33 +299,36 @@ export default function OnboardingPage() {
                                     <select
                                         {...toolForm.register('categoryId')}
                                         onChange={(e) => {
-                                            if (e.target.value === 'NEW') {
+                                            if (e.target.value === 'ADD_NEW') {
                                                 setIsCreatingCategory(true);
-                                                toolForm.setValue('categoryId', '' as any);
+                                                toolForm.setValue('categoryId', '');
+                                            } else {
+                                                toolForm.setValue('categoryId', e.target.value);
                                             }
                                         }}
-                                        className="input-field appearance-none"
+                                        className="input-field cursor-pointer"
                                     >
-                                        <option value="">Selecione uma categoria</option>
-                                        <option value="NEW" className="text-violet-600 font-bold">+ Criar nova categoria</option>
+                                        <option value="">Selecione a categoria</option>
+                                        <option value="ADD_NEW" className="font-bold text-violet-600">➕ Nova Categoria</option>
                                         {categories?.map((cat: any) => (
                                             <option key={cat.id} value={cat.id}>{cat.name}</option>
                                         ))}
                                     </select>
+                                    {toolForm.formState.errors.categoryId && <p className="text-xs text-red-500">{toolForm.formState.errors.categoryId.message}</p>}
                                 </div>
                             ) : (
-                                <div className="flex gap-2">
+                                <div className="flex gap-2 animate-in slide-in-from-top-2">
                                     <input
                                         value={newCategoryName}
                                         onChange={(e) => setNewCategoryName(e.target.value)}
                                         placeholder="Nome da nova categoria"
-                                        className="input-field"
+                                        className="input-field bg-violet-50/50 border-violet-200 focus:ring-violet-500/20"
                                         autoFocus
                                     />
                                     <button
                                         type="button"
                                         onClick={async () => {
-                                            if (!newCategoryName) return;
+                                            if (!newCategoryName.trim()) return;
                                             try {
                                                 const res = await api.post('/tool-categories', { name: newCategoryName });
                                                 const newCat = res.data.data;
@@ -338,20 +341,20 @@ export default function OnboardingPage() {
                                                 toast.error('Erro ao criar categoria');
                                             }
                                         }}
-                                        className="px-4 bg-violet-500 text-white rounded-xl hover:bg-violet-600 transition-colors"
+                                        disabled={!newCategoryName.trim()}
+                                        className="btn-primary px-4 shadow-none whitespace-nowrap shrink-0 disabled:opacity-50"
                                     >
-                                        <Check className="w-5 h-5" />
+                                        Salvar
                                     </button>
                                     <button
                                         type="button"
                                         onClick={() => setIsCreatingCategory(false)}
                                         className="px-4 bg-zinc-100 text-zinc-500 rounded-xl hover:bg-zinc-200 transition-colors"
                                     >
-                                        <Plus className="w-5 h-5 rotate-45" />
+                                        ✕
                                     </button>
                                 </div>
                             )}
-                            {toolForm.formState.errors.categoryId && <p className="text-xs text-red-500">{toolForm.formState.errors.categoryId.message}</p>}
                         </div>
 
                         <div className="space-y-1.5">
