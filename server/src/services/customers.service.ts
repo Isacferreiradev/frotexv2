@@ -29,7 +29,7 @@ export async function listCustomers(tenantId: string, filters: { isBlocked?: boo
     const rows = await db
         .select()
         .from(customers)
-        .where(and(eq(customers.tenantId, tenantId), isNull(customers.deletedAt)))
+        .where(eq(customers.tenantId, tenantId))
         .orderBy(customers.fullName);
 
     let result = rows;
@@ -49,7 +49,7 @@ export async function listCustomers(tenantId: string, filters: { isBlocked?: boo
 }
 
 export async function getCustomer(tenantId: string, id: string) {
-    const [customer] = await db.select().from(customers).where(and(eq(customers.tenantId, tenantId), eq(customers.id, id), isNull(customers.deletedAt)));
+    const [customer] = await db.select().from(customers).where(and(eq(customers.tenantId, tenantId), eq(customers.id, id)));
     if (!customer) throw new AppError(404, 'Cliente não encontrado');
     return customer;
 }
@@ -73,7 +73,7 @@ export async function updateCustomer(tenantId: string, id: string, data: Partial
             creditLimit: data.creditLimit !== undefined ? String(data.creditLimit) : undefined,
             updatedAt: new Date()
         })
-        .where(and(eq(customers.tenantId, tenantId), eq(customers.id, id), isNull(customers.deletedAt)))
+        .where(and(eq(customers.tenantId, tenantId), eq(customers.id, id)))
         .returning();
     if (!customer) throw new AppError(404, 'Cliente não encontrado');
     return customer;
@@ -82,8 +82,8 @@ export async function updateCustomer(tenantId: string, id: string, data: Partial
 export async function deleteCustomer(tenantId: string, id: string) {
     const [customer] = await db
         .update(customers)
-        .set({ deletedAt: new Date(), updatedAt: new Date() })
-        .where(and(eq(customers.tenantId, tenantId), eq(customers.id, id), isNull(customers.deletedAt)))
+        .set({ updatedAt: new Date(), isBlocked: true })
+        .where(and(eq(customers.tenantId, tenantId), eq(customers.id, id)))
         .returning();
     if (!customer) throw new AppError(404, 'Cliente não encontrado');
     return { success: true };
@@ -91,7 +91,7 @@ export async function deleteCustomer(tenantId: string, id: string) {
 
 export async function getCustomer360(tenantId: string, id: string) {
     const customer = await db.query.customers.findFirst({
-        where: and(eq(customers.tenantId, tenantId), eq(customers.id, id), isNull(customers.deletedAt)),
+        where: and(eq(customers.tenantId, tenantId), eq(customers.id, id)),
         with: {
             rentals: {
                 with: {

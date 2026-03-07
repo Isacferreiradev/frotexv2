@@ -119,9 +119,6 @@ export const tools = pgTable(
         minRentalValue: numeric('min_rental_value', { precision: 10, scale: 2 }).default('0.00'),
         cleaningFee: numeric('cleaning_fee', { precision: 10, scale: 2 }).default('0.00'),
         images: jsonb('images').default([]), // Array of image URLs
-        subcategoryId: uuid('subcategory_id'), // Optional subcategory
-        lastMaintenanceUsageHours: numeric('last_maintenance_usage_hours').default('0.00'),
-        deletedAt: timestamp('deleted_at', { withTimezone: true }),
         createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
         updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
     },
@@ -157,7 +154,6 @@ export const customers = pgTable(
         source: text('source'), // Origem do cliente
         tags: text('tags').array(),
         notes: text('notes'),
-        deletedAt: timestamp('deleted_at', { withTimezone: true }),
         createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
         updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
     },
@@ -193,7 +189,6 @@ export const quotes = pgTable('quotes', {
     validUntil: timestamp('valid_until', { withTimezone: true }),
     notes: text('notes'),
     termsAndConditions: text('terms_and_conditions'),
-    deletedAt: timestamp('deleted_at', { withTimezone: true }),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 });
@@ -247,7 +242,6 @@ export const rentals = pgTable(
         damageNotes: text('damage_notes'),
         notes: text('notes'),
         lastNotificationDate: timestamp('last_notification_date', { withTimezone: true }),
-        deletedAt: timestamp('deleted_at', { withTimezone: true }),
         createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
         updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
     },
