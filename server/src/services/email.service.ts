@@ -59,14 +59,24 @@ async function getTransporter(): Promise<nodemailer.Transporter> {
     return transporter as nodemailer.Transporter;
 }
 
+// Configuration Constants
+const FROM_NAME = "Locattus";
+const DEFAULT_FROM = "notificacoes@locattus.com.br";
+
+function getFromEmail() {
+    let from = env.SMTP_USER || DEFAULT_FROM;
+    if (from === 'apikey' || !from.includes('@')) {
+        return DEFAULT_FROM;
+    }
+    return from;
+}
+
 async function sendEmailViaResend(to: string, subject: string, html: string) {
     if (!env.RESEND_API_KEY) return false;
 
     try {
-        logger.info(`📧 [RESEND] Attempting API delivery to ${to}...`);
-
-        // Use the verified domain email address
-        const fromEmail = "notificacoes@locattus.com.br";
+        logger.info(`📧 [RESEND] Attempting delivery to ${to}...`);
+        const fromEmail = getFromEmail();
 
         const response = await fetch('https://api.resend.com/emails', {
             method: 'POST',
@@ -75,7 +85,7 @@ async function sendEmailViaResend(to: string, subject: string, html: string) {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                from: `Locattus <${fromEmail}>`,
+                from: `${FROM_NAME} <${fromEmail}>`,
                 to,
                 subject,
                 html,
@@ -83,16 +93,40 @@ async function sendEmailViaResend(to: string, subject: string, html: string) {
         });
 
         const data: any = await response.json();
-
         if (response.ok) {
-            logger.info(`✅ [RESEND] Success! MessageId: ${data.id}`);
+            logger.info(`✅ [RESEND] Success! ID: ${data.id}`);
             return true;
-        } else {
-            logger.error(`❌ [RESEND] API Error:`, data);
-            return false;
         }
+        logger.error(`❌ [RESEND] API Error:`, data);
+        return false;
     } catch (error) {
         logger.error(`❌ [RESEND] Network Error:`, error);
+        return false;
+    }
+}
+
+async function sendEmail(to: string, subject: string, html: string) {
+    // 1. Try Resend (Modern API)
+    const resendSuccess = await sendEmailViaResend(to, subject, html);
+    if (resendSuccess) return true;
+
+    // 2. Fallback to SMTP (Traditional)
+    try {
+        const mailTransporter = await getTransporter();
+        const fromEmail = getFromEmail();
+
+        const info = await mailTransporter.sendMail({
+            from: `"${FROM_NAME}" <${fromEmail}>`,
+            to,
+            subject,
+            html,
+        });
+
+        logger.info(`✅ [SMTP] Delivered to ${to}. ID: ${info.messageId}`);
+        if (!env.SMTP_USER) logger.info(`📧 Ethereal URL: ${nodemailer.getTestMessageUrl(info)}`);
+        return true;
+    } catch (error) {
+        logger.error(`❌ [EMAIL-CRITICAL] All providers failed for ${to}:`, error);
         return false;
     }
 }
@@ -116,42 +150,7 @@ export async function sendVerificationEmail(email: string, fullName: string, tok
         </div>
     `;
 
-    logger.info(`📧 Sending verification email to ${email.split('@')[0]}@...`);
-
-    // Try Resend first
-    const resendSuccess = await sendEmailViaResend(email, subject, html);
-    if (resendSuccess) return;
-
-    // Fallback to SMTP
-    try {
-        logger.info(`📧 [SMTP-DEBUG] Step 1: Getting Transporter in sendVerificationEmail...`);
-        const mailTransporter = await getTransporter();
-
-        // Ensure fromEmail is a valid email format
-        let fromEmail = env.SMTP_USER || 'no-reply@locattus.com.br';
-        if (fromEmail === 'apikey' || !fromEmail.includes('@')) {
-            fromEmail = 'notificacoes@locattus.com.br';
-        }
-
-        const fromName = "Locattus";
-
-        logger.info(`📧 [SMTP-DEBUG] Step 2: Sending mail to ${email}...`);
-        const info = await mailTransporter.sendMail({
-            from: `"${fromName}" <${fromEmail}>`,
-            to: email,
-            subject,
-            html,
-        });
-
-        logger.info(`✅ Verification email delivered to ${email}. MessageId: ${info.messageId}`);
-
-        if (!env.SMTP_USER) {
-            logger.info(`📧 Ethereal URL: ${nodemailer.getTestMessageUrl(info)}`);
-        }
-    } catch (error) {
-        logger.error('Error sending verification email via SMTP:', error);
-        throw new Error('Falha ao enviar e-mail via SMTP');
-    }
+    return await sendEmail(email, subject, html);
 }
 
 export async function sendPasswordResetEmail(email: string, fullName: string, token: string) {
@@ -174,38 +173,5 @@ export async function sendPasswordResetEmail(email: string, fullName: string, to
         </div>
     `;
 
-    logger.info(`🔑 Sending password reset email to ${email.split('@')[0]}@...`);
-
-    // Try Resend first
-    const resendSuccess = await sendEmailViaResend(email, subject, html);
-    if (resendSuccess) return;
-
-    try {
-        logger.info(`📧 [SMTP-DEBUG] Step 1: Getting Transporter in sendPasswordResetEmail...`);
-        const mailTransporter = await getTransporter();
-
-        // Ensure fromEmail is a valid email format
-        let fromEmail = env.SMTP_USER || 'no-reply@locattus.com.br';
-        if (fromEmail === 'apikey' || !fromEmail.includes('@')) {
-            fromEmail = 'notificacoes@locattus.com.br';
-        }
-
-        const fromName = "Locattus";
-
-        logger.info(`📧 [SMTP-DEBUG] Step 2: Sending mail to ${email}...`);
-        const info = await mailTransporter.sendMail({
-            from: `"${fromName}" <${fromEmail}>`,
-            to: email,
-            subject,
-            html,
-        });
-
-        logger.info(`✅ Reset email delivered to ${email}. MessageId: ${info.messageId}`);
-
-        if (!env.SMTP_USER) {
-            logger.info(`📧 Ethereal URL: ${nodemailer.getTestMessageUrl(info)}`);
-        }
-    } catch (error) {
-        logger.error('Error sending password reset email via SMTP:', error);
-    }
+    return await sendEmail(email, subject, html);
 }

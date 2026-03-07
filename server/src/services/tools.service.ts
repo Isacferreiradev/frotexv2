@@ -1,6 +1,6 @@
 import { eq, and, ilike, or, SQL, desc, isNull } from 'drizzle-orm';
 import { db } from '../db';
-import { tools, toolCategories } from '../db/schema';
+import { tools, toolCategories, rentals, maintenanceLogs } from '../db/schema';
 import { AppError } from '../middleware/error.middleware';
 import { z } from 'zod';
 
@@ -218,12 +218,22 @@ export async function getTool360(tenantId: string, id: string) {
 
     if (!tool) throw new AppError(404, 'Ferramenta não encontrada');
 
-    // Calculate specific ROI for this tool
-    const totalRevenue = tool.rentals.reduce((sum, r) => sum + parseFloat(r.totalAmountActual || r.totalAmountExpected || '0'), 0);
-    const totalMaintenance = tool.maintenanceLogs.reduce((sum, m) => sum + parseFloat(m.cost || '0'), 0);
+    // Calculate metrics using database aggregations for performance
+    const [stats] = await db.select({
+        totalRevenue: sql<string>`COALESCE(SUM(CASE WHEN ${rentals.deletedAt} IS NULL THEN CAST(COALESCE(${rentals.totalAmountActual}, ${rentals.totalAmountExpected}, '0') AS NUMERIC) END), '0')`,
+        totalMaintenance: sql<string>`COALESCE(SUM(CAST(COALESCE(${maintenanceLogs.cost}, '0') AS NUMERIC)), '0')`
+    })
+        .from(tools)
+        .leftJoin(rentals, eq(tools.id, rentals.toolId))
+        .leftJoin(maintenanceLogs, eq(tools.id, maintenanceLogs.toolId))
+        .where(eq(tools.id, id))
+        .groupBy(tools.id);
+
+    const totalRevenue = parseFloat(stats?.totalRevenue || '0');
+    const totalMaintenance = parseFloat(stats?.totalMaintenance || '0');
     const acqCost = parseFloat(tool.acquisitionCost || '0');
 
-    // Simple ROI
+    // Simple ROI: (Net Profit / Total Cost) * 100
     const netProfit = totalRevenue - totalMaintenance - acqCost;
     const totalCost = acqCost + totalMaintenance;
     const roi = totalCost > 0 ? (netProfit / totalCost) * 100 : 0;

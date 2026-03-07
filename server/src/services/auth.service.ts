@@ -299,16 +299,26 @@ export async function resetPassword(data: z.infer<typeof resetPasswordSchema>) {
     return { success: true };
 }
 
-export async function updateProfile(userId: string, data: any) {
+export const updateProfileSchema = z.object({
+    fullName: z.string().min(2, 'Nome muito curto').optional(),
+    email: z.string().email('E-mail inválido').optional(),
+    avatarUrl: z.string().url('URL de avatar inválida').optional().nullable(),
+    hasOnboarded: z.boolean().optional(),
+});
+
+export async function updateProfile(userId: string, rawData: any) {
+    const data = updateProfileSchema.parse(rawData);
+
+    // If email is changing, we might want to flag as unverified
+    // For now, just perform the update
     const [updated] = await db.update(users)
         .set({
-            fullName: data.fullName,
-            email: data.email,
-            avatarUrl: data.avatarUrl,
-            hasOnboarded: data.hasOnboarded,
+            ...data,
             updatedAt: new Date(),
         })
         .where(eq(users.id, userId))
         .returning();
+
+    if (!updated) throw new AppError(404, 'Usuário não encontrado');
     return updated;
 }
