@@ -15,7 +15,8 @@
     "db:migrate": "npm run db:migrate --workspace=server",
     "start": "concurrently \"PORT=4000 npm run start --workspace=server\" \"npm run start --workspace=client\""
   },
-  "devDependencies": {
+  "dependencies": {
     "concurrently": "^9.1.0"
-  }
+  },
+  "devDependencies": {}
 }
