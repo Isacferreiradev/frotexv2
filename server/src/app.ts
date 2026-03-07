@@ -68,17 +68,36 @@ logger.info(`🔒 CORS Allowed Origins configured: ${allowedOrigins.join(', ')}`
 
 app.use(cors({
     origin: (origin, callback) => {
-        // allow requests with no origin (like mobile apps, curl) or if origin is in the allowed list
+        // allow requests with no origin (like mobile apps, curl)
         if (!origin) return callback(null, true);
 
-        // Normalize incoming origin by removing trailing slash just in case
-        const normalizedOrigin = origin.replace(/\/$/, '');
+        // Allow wildcard explicitly
+        if (allowedOrigins.includes('*')) return callback(null, true);
 
-        if (allowedOrigins.includes(normalizedOrigin) || allowedOrigins.includes('*')) {
+        // Helper to extract clean hostname using native URL parser
+        const getCleanHost = (urlStr: string) => {
+            try {
+                // If it doesn't start with http, assume it's a hostname and prefix it just for parsing
+                const validUrl = urlStr.startsWith('http') ? urlStr : `https://${urlStr}`;
+                const parsed = new URL(validUrl);
+                return parsed.hostname.replace(/^www\./, '').toLowerCase();
+            } catch {
+                return urlStr.toLowerCase().trim().replace(/^www\./, '');
+            }
+        };
+
+        const originHost = getCleanHost(origin);
+
+        const isAllowed = allowedOrigins.some(allowed => {
+            return getCleanHost(allowed) === originHost;
+        });
+
+        if (isAllowed) {
             callback(null, true);
         } else {
-            logger.warn(`🚫 CORS Request Blocked from origin: ${origin}`);
-            callback(new Error(`CORS policy restricts access from origin: ${origin}`));
+            logger.warn(`🚫 CORS Request Blocked from origin: ${origin} (Parsed Host: ${originHost})`);
+            // MUST pass null, false to gracefully reject without throwing a 500 error into Express
+            callback(null, false);
         }
     },
     credentials: true,
