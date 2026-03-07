@@ -56,15 +56,28 @@ app.use(helmet({
 }));
 app.use(hpp());
 
-// Parse comma-separated origins
-const allowedOrigins = env.CORS_ORIGIN.split(',').map(o => o.trim());
+// Parse comma-separated origins robustly
+const rawOrigins = env.CORS_ORIGIN.split(',');
+const allowedOrigins = rawOrigins.map(o => {
+    // Remove whitespace, surrounding quotes, and trailing slashes
+    return o.trim().replace(/^['"]|['"]$/g, '').replace(/\/$/, '');
+});
+
+// Log the parsed origins on startup
+logger.info(`🔒 CORS Allowed Origins configured: ${allowedOrigins.join(', ')}`);
 
 app.use(cors({
     origin: (origin, callback) => {
         // allow requests with no origin (like mobile apps, curl) or if origin is in the allowed list
-        if (!origin || allowedOrigins.includes(origin) || allowedOrigins.includes('*')) {
+        if (!origin) return callback(null, true);
+
+        // Normalize incoming origin by removing trailing slash just in case
+        const normalizedOrigin = origin.replace(/\/$/, '');
+
+        if (allowedOrigins.includes(normalizedOrigin) || allowedOrigins.includes('*')) {
             callback(null, true);
         } else {
+            logger.warn(`🚫 CORS Request Blocked from origin: ${origin}`);
             callback(new Error(`CORS policy restricts access from origin: ${origin}`));
         }
     },
