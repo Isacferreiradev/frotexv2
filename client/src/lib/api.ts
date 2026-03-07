@@ -1,7 +1,11 @@
 import axios from 'axios';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ||
-    (process.env.NODE_ENV === 'production' ? '/api' : 'http://localhost:4000/api');
+// IMPORTANT: In production we ALWAYS use the Next.js proxy (/api → backend).
+// This prevents CORS errors entirely — the browser never makes cross-origin requests.
+// NEXT_PUBLIC_API_URL is intentionally ignored in production.
+const API_URL = process.env.NODE_ENV === 'production'
+    ? '/api'
+    : (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api');
 
 const api = axios.create({
     baseURL: API_URL,
