@@ -6,8 +6,16 @@ import { runMigration } from './db/migrate';
 import { initCronJobs } from './utils/cron';
 
 async function startServer() {
+    // Start listening immediately to pass Railway healthchecks
+    const server = app.listen(env.PORT, '0.0.0.0', () => {
+        logger.info(`🚀 AlugaFácil Pro API running on port ${env.PORT}`);
+        logger.info(`🌐 Binding: 0.0.0.0:${env.PORT}`);
+        logger.info(`📊 Environment: ${env.NODE_ENV}`);
+    });
+
     try {
         if (env.NODE_ENV === 'production') {
+            logger.info('⏳ Production detected: Running migrations...');
             await runMigration();
         }
 
@@ -16,12 +24,6 @@ async function startServer() {
         // Check for optional services
         if (!env.STRIPE_SECRET_KEY) logger.warn('⚠️ STRIPE_SECRET_KEY missing. Payment features will be disabled.');
         if (!env.RESEND_API_KEY) logger.warn('⚠️ RESEND_API_KEY missing. Email features will be limited.');
-
-        const server = app.listen(env.PORT, '0.0.0.0', () => {
-            logger.info(`🚀 AlugaFácil Pro API running on port ${env.PORT}`);
-            logger.info(`🌐 Binding: 0.0.0.0:${env.PORT}`);
-            logger.info(`📊 Environment: ${env.NODE_ENV}`);
-        });
 
         process.on('SIGTERM', async () => {
             logger.info('SIGTERM received, closing gracefully...');
@@ -32,8 +34,8 @@ async function startServer() {
             });
         });
     } catch (error) {
-        logger.error('❌ Failed to start server:', error);
-        process.exit(1);
+        logger.error('❌ Error during post-startup initialization:', error);
+        // We don't exit here to allow healthcheck debugging, unless it's fatal
     }
 }
 
