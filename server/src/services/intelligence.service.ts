@@ -72,56 +72,55 @@ export function calculateAssetHealth(tool: any): { score: number, status: 'excel
 }
 
 export async function getRoiInsights(tenantId: string): Promise<RoiInsight[]> {
-    // Perform complex aggregation in a single query for maximum performance
-    const toolStats = await db.select({
-        id: tools.id,
-        name: tools.name,
-        status: tools.status,
-        acquisitionCost: tools.acquisitionCost,
-        acquisitionDate: tools.acquisitionDate,
-        createdAt: tools.createdAt,
-        currentUsageHours: tools.currentUsageHours,
-        nextMaintenanceDueHours: tools.nextMaintenanceDueHours,
-        categoryName: toolCategories.name,
-        revenue: sql<string>`COALESCE(SUM(CASE WHEN ${rentals.deletedAt} IS NULL THEN CAST(COALESCE(${rentals.totalAmountActual}, '0') AS NUMERIC) END), '0')`,
-        maintenanceCost: sql<string>`COALESCE(SUM(CAST(COALESCE(${maintenanceLogs.cost}, '0') AS NUMERIC)), '0')`,
-        daysRented: sql<number>`CAST(COALESCE(SUM(${rentals.totalDaysActual}), 0) AS INTEGER)`,
-        lastRentalDate: sql<string>`MAX(${rentals.startDate})`
-    })
-        .from(tools)
-        .leftJoin(toolCategories, eq(tools.categoryId, toolCategories.id))
-        .leftJoin(rentals, eq(tools.id, rentals.toolId))
-        .leftJoin(maintenanceLogs, eq(tools.id, maintenanceLogs.toolId))
-        .where(and(eq(tools.tenantId, tenantId), isNull(tools.deletedAt)))
-        .groupBy(tools.id, toolCategories.name);
+    // 1. Fetch all tools for the tenant
+    const allTools = await db.query.tools.findMany({
+        where: and(eq(tools.tenantId, tenantId), isNull(tools.deletedAt)),
+        with: {
+            category: true,
+            maintenanceLogs: true,
+            rentals: true,
+        }
+    });
 
-    const now = new Date();
+    const insights: RoiInsight[] = allTools.map((tool) => {
+        const acquisitionCost = parseFloat(tool.acquisitionCost || '0');
 
-    const insights: RoiInsight[] = toolStats.map((stat) => {
-        const acquisitionCost = parseFloat(stat.acquisitionCost || '0');
-        const revenue = parseFloat(stat.revenue || '0');
-        const maintenanceCost = parseFloat(stat.maintenanceCost || '0');
+        // Sum revenue from actual rentals (excluding deleted ones)
+        const revenue = tool.rentals.reduce((acc, r) => {
+            if (r.deletedAt) return acc;
+            return acc + parseFloat(r.totalAmountActual || '0');
+        }, 0);
+
+        // Sum maintenance costs
+        const maintenanceCost = tool.maintenanceLogs.reduce((acc, m) => {
+            return acc + parseFloat(m.cost || '0');
+        }, 0);
+
+        // Calculate days owned
+        const start = tool.acquisitionDate ? new Date(tool.acquisitionDate) : tool.createdAt;
+        const now = new Date();
+        const daysOwned = Math.max(1, Math.floor((now.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)));
+
+        // Calculate days rented (sum of totalDaysActual)
+        const daysRented = tool.rentals.reduce((acc, r) => {
+            return acc + (r.totalDaysActual || 0);
+        }, 0);
+
+        // Find last rental date
+        const lastRentalDate = tool.rentals.length > 0
+            ? new Date(Math.max(...tool.rentals.map(r => new Date(r.startDate).getTime())))
+            : null;
+
+        const utilizationRate = Math.min(100, (daysRented / daysOwned) * 100);
         const totalCost = acquisitionCost + maintenanceCost;
 
-        const start = stat.acquisitionDate ? new Date(stat.acquisitionDate) : stat.createdAt;
-        const daysOwned = Math.max(1, Math.floor((now.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)));
-        const utilizationRate = Math.min(100, ((stat.daysRented || 0) / daysOwned) * 100);
-
+        // Standard ROI: (Net Profit / Cost) * 100
         const netProfit = revenue - totalCost;
         const roi = totalCost > 0 ? (netProfit / totalCost) : 0;
+        const roiPercent = roi * 100;
+
+        // Payback Progress: (Revenue / Total Cost) * 100
         const paybackProgress = totalCost > 0 ? Math.min(100, (revenue / totalCost) * 100) : (revenue > 0 ? 100 : 0);
-
-        const lastRentalDate = stat.lastRentalDate ? new Date(stat.lastRentalDate) : null;
-        const daysSinceLastRental = lastRentalDate
-            ? Math.floor((now.getTime() - lastRentalDate.getTime()) / (1000 * 60 * 60 * 24))
-            : daysOwned;
-
-        // Health Score (local calc for now)
-        const health = calculateAssetHealth({
-            ...stat,
-            maintenanceLogs: [{ cost: stat.maintenanceCost }], // Mock for health logic
-            rentals: [{ totalAmountActual: stat.revenue }] // Mock for health logic
-        });
 
         // Dynamic Suggestion Logic
         let suggestion: RoiInsight['suggestion'] = {
@@ -130,35 +129,59 @@ export async function getRoiInsights(tenantId: string): Promise<RoiInsight[]> {
             action: 'Manter estratégia atual.'
         };
 
+        // Recency check for Zombie detection
+        const daysSinceLastRental = lastRentalDate
+            ? Math.floor((now.getTime() - lastRentalDate.getTime()) / (1000 * 60 * 60 * 24))
+            : daysOwned;
+
         if (maintenanceCost > (revenue * 0.5) && daysOwned > 90) {
-            suggestion = { type: 'replace', text: 'Dreno de Caixa (Manutenção > 50%)', action: 'Ativo ineficiente. Avaliar venda.' };
+            suggestion = {
+                type: 'replace',
+                text: 'Dreno de Caixa (Manutenção > 50%)',
+                action: 'Este ativo custa mais mantê-lo do que gera. Avaliar venda.'
+            };
         } else if (utilizationRate > 75 && paybackProgress > 80) {
-            suggestion = { type: 'increase', text: 'Alta Demanda', action: 'Aumentar diária ou adquirir nova unidade.' };
+            suggestion = {
+                type: 'increase',
+                text: 'Alta Demanda e Rentabilidade',
+                action: 'Aumentar diária em 15% ou adquirir nova unidade.'
+            };
         } else if (daysSinceLastRental > 45 && utilizationRate < 15 && daysOwned > 60) {
-            suggestion = { type: 'decrease', text: 'Equipamento Zumbi', action: 'Sem locações recentes. Aplicar promoção.' };
+            suggestion = {
+                type: 'decrease',
+                text: 'Equipamento Zumbi (Inativo)',
+                action: 'Sem locações há 45+ dias. Aplicar promoção agressiva.'
+            };
+        } else if (paybackProgress < 20 && daysOwned > 180) {
+            suggestion = {
+                type: 'alert',
+                text: 'Payback Excessivamente Lento',
+                action: 'Rever precificação ou considerar quebra de estoque.'
+            };
         }
 
         return {
-            toolId: stat.id,
-            toolName: stat.name,
-            categoryName: stat.categoryName || 'Geral',
+            toolId: tool.id,
+            toolName: tool.name,
+            categoryName: tool.category?.name || 'Geral',
             revenue,
             maintenanceCost,
             acquisitionCost,
             roi,
-            roiPercent: roi * 100,
+            roiPercent,
             paybackProgress,
             utilizationRate,
             daysOwned,
-            daysRented: stat.daysRented || 0,
+            daysRented,
             lastRentalDate,
-            status: stat.status,
+            status: tool.status,
             suggestion,
-            healthScore: health.score,
-            healthStatus: health.status,
+            healthScore: calculateAssetHealth(tool).score,
+            healthStatus: calculateAssetHealth(tool).status,
         };
     });
 
+    // Sort by ROI descending
     return insights.sort((a, b) => b.roi - a.roi);
 }
 
@@ -180,53 +203,46 @@ export async function getCashFlowIntelligence(tenantId: string): Promise<CashFlo
     const now = new Date();
     const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
 
-    // Fetch aggregated financial data in parallel
-    const [stats, activeRentals] = await Promise.all([
-        db.select({
-            revenue30d: sql<string>`COALESCE(SUM(CASE WHEN ${payments.status} = 'completed' AND ${payments.paymentDate} >= ${thirtyDaysAgo} THEN CAST(${payments.amount} AS NUMERIC) END), '0')`,
-            expenses30d: sql<string>`COALESCE(SUM(CASE WHEN ${expenses.createdAt} >= ${thirtyDaysAgo} THEN CAST(${expenses.amount} AS NUMERIC) END), '0')`
-        })
-            .from(sql`(SELECT 1) as dummy`) // Dummy join to allow multiple selects from different tables if needed, but here we just use subqueries or separate calls.
-            // Actually, separate calls are cleaner for different tables in Drizzle if not related.
-            .then(async () => {
-                const [rev] = await db.select({ val: sql<string>`SUM(CAST(${payments.amount} AS NUMERIC))` }).from(payments).where(and(eq(payments.tenantId, tenantId), eq(payments.status, 'completed'), gte(payments.paymentDate, thirtyDaysAgo)));
-                const [exp] = await db.select({ val: sql<string>`SUM(CAST(${expenses.amount} AS NUMERIC))` }).from(expenses).where(and(eq(expenses.tenantId, tenantId), gte(expenses.createdAt, thirtyDaysAgo)));
-                return { revenue30d: rev?.val || '0', expenses30d: exp?.val || '0' };
-            }),
-        db.select({ totalAmountExpected: rentals.totalAmountExpected })
+    // Fetch financial data
+    const [paymentRows, expenseRows, activeRentals] = await Promise.all([
+        db.select().from(payments).where(and(eq(payments.tenantId, tenantId), gte(payments.paymentDate, thirtyDaysAgo))),
+        db.select().from(expenses).where(and(eq(expenses.tenantId, tenantId), gte(expenses.createdAt, thirtyDaysAgo))),
+        db.select({ totalAmountExpected: rentals.totalAmountExpected, endDateExpected: rentals.endDateExpected })
             .from(rentals)
             .where(and(eq(rentals.tenantId, tenantId), eq(rentals.status, 'active'), isNull(rentals.deletedAt)))
     ]);
 
-    const revenue30d = parseFloat(stats.revenue30d);
-    const expenses30d = parseFloat(stats.expenses30d);
+    const revenue30d = paymentRows.filter(p => p.status === 'completed').reduce((acc, p) => acc + parseFloat(p.amount || '0'), 0);
+    const expenses30d = expenseRows.reduce((acc, e) => acc + parseFloat(e.amount || '0'), 0);
     const netProfit30d = revenue30d - expenses30d;
 
-    // Forecasting: Sum of expected revenue from active rentals
+    // Forecasting: Sum of expected revenue from active rentals in the next 30 days
     const expectedNext30d = activeRentals.reduce((acc, r) => acc + parseFloat(r.totalAmountExpected || '0'), 0);
 
     // Simple projection status
     const projectionStatus = expectedNext30d > revenue30d ? 'growth' : (expectedNext30d < revenue30d * 0.7 ? 'decline' : 'stable');
 
-    // Break-even logic
+    // Break-even logic for current month
     const avgDailyRev = revenue30d / 30;
     const breakEvenDays = avgDailyRev > 0 ? Math.ceil(expenses30d / avgDailyRev) : 999;
 
+    // Business Health Score (0-100)
+    // Factors: Profitability, Forecasting, Break-even
     let healthScore = 50;
     if (netProfit30d > 0) healthScore += 20;
-    if (projectionStatus === 'growth') healthScore += 20;
-    if (breakEvenDays < 15) healthScore += 10;
+    if (projectionStatus === 'growth') healthScore += 15;
+    if (breakEvenDays < 15) healthScore += 15;
     if (netProfit30d < 0) healthScore -= 30;
 
     return {
-        currentBalance: netProfit30d,
+        currentBalance: revenue30d - expenses30d, // Simplified
         revenue30d,
         expenses30d,
         netProfit30d,
         forecasting: {
             expectedNext30d,
             projectionStatus,
-            confidence: 90
+            confidence: 85 // High level of confidence based on active contracts
         },
         breakEvenDays: Math.min(31, breakEvenDays),
         healthScore: Math.max(0, Math.min(100, healthScore))
