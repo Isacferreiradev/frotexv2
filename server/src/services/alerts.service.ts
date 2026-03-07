@@ -30,73 +30,85 @@ export async function getActiveAlerts(tenantId: string): Promise<Alert[]> {
     const alerts: Alert[] = [];
 
     // 1. Overdue Rentals
-    const overdueRentals = await db.query.rentals.findMany({
-        where: and(
-            eq(rentals.tenantId, tenantId),
-            eq(rentals.status, 'active'),
-            lt(rentals.endDateExpected, now)
-        ),
-        with: {
-            tool: { columns: { name: true } },
-            customer: { columns: { fullName: true } }
-        }
-    });
-
-    overdueRentals.forEach(r => {
-        alerts.push({
-            id: `rental-${r.id}`,
-            type: 'overdue_rental',
-            severity: 'critical',
-            title: 'Locação Atrasada',
-            description: `${r.tool?.name} - Cliente: ${r.customer?.fullName}`,
-            link: `/locacoes?id=${r.id}`,
-            createdAt: r.endDateExpected!
+    try {
+        const overdueRentals = await db.query.rentals.findMany({
+            where: and(
+                eq(rentals.tenantId, tenantId),
+                eq(rentals.status, 'active'),
+                lt(rentals.endDateExpected, now)
+            ),
+            with: {
+                tool: { columns: { name: true } },
+                customer: { columns: { fullName: true } }
+            }
         });
-    });
 
-    // 2. Expiring Quotes
-    const expiringQuotes = await db.query.quotes.findMany({
-        where: and(
-            eq(quotes.tenantId, tenantId),
-            eq(quotes.status, 'sent'),
-            lt(quotes.validUntil, soon)
-        ),
-        with: {
-            customer: { columns: { fullName: true } }
-        }
-    });
-
-    expiringQuotes.forEach(q => {
-        alerts.push({
-            id: `quote-${q.id}`,
-            type: 'expiring_quote',
-            severity: 'medium',
-            title: 'Orçamento Expirando',
-            description: `Cliente: ${q.customer?.fullName} - R$ ${q.totalAmount}`,
-            link: `/orcamentos`,
-            createdAt: q.validUntil!
+        overdueRentals.forEach(r => {
+            alerts.push({
+                id: `rental-${r.id}`,
+                type: 'overdue_rental',
+                severity: 'critical',
+                title: 'Locação Atrasada',
+                description: `${r.tool?.name} - Cliente: ${r.customer?.fullName}`,
+                link: `/locacoes?id=${r.id}`,
+                createdAt: r.endDateExpected!
+            });
         });
-    });
+    } catch {
+        // rentals table issue, skip
+    }
+
+    // 2. Expiring Quotes (graceful: quotes table may be missing columns in some environments)
+    try {
+        const expiringQuotes = await db.query.quotes.findMany({
+            where: and(
+                eq(quotes.tenantId, tenantId),
+                eq(quotes.status, 'sent'),
+                lt(quotes.validUntil, soon)
+            ),
+            with: {
+                customer: { columns: { fullName: true } }
+            }
+        });
+
+        expiringQuotes.forEach(q => {
+            alerts.push({
+                id: `quote-${q.id}`,
+                type: 'expiring_quote',
+                severity: 'medium',
+                title: 'Orçamento Expirando',
+                description: `Cliente: ${q.customer?.fullName} - R$ ${q.totalAmount}`,
+                link: `/orcamentos`,
+                createdAt: q.validUntil!
+            });
+        });
+    } catch {
+        // quotes table doesn't exist or is missing columns, skip
+    }
 
     // 3. Maintenance Due
-    const maintenanceDue = await db.query.tools.findMany({
-        where: and(
-            eq(tools.tenantId, tenantId),
-            sql`${tools.currentUsageHours} >= ${tools.nextMaintenanceDueHours}`
-        )
-    });
-
-    maintenanceDue.forEach(t => {
-        alerts.push({
-            id: `maint-${t.id}`,
-            type: 'maintenance_due',
-            severity: 'high',
-            title: 'Manutenção Pendente',
-            description: `${t.name} atingiu o limite de horas de uso.`,
-            link: `/manutencao`,
-            createdAt: new Date()
+    try {
+        const maintenanceDue = await db.query.tools.findMany({
+            where: and(
+                eq(tools.tenantId, tenantId),
+                sql`${tools.currentUsageHours} >= ${tools.nextMaintenanceDueHours}`
+            )
         });
-    });
+
+        maintenanceDue.forEach(t => {
+            alerts.push({
+                id: `maint-${t.id}`,
+                type: 'maintenance_due',
+                severity: 'high',
+                title: 'Manutenção Pendente',
+                description: `${t.name} atingiu o limite de horas de uso.`,
+                link: `/manutencao`,
+                createdAt: new Date()
+            });
+        });
+    } catch {
+        // tools maintenance query failed, skip
+    }
 
     return alerts
         .filter(a => !dismissedIds.has(a.id))
@@ -108,5 +120,9 @@ export async function dismissAlerts(tenantId: string, alertIds: string[]) {
         tenantId,
         alertId,
     }));
-    await db.insert(dismissedAlerts).values(values).onConflictDoNothing();
+    try {
+        await db.insert(dismissedAlerts).values(values).onConflictDoNothing();
+    } catch {
+        // dismissed_alerts table doesn't exist yet, ignore
+    }
 }
