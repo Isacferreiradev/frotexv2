@@ -121,31 +121,31 @@ export default function HomePage() {
     <div className="min-h-screen bg-[#FDFDFD] text-slate-900 selection:bg-violet-100">
       {/* Header / Nav */}
       <header className="fixed top-0 w-full z-[100] transition-all duration-300">
-        <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 sm:h-20 flex items-center justify-between">
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
           >
             <Link href="/">
               <div className="flex items-center gap-2 group cursor-pointer">
-                <div className="w-10 h-10 bg-zinc-950 rounded-xl flex items-center justify-center text-white font-extrabold shadow-lg group-hover:bg-violet-600 transition-colors">L</div>
-                <span className="text-2xl font-extrabold italic tracking-tight">Locattus<span className="text-violet-600 not-italic">.</span></span>
+                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-zinc-950 rounded-lg sm:rounded-xl flex items-center justify-center text-white font-extrabold shadow-lg group-hover:bg-violet-600 transition-colors">L</div>
+                <span className="text-xl sm:text-2xl font-extrabold italic tracking-tight underline-offset-4">Locattus<span className="text-violet-600 not-italic">.</span></span>
               </div>
             </Link>
           </motion.div>
 
-          <div className="hidden lg:flex items-center gap-10 py-2 px-8 bg-white/50 backdrop-blur-xl border border-white/50 rounded-full shadow-sm">
-            <a href="#features" className="text-xs font-bold uppercase tracking-widest text-slate-400 hover:text-violet-600 transition-colors">Recursos</a>
-            <a href="#pricing" className="text-xs font-bold uppercase tracking-widest text-slate-400 hover:text-violet-600 transition-colors">Planos</a>
-            <a href="#workflow" className="text-xs font-bold uppercase tracking-widest text-slate-400 hover:text-violet-600 transition-colors">Como Funciona</a>
+          <div className="hidden lg:flex items-center gap-8 py-2 px-8 bg-white/50 backdrop-blur-xl border border-white/50 rounded-full shadow-sm">
+            <a href="#features" className="text-[10px] font-bold uppercase tracking-widest text-slate-400 hover:text-violet-600 transition-colors">Recursos</a>
+            <a href="#pricing" className="text-[10px] font-bold uppercase tracking-widest text-slate-400 hover:text-violet-600 transition-colors">Planos</a>
+            <a href="#workflow" className="text-[10px] font-bold uppercase tracking-widest text-slate-400 hover:text-violet-600 transition-colors">Como Funciona</a>
           </div>
 
-          <div className="flex items-center gap-4">
-            <Link href="/login">
-              <Button variant="ghost" className="text-xs font-bold uppercase tracking-widest text-slate-500 hover:text-violet-600">Entrar</Button>
+          <div className="flex items-center gap-2 sm:gap-4">
+            <Link href="/login" className="hidden xs:block">
+              <Button variant="ghost" className="text-[10px] font-bold uppercase tracking-widest text-slate-500 hover:text-violet-600">Entrar</Button>
             </Link>
             <Link href="/register">
-              <Button className="bg-slate-950 hover:bg-violet-700 text-white rounded-2xl px-8 h-12 text-xs font-bold uppercase tracking-widest shadow-xl shadow-slate-100 transition-all hover:scale-105 active:scale-95">
+              <Button className="bg-slate-950 hover:bg-violet-700 text-white rounded-xl sm:rounded-2xl px-4 sm:px-8 h-10 sm:h-12 text-[10px] font-bold uppercase tracking-widest shadow-xl shadow-slate-100 transition-all hover:scale-105 active:scale-95">
                 Criar Conta
               </Button>
             </Link>
@@ -155,22 +155,22 @@ export default function HomePage() {
 
       <main>
         {/* Hero Section */}
-        <section className="relative pt-48 pb-20 px-6 overflow-hidden min-h-[90vh] flex flex-col justify-center">
+        <section className="relative pt-32 pb-16 sm:pt-40 sm:pb-24 lg:pt-48 lg:pb-32 px-6 overflow-hidden min-h-[85vh] flex flex-col justify-center">
           {/* Background Floating Decorative Elements (Model Style) */}
           <div className="absolute inset-0 pointer-events-none -z-10">
             <motion.div
-              animate={{ y: [0, -20, 0], rotate: [0, 5, 0] }}
+              animate={{ y: [0, -15, 0], rotate: [0, 5, 0] }}
               transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-              className="absolute top-1/4 left-1/4 w-32 h-32 bg-violet-100/20 backdrop-blur-3xl rounded-3xl border border-violet-100/50 -rotate-12 flex items-center justify-center"
+              className="absolute top-1/4 left-1/4 w-24 h-24 sm:w-32 sm:h-32 bg-violet-100/20 backdrop-blur-3xl rounded-3xl border border-violet-100/50 -rotate-12 flex items-center justify-center opacity-50 sm:opacity-100"
             >
-              <Box className="w-8 h-8 text-violet-600/30" />
+              <Box className="w-6 h-6 sm:w-8 text-violet-600/30" />
             </motion.div>
             <motion.div
-              animate={{ y: [0, 20, 0], rotate: [0, -5, 0] }}
+              animate={{ y: [0, 15, 0], rotate: [0, -5, 0] }}
               transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-              className="absolute bottom-1/4 right-1/4 w-40 h-40 bg-indigo-100/10 backdrop-blur-3xl rounded-[2.5rem] border border-indigo-100/30 rotate-12 flex items-center justify-center"
+              className="absolute bottom-1/4 right-1/4 w-32 h-32 sm:w-40 sm:h-40 bg-indigo-100/10 backdrop-blur-3xl rounded-[2.5rem] border border-indigo-100/30 rotate-12 flex items-center justify-center opacity-50 sm:opacity-100"
             >
-              <PieChart className="w-10 h-10 text-indigo-600/20" />
+              <PieChart className="w-8 h-8 sm:w-10 text-indigo-600/20" />
             </motion.div>
           </div>
 
@@ -181,25 +181,25 @@ export default function HomePage() {
               transition={{ duration: 0.8, ease: "easeOut" }}
               style={{ opacity, scale }}
             >
-              <div className="inline-flex items-center gap-2 py-2 px-4 mb-10 rounded-full bg-slate-900 text-white text-[10px] font-bold uppercase tracking-wider border border-white/10 shadow-xl">
-                <span className="w-2 h-2 bg-violet-500 rounded-full animate-pulse" /> Gestão completa ponta-a-ponta
+              <div className="inline-flex items-center gap-2 py-2 px-4 mb-8 sm:mb-10 rounded-full bg-slate-900 text-white text-[9px] sm:text-[10px] font-bold uppercase tracking-wider border border-white/10 shadow-xl">
+                <span className="w-1.5 h-1.5 bg-violet-500 rounded-full animate-pulse" /> Gestão completa ponta-a-ponta
               </div>
 
-              <h1 className="text-6xl md:text-8xl font-extrabold tracking-tight text-slate-950 mb-8 leading-[0.85] lg:max-w-5xl mx-auto drop-shadow-sm">
-                Evolua sua Locadora <br /> para a <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-600 to-indigo-600 italic">Era Digital.</span>
+              <h1 className="text-4xl sm:text-6xl lg:text-7xl xl:text-8xl font-extrabold tracking-tight text-slate-950 mb-6 sm:mb-8 leading-[0.9] lg:max-w-5xl mx-auto drop-shadow-sm">
+                Evolua sua Locadora <br className="hidden sm:block" /> para a <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-600 to-indigo-600 italic">Era Digital.</span>
               </h1>
 
-              <p className="max-w-2xl mx-auto text-lg md:text-xl text-slate-500 mb-14 leading-relaxed font-medium">
+              <p className="max-w-2xl mx-auto text-base sm:text-lg md:text-xl text-slate-500 mb-10 sm:mb-14 leading-relaxed font-medium px-4">
                 A primeira plataforma brasileira com inteligência preditiva para quem quer dominar o mercado de locação de ferramentas e equipamentos.
               </p>
 
               <div className="flex flex-col items-center gap-6">
                 <Link href="/register">
-                  <Button className="h-16 px-12 bg-slate-950 hover:bg-violet-700 text-white rounded-2xl text-sm font-bold uppercase tracking-widest shadow-2xl transition-all hover:-translate-y-1 hover:shadow-violet-200">
+                  <Button className="h-14 sm:h-16 px-8 sm:px-12 bg-slate-950 hover:bg-violet-700 text-white rounded-2xl text-[12px] sm:text-sm font-bold uppercase tracking-widest shadow-2xl transition-all hover:-translate-y-1 hover:shadow-violet-200">
                     Começar agora Gratuitamente
                   </Button>
                 </Link>
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                <span className="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
                   <Check className="w-3 h-3 text-emerald-500" /> Sem cartão de crédito
                 </span>
               </div>
@@ -231,26 +231,26 @@ export default function HomePage() {
           <div className="absolute bottom-0 left-0 -z-20 w-[600px] h-[600px] bg-blue-100/30 blur-[150px] rounded-full -translate-x-1/2 translate-y-1/2" />
         </section>
 
-        <section className="py-32 bg-white relative overflow-hidden">
-          <div className="max-w-7xl mx-auto px-6 text-center mb-20">
+        <section className="py-16 sm:py-24 lg:py-32 bg-white relative overflow-hidden">
+          <div className="max-w-7xl mx-auto px-6 text-center mb-12 sm:mb-20">
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
-              className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-violet-600 shadow-[0_0_40px_rgba(124,58,237,0.3)] mb-8"
+              className="inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-violet-600 shadow-[0_0_40px_rgba(124,58,237,0.3)] mb-6 sm:mb-8"
             >
-              <Sparkles className="text-white w-8 h-8" />
+              <Sparkles className="text-white w-6 h-6 sm:w-8 sm:h-8" />
             </motion.div>
-            <span className="text-[10px] font-bold uppercase tracking-widest text-violet-600 mb-6 block">Visão Geral do Produto</span>
-            <h2 className="text-4xl md:text-6xl font-extrabold tracking-tight text-slate-950 mb-8">
+            <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-violet-600 mb-4 sm:mb-6 block">Visão Geral do Produto</span>
+            <h2 className="text-3xl sm:text-4xl md:text-6xl font-extrabold tracking-tight text-slate-950 mb-6 sm:mb-8">
               Locattus em um <span className="italic text-violet-600">Relance.</span>
             </h2>
-            <p className="text-slate-500 max-w-2xl mx-auto text-lg font-medium leading-relaxed">
+            <p className="text-slate-500 max-w-2xl mx-auto text-base sm:text-lg font-medium leading-relaxed">
               Explore as poderosas ferramentas desenhadas para simplificar a gestão de locações, aumentar a colaboração e impulsionar a eficiência.
             </p>
           </div>
 
-          <div className="max-w-[1200px] mx-auto px-6">
+          <div className="max-w-[1100px] mx-auto px-6 sm:px-8">
             <motion.div
               initial={{ opacity: 0, y: 60 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -261,12 +261,12 @@ export default function HomePage() {
               {/* Decorative Glow behind the image */}
               <div className="absolute -inset-10 bg-gradient-to-tr from-violet-500/10 to-indigo-500/10 blur-[120px] opacity-50 -z-10" />
 
-              <div className="bg-white p-2 rounded-[2.5rem] shadow-[0_48px_80px_-16px_rgba(0,0,0,0.15)] border border-slate-100 ring-1 ring-slate-900/5">
-                <div className="absolute top-4 left-1/2 -translate-x-1/2 w-20 h-1 bg-slate-100 rounded-full z-20" />
+              <div className="bg-white p-1.5 sm:p-2 rounded-2xl sm:rounded-[2.5rem] shadow-[0_48px_80px_-16px_rgba(0,0,0,0.15)] border border-slate-100 ring-1 ring-slate-900/5">
+                <div className="absolute top-4 left-1/2 -translate-x-1/2 w-16 h-1 bg-slate-100 rounded-full z-20 hidden sm:block" />
                 <img
                   src="/foto.PNG"
                   alt="Locattus Dashboard Preview"
-                  className="rounded-[2rem] w-full"
+                  className="rounded-xl sm:rounded-[2rem] w-full"
                 />
               </div>
             </motion.div>
@@ -314,22 +314,22 @@ export default function HomePage() {
           </div>
 
           {/* Feature 2: Automation */}
-          <div className="max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-20 items-center">
+          <div className="max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-10 sm:gap-20 items-center">
             <motion.div
               initial={{ opacity: 0, x: -30 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
               className="lg:order-2"
             >
-              <span className="text-violet-600 font-extrabold uppercase tracking-[0.3em] text-[10px] mb-6 block">Automação de Faturamento</span>
-              <h2 className="text-4xl md:text-6xl font-extrabold text-slate-950 tracking-tight mb-8 leading-[1.1]">
-                Faturamento que <br /> trabalha para você.
+              <span className="text-violet-600 font-extrabold uppercase tracking-[0.3em] text-[9px] sm:text-[10px] mb-4 sm:mb-6 block">Automação de Faturamento</span>
+              <h2 className="text-3xl sm:text-4xl md:text-6xl font-extrabold text-slate-950 tracking-tight mb-6 sm:mb-8 leading-[1.1]">
+                Faturamento que <br className="hidden sm:block" /> trabalha para você.
               </h2>
-              <p className="text-slate-500 text-lg font-medium leading-relaxed mb-12">
+              <p className="text-slate-500 text-base sm:text-lg font-medium leading-relaxed mb-8 sm:mb-12">
                 Esqueça a cobrança manual. Nossa inteligência gera PIX dinâmicos e links de cartão automaticamente para cada contrato.
               </p>
               <Link href="/register">
-                <Button className="h-14 px-8 bg-slate-950 text-white rounded-xl text-xs font-bold uppercase tracking-widest">
+                <Button className="h-12 sm:h-14 px-6 sm:px-8 bg-slate-950 text-white rounded-xl text-[10px] sm:text-xs font-bold uppercase tracking-widest">
                   Explorar Automações
                 </Button>
               </Link>
@@ -341,8 +341,8 @@ export default function HomePage() {
               className="lg:order-1 relative"
             >
               <div className="absolute -inset-4 bg-indigo-600/5 blur-[100px] -z-10" />
-              <div className="bg-slate-950 p-2 rounded-[2.5rem] shadow-2xl border border-white/5">
-                <img src="/foto-financeiro.PNG" alt="Faturamento Automatizado" className="rounded-[2rem] opacity-90 shadow-2xl shadow-violet-500/20" />
+              <div className="bg-slate-950 p-1.5 sm:p-2 rounded-2xl sm:rounded-[2.5rem] shadow-2xl border border-white/5">
+                <img src="/foto-financeiro.PNG" alt="Faturamento Automatizado" className="rounded-xl sm:rounded-[2rem] opacity-90 shadow-2xl shadow-violet-500/20" />
               </div>
             </motion.div>
           </div>
@@ -356,7 +356,7 @@ export default function HomePage() {
             <p className="text-slate-500 max-w-xl mx-auto font-medium">Transparência total para você focar no que importa: seu crescimento.</p>
           </div>
 
-          <div className="grid lg:grid-cols-3 gap-8 max-w-6xl mx-auto px-6 relative z-10">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 max-w-6xl mx-auto px-6 relative z-10">
             {plans.map((plan, i) => (
               <motion.div
                 key={i}
@@ -365,41 +365,41 @@ export default function HomePage() {
                 transition={{ delay: i * 0.1 }}
                 viewport={{ once: true }}
                 className={cn(
-                  "p-10 rounded-[2.5rem] border flex flex-col transition-all duration-500 relative overflow-hidden group",
+                  "p-8 sm:p-10 rounded-2xl sm:rounded-[2.5rem] border flex flex-col transition-all duration-500 relative overflow-hidden group",
                   plan.popular
-                    ? "bg-violet-600 text-white border-violet-500 shadow-[0_40px_100px_-20px_rgba(124,58,237,0.3)] z-20 scale-105"
+                    ? "bg-violet-600 text-white border-violet-500 shadow-[0_40px_100px_-20px_rgba(124,58,237,0.3)] z-20 sm:scale-105"
                     : "bg-white border-slate-100 hover:border-violet-200 shadow-xl shadow-slate-100/50"
                 )}
               >
                 {plan.popular && (
-                  <div className="absolute top-0 right-0 p-6">
-                    <Sparkles className="w-5 h-5 text-white/50" />
+                  <div className="absolute top-0 right-0 p-4 sm:p-6">
+                    <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-white/50" />
                   </div>
                 )}
 
-                <div className="mb-10">
-                  <h3 className={cn("text-lg font-extrabold uppercase tracking-widest mb-4", plan.popular ? "text-violet-100" : "text-violet-600")}>{plan.name}</h3>
+                <div className="mb-8 sm:mb-10">
+                  <h3 className={cn("text-base sm:text-lg font-extrabold uppercase tracking-widest mb-3 sm:mb-4", plan.popular ? "text-violet-100" : "text-violet-600")}>{plan.name}</h3>
                   <div className="flex items-baseline gap-1">
-                    <span className="text-5xl font-extrabold tracking-tight">{plan.price}</span>
-                    <span className={cn("text-sm font-bold", plan.popular ? "text-white/60" : "text-slate-400")}>{plan.period}</span>
+                    <span className="text-4xl sm:text-5xl font-extrabold tracking-tight">{plan.price}</span>
+                    <span className={cn("text-xs sm:text-sm font-bold", plan.popular ? "text-white/60" : "text-slate-400")}>{plan.period}</span>
                   </div>
-                  <p className={cn("mt-4 text-sm font-medium leading-relaxed", plan.popular ? "text-white/80" : "text-slate-500")}>{plan.description}</p>
+                  <p className={cn("mt-3 sm:mt-4 text-xs sm:text-sm font-medium leading-relaxed", plan.popular ? "text-white/80" : "text-slate-500")}>{plan.description}</p>
                 </div>
 
-                <div className="space-y-5 mb-12 flex-grow">
+                <div className="space-y-4 sm:space-y-5 mb-10 sm:mb-12 flex-grow">
                   {plan.features.map((feature, idx) => (
-                    <div key={idx} className="flex items-center gap-4">
-                      <div className={cn("w-5 h-5 rounded-full flex items-center justify-center shrink-0", plan.popular ? "bg-white/20" : "bg-violet-50")}>
-                        <Check className={cn("w-3 h-3", plan.popular ? "text-white" : "text-violet-600")} />
+                    <div key={idx} className="flex items-center gap-3 sm:gap-4">
+                      <div className={cn("w-4 h-4 sm:w-5 sm:h-5 rounded-full flex items-center justify-center shrink-0", plan.popular ? "bg-white/20" : "bg-violet-50")}>
+                        <Check className={cn("w-2.5 h-2.5 sm:w-3 sm:h-3", plan.popular ? "text-white" : "text-violet-600")} />
                       </div>
-                      <span className="text-xs font-bold uppercase tracking-widest leading-none">{feature}</span>
+                      <span className="text-[10px] sm:text-xs font-bold uppercase tracking-widest leading-none">{feature}</span>
                     </div>
                   ))}
                 </div>
 
                 <Link href="/register">
                   <Button className={cn(
-                    "w-full h-14 rounded-xl font-extrabold uppercase tracking-[0.2em] text-[10px] transition-all",
+                    "w-full h-12 sm:h-14 rounded-xl font-extrabold uppercase tracking-[0.2em] text-[9px] sm:text-[10px] transition-all",
                     plan.popular ? "bg-white text-violet-600 hover:bg-slate-50 shadow-xl shadow-black/10" : "bg-slate-950 text-white hover:bg-violet-700"
                   )}>
                     {plan.cta}
@@ -475,28 +475,28 @@ export default function HomePage() {
         </section>
 
         {/* Refined Final CTA */}
-        <section className="py-40 bg-white">
+        <section className="py-24 sm:py-32 lg:py-40 bg-white">
           <div className="max-w-5xl mx-auto px-6">
             <motion.div
               initial={{ opacity: 0, scale: 0.98 }}
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
-              className="bg-slate-950 rounded-[4rem] p-16 md:p-32 text-center relative overflow-hidden"
+              className="bg-slate-950 rounded-[2.5rem] sm:rounded-[4rem] p-10 sm:p-20 lg:p-32 text-center relative overflow-hidden"
             >
               <div className="relative z-10">
-                <h2 className="text-4xl md:text-7xl font-extrabold text-white tracking-tight mb-10 leading-[1]">
-                  Assuma o comando da <br /> sua locadora <span className="text-violet-500 italic">hoje.</span>
+                <h2 className="text-3xl sm:text-5xl md:text-7xl font-extrabold text-white tracking-tight mb-6 sm:mb-10 leading-[1]">
+                  Assuma o comando da <br className="hidden sm:block" /> sua locadora <span className="text-violet-500 italic">hoje.</span>
                 </h2>
-                <p className="text-slate-400 text-lg mb-14 font-medium max-w-xl mx-auto">
-                  Configuração em minutos. Resultados em horas. <br /> Junte-se à elite das locadoras digitais.
+                <p className="text-slate-400 text-base sm:text-lg mb-8 sm:mb-14 font-medium max-w-xl mx-auto">
+                  Configuração em minutos. Resultados em horas. <br className="hidden sm:block" /> Junte-se à elite das locadoras digitais.
                 </p>
-                <div className="flex flex-col sm:flex-row items-center justify-center gap-8">
-                  <Link href="/register">
-                    <Button className="h-16 px-14 bg-violet-600 hover:bg-violet-700 text-white rounded-2xl text-[10px] font-extrabold uppercase tracking-[0.2em] shadow-2xl shadow-violet-500/20 transition-all hover:scale-105 active:scale-95">
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8">
+                  <Link href="/register" className="w-full sm:w-auto">
+                    <Button className="w-full h-14 sm:h-16 px-8 sm:px-14 bg-violet-600 hover:bg-violet-700 text-white rounded-xl sm:rounded-2xl text-[9px] sm:text-[10px] font-extrabold uppercase tracking-[0.2em] shadow-2xl shadow-violet-500/20 transition-all hover:scale-105 active:scale-95">
                       Criar minha conta Grátis
                     </Button>
                   </Link>
-                  <Button variant="ghost" className="text-white hover:bg-white/10 h-16 px-10 rounded-2xl text-[10px] font-extrabold uppercase tracking-[0.2em]">
+                  <Button variant="ghost" className="text-white hover:bg-white/10 h-14 sm:h-16 px-8 sm:px-10 rounded-xl sm:rounded-2xl text-[9px] sm:text-[10px] font-extrabold uppercase tracking-[0.2em] w-full sm:w-auto">
                     Agendar Demonstração
                   </Button>
                 </div>
@@ -511,16 +511,16 @@ export default function HomePage() {
       </main>
 
       {/* Footer */}
-      <footer className="py-24 border-t border-slate-100 bg-[#FAFAFA]">
-        <div className="max-w-7xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-16">
-          <div className="col-span-2 md:col-span-1">
-            <div className="flex items-center gap-2 mb-8">
-              <div className="w-8 h-8 bg-slate-950 rounded-xl flex items-center justify-center -rotate-6 shadow-xl">
+      <footer className="py-16 sm:py-24 border-t border-slate-100 bg-[#FAFAFA]">
+        <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12 sm:gap-16">
+          <div className="col-span-1">
+            <div className="flex items-center gap-2 mb-6 sm:mb-8">
+              <div className="w-8 h-8 bg-slate-950 rounded-lg flex items-center justify-center -rotate-6 shadow-xl">
                 <Zap className="text-white w-4 h-4 fill-current" />
               </div>
               <span className="text-lg font-extrabold tracking-tight text-zinc-950">LOCATUS<span className="text-violet-600">PRO</span></span>
             </div>
-            <p className="text-sm text-slate-400 font-medium leading-relaxed">
+            <p className="text-[13px] text-slate-400 font-medium leading-relaxed max-w-xs">
               A plataforma definitiva para escala de locadoras de equipamentos. Desenvolvido com tecnologia de próxima geração.
             </p>
           </div>
@@ -530,10 +530,10 @@ export default function HomePage() {
             { title: 'Legal', links: ['Termos de Uso', 'Privacidade', 'Cookies', 'Compliance'] },
           ].map((col, idx) => (
             <div key={idx}>
-              <h4 className="text-[10px] font-extrabold uppercase tracking-[0.3em] text-slate-950 mb-8">{col.title}</h4>
-              <ul className="space-y-4">
+              <h4 className="text-[9px] sm:text-[10px] font-extrabold uppercase tracking-[0.3em] text-slate-950 mb-6 sm:mb-8">{col.title}</h4>
+              <ul className="space-y-3 sm:space-y-4">
                 {col.links.map((link, i) => (
-                  <li key={i}><a href="#" className="text-xs font-bold text-slate-400 hover:text-violet-600 transition-colors uppercase tracking-widest">{link}</a></li>
+                  <li key={i}><a href="#" className="text-[11px] font-bold text-slate-400 hover:text-violet-600 transition-colors uppercase tracking-widest">{link}</a></li>
                 ))}
               </ul>
             </div>

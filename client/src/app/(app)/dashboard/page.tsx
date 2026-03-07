@@ -61,7 +61,7 @@ const MetricCard = memo(({
                 glass
                 onClick={onClick}
                 className={cn(
-                    "p-4 sm:p-6 lg:p-8 flex flex-col gap-4 group border-none relative overflow-hidden",
+                    "p-4 sm:p-5 lg:p-6 flex flex-col gap-3 group border-none relative overflow-hidden",
                     onClick && "cursor-pointer"
                 )}
             >
@@ -225,13 +225,13 @@ export default function DashboardPage() {
             {/* ── Welcome Header & Quick Filters ── */}
             <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-6 sm:gap-8">
                 <div>
-                    <h1 className="text-2xl xs:text-3xl sm:text-5xl font-bold text-foreground tracking-tight font-jakarta">
+                    <h1 className="text-xl sm:text-2xl md:text-4xl font-bold text-foreground tracking-tight font-jakarta">
                         {greeting}, <span className="text-primary italic">{firstName}</span>
                     </h1>
-                    <div className="flex flex-wrap items-center gap-2 sm:gap-4 mt-3 sm:mt-4">
-                        <p className="text-[10px] sm:text-[11px] font-extrabold text-primary uppercase tracking-[0.3em]">{today}</p>
-                        <div className="hidden xs:block w-1.5 h-1.5 rounded-full bg-primary/20" />
-                        <p className="text-[10px] sm:text-[11px] font-bold text-muted-foreground uppercase tracking-[0.2em]">Inteligência de Ativos v2.0</p>
+                    <div className="flex flex-wrap items-center gap-2 sm:gap-4 mt-2 sm:mt-3">
+                        <p className="text-[9px] sm:text-[10px] font-extrabold text-primary uppercase tracking-[0.3em]">{today}</p>
+                        <div className="hidden xs:block w-1 h-1 rounded-full bg-primary/20" />
+                        <p className="text-[9px] sm:text-[10px] font-bold text-muted-foreground uppercase tracking-[0.2em]">Inteligência de Ativos v2.0</p>
                     </div>
                 </div>
 
