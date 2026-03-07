@@ -55,8 +55,19 @@ app.use(helmet({
     },
 }));
 app.use(hpp());
+
+// Parse comma-separated origins
+const allowedOrigins = env.CORS_ORIGIN.split(',').map(o => o.trim());
+
 app.use(cors({
-    origin: env.CORS_ORIGIN,
+    origin: (origin, callback) => {
+        // allow requests with no origin (like mobile apps, curl) or if origin is in the allowed list
+        if (!origin || allowedOrigins.includes(origin) || allowedOrigins.includes('*')) {
+            callback(null, true);
+        } else {
+            callback(new Error(`CORS policy restricts access from origin: ${origin}`));
+        }
+    },
     credentials: true,
 }));
 
