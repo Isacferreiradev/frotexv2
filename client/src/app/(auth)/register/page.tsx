@@ -106,24 +106,28 @@ export default function RegisterPage() {
                     <div className="absolute top-[-10%] left-[-10%] w-[80%] h-[80%] bg-violet-600/30 rounded-full blur-[120px]" />
                 </div>
 
-                <div className="relative z-10 flex-1 flex flex-col justify-center py-8 xl:py-12">
-                    <Link href="/" className="absolute top-0 left-0 pt-4 xl:pt-12">
-                        <LocattusLogo variant="white" size="md" />
+                <div className="relative z-10 flex-1 flex flex-col pt-8 xl:pt-16 pb-8">
+                    {/* Logo Section */}
+                    <Link href="/" className="mb-[6vh] xl:mb-[10vh] block">
+                        <LocattusLogo variant="white" size="xl" />
                     </Link>
 
-                    <div className="space-y-8 xl:space-y-16">
-                        <div className="space-y-4 xl:space-y-6">
-                            <h1 className="text-3xl xl:text-5xl font-extrabold text-white leading-[1] xl:leading-[0.9] tracking-tight font-outfit">
-                                A Revolução na <br />
-                                <span className="text-violet-400 italic">Gestão de Frotas.</span>
-                            </h1>
-                            <p className="text-zinc-500 text-sm xl:text-lg font-medium leading-relaxed max-w-sm">
-                                Comece hoje sua jornada para a eficiência operacional absoluta.
-                            </p>
+                    {/* Main Content Area */}
+                    <div className="flex-1 flex flex-col justify-center min-h-0 overflow-visible">
+                        <div className="space-y-8 xl:space-y-16">
+                            <div className="space-y-4 xl:space-y-6">
+                                <h1 className="text-[clamp(2.5rem,5vh,5rem)] font-extrabold text-white leading-[1.1] xl:leading-[0.95] tracking-tight font-outfit">
+                                    A Revolução na <br />
+                                    <span className="text-violet-400 italic">Gestão de Frotas.</span>
+                                </h1>
+                                <p className="text-zinc-500 text-[clamp(0.875rem,2vh,1.25rem)] font-medium leading-relaxed max-w-sm">
+                                    Comece hoje sua jornada para a eficiência operacional absoluta.
+                                </p>
+                            </div>
                         </div>
                     </div>
 
-                    <div className="absolute bottom-0 left-0 pb-4 xl:pb-12">
+                    <div className="mt-8">
                         <p className="text-[9px] xl:text-[10px] font-extrabold text-white/20 uppercase tracking-[0.4em]">LOCATTUS SCALE INFRA © 2026</p>
                     </div>
                 </div>

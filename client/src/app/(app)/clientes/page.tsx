@@ -96,7 +96,7 @@ export default function ClientesPage() {
     });
 
     return (
-        <div className="max-w-[1400px] mx-auto space-y-8 animate-in fade-in duration-700">
+        <div className="max-w-[1600px] mx-auto space-y-8 lg:space-y-12 animate-in fade-in duration-700 py-6 sm:py-8 lg:py-10 px-4 sm:px-6 lg:px-8">
             {/* Header Area */}
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
                 <div className="space-y-1">
@@ -150,14 +150,14 @@ export default function ClientesPage() {
 
                     <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
                         <SheetContent className="sm:max-w-[600px] border-violet-50 p-0 overflow-hidden bg-white flex flex-col">
-                            <div className="px-10 py-8 border-b border-violet-50 bg-violet-50/20">
+                            <div className="px-6 md:px-10 py-6 md:py-8 border-b border-violet-50 bg-violet-50/20">
                                 <SheetTitle className="font-bold text-2xl tracking-tight text-zinc-900">
                                     {editingCustomer?.fullName || 'Perfil do Cliente'}
                                 </SheetTitle>
                                 <SheetDescription className="text-violet-500 font-bold text-[10px] uppercase tracking-widest mt-1">Gestão de Dados & CRM</SheetDescription>
                             </div>
 
-                            <div className="flex-1 overflow-y-auto px-10 py-6">
+                            <div className="flex-1 overflow-y-auto px-6 md:px-10 py-6">
                                 <Tabs defaultValue="data" className="w-full">
                                     <TabsList className="grid w-full grid-cols-2 mb-8 bg-zinc-100/50 p-1.5 rounded-2xl">
                                         <TabsTrigger value="data" className="rounded-xl data-[state=active]:bg-white data-[state=active]:text-violet-600 data-[state=active]:shadow-sm text-[11px] font-bold uppercase tracking-widest">

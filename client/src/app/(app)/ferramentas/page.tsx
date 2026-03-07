@@ -180,7 +180,7 @@ export default function FerramentasPage() {
 
 
     return (
-        <div className="space-y-12 max-w-[1400px] mx-auto py-10 px-8 animate-in fade-in slide-in-from-bottom-4 duration-1000" >
+        <div className="space-y-8 lg:space-y-12 max-w-[1600px] mx-auto py-6 sm:py-8 lg:py-10 px-4 sm:px-6 lg:px-8 animate-in fade-in slide-in-from-bottom-4 duration-1000" >
             {/* ── Header Area ── */}
             < div className="flex flex-col md:flex-row md:items-end justify-between gap-8" >
                 <div>
@@ -526,11 +526,11 @@ export default function FerramentasPage() {
             {/* ── Overlays (Sheets/Modals) ── */}
             <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
                 <SheetContent className="sm:max-w-[600px] border-border/40 p-0 overflow-hidden bg-white flex flex-col h-full shadow-float text-foreground">
-                    <div className="px-10 py-10 border-b border-border/40 bg-muted/10">
+                    <div className="px-6 md:px-10 py-8 md:py-10 border-b border-border/40 bg-muted/10">
                         <SheetTitle className="font-semibold text-2xl tracking-tight text-foreground">Gestão do Ativo</SheetTitle>
                         <SheetDescription className="text-primary font-semibold text-[10px] uppercase tracking-[0.2em] mt-2">Histórico & Configurações de Ciclo de Vida</SheetDescription>
                     </div>
-                    <div className="flex-1 overflow-y-auto p-10">
+                    <div className="flex-1 overflow-y-auto p-6 md:p-10">
                         <Tabs defaultValue="details" className="w-full">
                             <TabsList className="grid w-full grid-cols-3 mb-10 bg-slate-100/50 p-1.5 rounded-2xl border border-violet-50">
                                 <TabsTrigger value="details" className="rounded-xl data-[state=active]:bg-white data-[state=active]:text-violet-600 data-[state=active]:shadow-sm text-[10px] font-extrabold uppercase tracking-widest">
@@ -590,11 +590,11 @@ export default function FerramentasPage() {
 
             <Sheet open={isCheckoutOpen} onOpenChange={setIsCheckoutOpen}>
                 <SheetContent className="sm:max-w-[700px] border-border/40 p-0 overflow-hidden bg-white shadow-float">
-                    <div className="px-10 py-10 border-b border-border/40 bg-muted/10">
+                    <div className="px-6 md:px-10 py-8 md:py-10 border-b border-border/40 bg-muted/10">
                         <SheetTitle className="font-semibold text-2xl tracking-tight text-foreground">Checkout Expresso</SheetTitle>
                         <SheetDescription className="text-primary font-semibold text-[10px] uppercase tracking-[0.2em] mt-2">Geração de Contrato & Saída Registrada</SheetDescription>
                     </div>
-                    <div className="p-10">
+                    <div className="p-6 md:p-10">
                         <RentalCheckout
                             initialToolId={checkoutTool?.id}
                             onSubmit={(data) => createRentalMutation.mutate(data)}

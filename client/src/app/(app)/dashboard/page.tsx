@@ -221,7 +221,7 @@ export default function DashboardPage() {
     const today = new Intl.DateTimeFormat('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' }).format(new Date());
 
     return (
-        <div className="space-y-6 sm:space-y-10 transition-all duration-500">
+        <div className="space-y-8 lg:space-y-12 transition-all duration-500 px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-10">
             {/* ── Welcome Header & Quick Filters ── */}
             <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-6 sm:gap-8">
                 <div>
@@ -365,7 +365,7 @@ export default function DashboardPage() {
             </div>
 
             {/* ── Main Charts Row ── */}
-            <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
                 <RevenueChart data={stats?.revenueHistory ?? []} loading={isLoading} />
                 <ROIChart data={stats?.categoryStats ?? []} loading={isLoading} />
             </div>

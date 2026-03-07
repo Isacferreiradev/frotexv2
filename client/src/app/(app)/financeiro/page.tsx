@@ -168,7 +168,7 @@ export default function FinanceiroPage() {
     ];
 
     return (
-        <div className="max-w-[1400px] mx-auto space-y-8 animate-in fade-in duration-700 p-8">
+        <div className="max-w-[1600px] mx-auto space-y-8 lg:space-y-12 animate-in fade-in duration-700 py-6 sm:py-8 lg:py-10 px-4 sm:px-6 lg:px-8">
             {/* Header Area */}
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
                 <div className="space-y-1">
@@ -369,7 +369,7 @@ export default function FinanceiroPage() {
 
             {/* Expense Modal */}
             <Sheet open={isExpenseModalOpen} onOpenChange={setIsExpenseModalOpen}>
-                <SheetContent className="sm:max-w-[450px] p-12 rounded-l-[40px]">
+                <SheetContent className="sm:max-w-[450px] p-6 md:p-12 rounded-l-[40px]">
                     <SheetHeader className="mb-8">
                         <SheetTitle className="text-3xl font-bold">Nova Despesa</SheetTitle>
                         <SheetDescription>Registre custos operacionais (Aluguel, Luz, Manutenção).</SheetDescription>
@@ -411,7 +411,7 @@ export default function FinanceiroPage() {
 
             {/* Revenue Modal */}
             <Sheet open={isRevenueModalOpen} onOpenChange={setIsRevenueModalOpen}>
-                <SheetContent className="sm:max-w-[450px] p-12 rounded-l-[40px]">
+                <SheetContent className="sm:max-w-[450px] p-6 md:p-12 rounded-l-[40px]">
                     <SheetHeader className="mb-8">
                         <SheetTitle className="text-3xl font-bold text-emerald-600">Nova Receita</SheetTitle>
                         <SheetDescription>Registre entradas extras (Venda de acessórios, serviços).</SheetDescription>

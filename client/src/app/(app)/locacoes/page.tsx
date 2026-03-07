@@ -98,7 +98,7 @@ export default function LocacoesPage() {
     );
 
     return (
-        <div className="max-w-[1400px] mx-auto space-y-12 py-10 px-8 animate-in fade-in duration-700">
+        <div className="max-w-[1600px] mx-auto space-y-8 lg:space-y-12 py-6 sm:py-8 lg:py-10 px-4 sm:px-6 lg:px-8 animate-in fade-in duration-700">
             {/* Header Area */}
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
                 <div className="space-y-1">
@@ -139,11 +139,11 @@ export default function LocacoesPage() {
                             Nova Locação
                         </button>
                         <SheetContent className="sm:max-w-[700px] border-border/40 p-0 overflow-hidden bg-white shadow-float text-foreground">
-                            <div className="px-10 py-10 border-b border-border/40 bg-muted/10">
+                            <div className="px-6 md:px-10 py-8 md:py-10 border-b border-border/40 bg-muted/10">
                                 <SheetTitle className="font-semibold text-2xl tracking-tight text-foreground">Checkout de Item</SheetTitle>
                                 <SheetDescription className="text-primary font-semibold text-[10px] uppercase tracking-[0.2em] mt-2">Saída de Equipamento Registrada</SheetDescription>
                             </div>
-                            <div className="p-10">
+                            <div className="p-6 md:p-10">
                                 <RentalCheckout
                                     onSubmit={(data) => createMutation.mutate(data)}
                                     isLoading={createMutation.isPending}
@@ -154,10 +154,10 @@ export default function LocacoesPage() {
 
                     <Dialog open={isReturnOpen} onOpenChange={setIsReturnOpen}>
                         <DialogContent className="sm:max-w-[480px] rounded-premium border-border/40 p-0 overflow-hidden shadow-float">
-                            <div className="px-8 py-8 border-b border-border/40 bg-muted/10">
+                            <div className="px-6 md:px-8 py-6 md:py-8 border-b border-border/40 bg-muted/10">
                                 <DialogTitle className="font-semibold text-xl tracking-tight text-foreground">Efetuar Devolução</DialogTitle>
                             </div>
-                            <div className="p-8 space-y-8">
+                            <div className="p-6 md:p-8 space-y-8">
                                 <div className="space-y-5">
                                     <div className="p-6 bg-muted/30 rounded-2xl border border-border/40 flex justify-between items-center shadow-soft">
                                         <div>
