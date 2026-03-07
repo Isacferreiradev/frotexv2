@@ -141,7 +141,7 @@ export default function HomePage() {
           </div>
 
           <div className="flex items-center gap-2 sm:gap-4">
-            <Link href="/login" className="hidden xs:block">
+            <Link href="/login">
               <Button variant="ghost" className="text-[10px] font-bold uppercase tracking-widest text-slate-500 hover:text-violet-600">Entrar</Button>
             </Link>
             <Link href="/register">
