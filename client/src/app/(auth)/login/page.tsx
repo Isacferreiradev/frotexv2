@@ -55,7 +55,7 @@ export default function LoginPage() {
     };
 
     return (
-        <div className="min-h-screen bg-[#FDFDFD] flex overflow-hidden font-inter selection:bg-violet-100">
+        <div className="h-screen bg-[#FDFDFD] flex overflow-hidden font-inter selection:bg-violet-100">
 
             {/* ─── PAINEL ESQUERDO: Hero ─── */}
             <div className="hidden lg:flex lg:w-[45%] relative bg-zinc-950 p-16 flex-col justify-between overflow-hidden">
@@ -112,7 +112,7 @@ export default function LoginPage() {
             </div>
 
             {/* ─── PAINEL DIREITO: Form ─── */}
-            <div className="flex-1 flex flex-col items-center justify-center p-6 sm:p-10 lg:p-16 relative overflow-y-auto w-full">
+            <div className="flex-1 flex flex-col items-center justify-center p-4 sm:p-8 lg:p-12 relative overflow-hidden w-full">
                 {/* Background decoration in light mode */}
                 <div className="absolute inset-0 z-0 opacity-[0.03] pointer-events-none"
                     style={{ backgroundImage: 'radial-gradient(#7c3aed 1px, transparent 1px)', backgroundSize: '40px 40px' }}
@@ -121,46 +121,46 @@ export default function LoginPage() {
                 <div className="w-full max-w-sm relative z-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
 
                     {/* Mobile logo */}
-                    <div className="flex items-center gap-2 mb-10 lg:hidden">
-                        <div className="w-9 h-9 bg-zinc-950 rounded-xl flex items-center justify-center text-white font-extrabold shadow-lg">L</div>
+                    <div className="flex items-center gap-2 mb-6 lg:hidden">
+                        <div className="w-8 h-8 bg-zinc-950 rounded-lg flex items-center justify-center text-white font-extrabold shadow-lg">L</div>
                         <span className="text-xl sm:text-2xl font-extrabold italic tracking-tight text-zinc-950 font-outfit">Locattus<span className="text-violet-600 not-italic">.</span></span>
                     </div>
 
-                    <div className="space-y-3 mb-10">
-                        <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-950 tracking-tight font-outfit leading-tight lg:leading-none">Bem-vindo <br className="hidden xs:block" /><span className="text-violet-600 italic">de volta.</span></h2>
-                        <p className="text-slate-500 font-medium text-sm sm:text-base">Acesse seu cockpit administrativo.</p>
+                    <div className="space-y-2 mb-6">
+                        <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-950 tracking-tight font-outfit leading-tight lg:leading-none">Bem-vindo <br className="hidden xs:block" /><span className="text-violet-600 italic">de volta.</span></h2>
+                        <p className="text-slate-500 font-medium text-xs sm:text-sm">Acesse seu cockpit administrativo.</p>
                     </div>
 
                     {serverError && (
                         <motion.div
                             initial={{ opacity: 0, x: -10 }}
                             animate={{ opacity: 1, x: 0 }}
-                            className="mb-8 p-4 bg-red-50 border border-red-100 rounded-2xl flex items-center gap-3"
+                            className="mb-6 p-3 bg-red-50 border border-red-100 rounded-xl flex items-center gap-2"
                         >
-                            <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-                            <p className="text-red-600 text-xs font-bold uppercase tracking-widest">{serverError}</p>
+                            <div className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
+                            <p className="text-red-600 text-[10px] font-bold uppercase tracking-widest">{serverError}</p>
                         </motion.div>
                     )}
 
-                    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-                        <div className="space-y-2">
-                            <label className="text-[10px] uppercase font-extrabold text-slate-400 tracking-[0.2em] ml-1">Email profissional</label>
+                    <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+                        <div className="space-y-1.5">
+                            <label className="text-[9px] uppercase font-extrabold text-slate-400 tracking-[0.2em] ml-1">Email profissional</label>
                             <input
                                 type="email"
                                 {...register('email')}
                                 placeholder="seu@email.com"
-                                className="w-full h-14 px-6 bg-white border border-slate-100 rounded-2xl text-sm font-medium text-slate-950 placeholder:text-slate-300 focus:outline-none focus:ring-4 focus:ring-violet-500/5 focus:border-violet-600 transition-all shadow-sm"
+                                className="w-full h-12 px-5 bg-white border border-slate-100 rounded-xl text-sm font-medium text-slate-950 placeholder:text-slate-300 focus:outline-none focus:ring-4 focus:ring-violet-500/5 focus:border-violet-600 transition-all shadow-sm"
                             />
-                            {errors.email && <p className="mt-2 text-[10px] text-red-500 font-extrabold uppercase tracking-widest ml-1">{errors.email.message}</p>}
+                            {errors.email && <p className="mt-1 text-[9px] text-red-500 font-extrabold uppercase tracking-widest ml-1">{errors.email.message}</p>}
                         </div>
 
-                        <div className="space-y-2">
-                            <div className="flex items-center justify-between mb-1.5 px-1">
-                                <label className="text-[10px] uppercase font-extrabold text-slate-400 tracking-[0.2em]">Senha</label>
+                        <div className="space-y-1.5">
+                            <div className="flex items-center justify-between mb-1 px-1">
+                                <label className="text-[9px] uppercase font-extrabold text-slate-400 tracking-[0.2em]">Senha</label>
                                 <button
                                     type="button"
                                     onClick={() => setIsForgotModalOpen(true)}
-                                    className="text-[10px] text-violet-600 hover:text-violet-700 font-extrabold uppercase tracking-widest transition-colors"
+                                    className="text-[9px] text-violet-600 hover:text-violet-700 font-extrabold uppercase tracking-widest transition-colors"
                                 >
                                     Esqueceu a senha?
                                 </button>
@@ -170,24 +170,24 @@ export default function LoginPage() {
                                     type={showPassword ? 'text' : 'password'}
                                     {...register('password')}
                                     placeholder="••••••••"
-                                    className="w-full h-14 px-6 bg-white border border-slate-100 rounded-2xl text-sm font-medium text-slate-950 placeholder:text-slate-300 focus:outline-none focus:ring-4 focus:ring-violet-500/5 focus:border-violet-600 transition-all shadow-sm"
+                                    className="w-full h-12 px-5 bg-white border border-slate-100 rounded-xl text-sm font-medium text-slate-950 placeholder:text-slate-300 focus:outline-none focus:ring-4 focus:ring-violet-500/5 focus:border-violet-600 transition-all shadow-sm"
                                 />
                                 <button
                                     type="button"
                                     onClick={() => setShowPassword(!showPassword)}
-                                    className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-950 transition-colors px-1"
+                                    className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-950 transition-colors px-1"
                                 >
                                     {showPassword ? <EyeOff className="w-5 h-5 stroke-[1.5px]" /> : <Eye className="w-5 h-5 stroke-[1.5px]" />}
                                 </button>
                             </div>
-                            {errors.password && <p className="mt-2 text-[10px] text-red-500 font-extrabold uppercase tracking-widest ml-1">{errors.password.message}</p>}
+                            {errors.password && <p className="mt-1 text-[9px] text-red-500 font-extrabold uppercase tracking-widest ml-1">{errors.password.message}</p>}
                         </div>
 
-                        <div className="pt-4">
+                        <div className="pt-2">
                             <button
                                 type="submit"
                                 disabled={isSubmitting}
-                                className="w-full h-16 bg-slate-950 hover:bg-violet-700 text-white font-extrabold rounded-2xl transition-all shadow-2xl shadow-slate-200 flex items-center justify-center gap-3 text-xs uppercase tracking-[0.2em] active:scale-[0.98] disabled:opacity-50 group"
+                                className="w-full h-14 bg-slate-950 hover:bg-violet-700 text-white font-extrabold rounded-xl transition-all shadow-xl shadow-slate-200 flex items-center justify-center gap-3 text-[10px] uppercase tracking-[0.2em] active:scale-[0.98] disabled:opacity-50 group"
                             >
                                 {isSubmitting ? (
                                     <Loader2 className="w-5 h-5 animate-spin" />
@@ -198,10 +198,10 @@ export default function LoginPage() {
                         </div>
                     </form>
 
-                    <div className="mt-6 text-center">
-                        <p className="text-sm text-slate-400 font-medium">
+                    <div className="mt-4 text-center">
+                        <p className="text-[13px] text-slate-400 font-medium">
                             Novo por aqui?{' '}
-                            <Link href="/register" className="text-violet-600 font-bold hover:text-violet-700 transition-colors uppercase text-xs tracking-widest ml-2">
+                            <Link href="/register" className="text-violet-600 font-bold hover:text-violet-700 transition-colors uppercase text-[11px] tracking-widest ml-2">
                                 Criar conta gratuita
                             </Link>
                         </p>
