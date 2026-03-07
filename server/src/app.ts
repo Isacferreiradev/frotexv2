@@ -8,6 +8,7 @@ import logger from './utils/logger';
 import { authenticate } from './middleware/auth.middleware';
 import { tenantContext } from './middleware/tenant.middleware';
 import { errorHandler } from './middleware/error.middleware';
+import path from 'path';
 
 import authRoutes from './routes/auth.routes';
 import toolsRoutes from './routes/tools.routes';
@@ -72,7 +73,16 @@ if (env.NODE_ENV !== 'test') {
 
 import { pool } from './db';
 
-// Health check (Must be before general parity)
+// Root / Basic info
+app.get('/', (req, res) => {
+    res.status(200).json({
+        message: 'FROTEX API is running',
+        environment: env.NODE_ENV,
+        health: '/health'
+    });
+});
+
+// Health check (Must be before general routes)
 app.get('/health', async (req, res) => {
     try {
         await pool.query('SELECT 1');
@@ -124,8 +134,39 @@ app.use('/api/automation', automationRoutes);
 app.use('/api/onboarding', onboardingRoutes);
 
 
+// Serve static files from the Next.js export
+const clientOutPath = __dirname.includes('dist')
+    ? path.join(__dirname, '../../client/out')
+    : path.join(__dirname, '..', '..', 'client', 'out');
+
+app.use(express.static(clientOutPath));
+
+// Handle Next.js routing (client-side transitions)
+app.get('*', (req, res, next) => {
+    if (req.originalUrl.startsWith('/api')) return next();
+    res.sendFile(path.join(clientOutPath, 'index.html'), (err) => {
+        if (err) {
+            // If index.html doesn't exist yet (not built), fall back to diagnostic
+            res.status(404).json({
+                status: 'error',
+                message: 'Client build not found',
+                path: clientOutPath
+            });
+        }
+    });
+});
+
 // Centralized error handler
 
+
+// Fallback for non-existent API routes
+app.use('*', (req, res) => {
+    res.status(404).json({
+        status: 'error',
+        message: `Route ${req.originalUrl} not found`,
+        suggestion: 'Check /api prefix or /health'
+    });
+});
 
 app.use(errorHandler);
 

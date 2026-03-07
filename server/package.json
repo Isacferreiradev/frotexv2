@@ -7,7 +7,7 @@
     },
     "scripts": {
         "dev": "tsx watch src/server.ts",
-        "build": "tsc && (cp -r src/db/migrations dist/db/ || xcopy /E /I src\\db\\migrations dist\\db\\migrations || echo 'Migrations copy done')",
+        "build": "tsc && (cp -r src/db/migrations dist/db/ || xcopy /E /I src\\db\\migrations dist\\db\\migrations || echo 'Migrations copy done') && (ls -R dist || dir /s dist)",
         "start": "node dist/server.js",
         "serve": "node dist/server.js",
         "db:generate": "drizzle-kit generate",
