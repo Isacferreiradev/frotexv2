@@ -112,7 +112,7 @@ export default function LoginPage() {
             </div>
 
             {/* ─── PAINEL DIREITO: Form ─── */}
-            <div className="flex-1 flex flex-col items-center justify-center p-6 sm:p-16 relative">
+            <div className="flex-1 flex flex-col items-center justify-center p-6 sm:p-10 lg:p-16 relative overflow-y-auto w-full">
                 {/* Background decoration in light mode */}
                 <div className="absolute inset-0 z-0 opacity-[0.03] pointer-events-none"
                     style={{ backgroundImage: 'radial-gradient(#7c3aed 1px, transparent 1px)', backgroundSize: '40px 40px' }}
@@ -121,14 +121,14 @@ export default function LoginPage() {
                 <div className="w-full max-w-sm relative z-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
 
                     {/* Mobile logo */}
-                    <div className="flex items-center gap-2 mb-8 sm:mb-16 lg:hidden">
-                        <div className="w-10 h-10 bg-zinc-950 rounded-xl flex items-center justify-center text-white font-extrabold shadow-lg">L</div>
-                        <span className="text-2xl font-extrabold italic tracking-tight text-zinc-950 font-outfit">Locattus<span className="text-violet-600 not-italic">.</span></span>
+                    <div className="flex items-center gap-2 mb-10 lg:hidden">
+                        <div className="w-9 h-9 bg-zinc-950 rounded-xl flex items-center justify-center text-white font-extrabold shadow-lg">L</div>
+                        <span className="text-xl sm:text-2xl font-extrabold italic tracking-tight text-zinc-950 font-outfit">Locattus<span className="text-violet-600 not-italic">.</span></span>
                     </div>
 
-                    <div className="space-y-3 mb-12">
-                        <h2 className="text-4xl font-extrabold text-slate-950 tracking-tight font-outfit leading-none">Bem-vindo <br /><span className="text-violet-600 italic">de volta.</span></h2>
-                        <p className="text-slate-500 font-medium">Acesse seu cockpit administrativo.</p>
+                    <div className="space-y-3 mb-10">
+                        <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-950 tracking-tight font-outfit leading-tight lg:leading-none">Bem-vindo <br className="hidden xs:block" /><span className="text-violet-600 italic">de volta.</span></h2>
+                        <p className="text-slate-500 font-medium text-sm sm:text-base">Acesse seu cockpit administrativo.</p>
                     </div>
 
                     {serverError && (

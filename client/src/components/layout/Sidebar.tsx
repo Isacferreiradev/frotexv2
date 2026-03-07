@@ -89,19 +89,18 @@ export function Sidebar({ mobileOpen, onClose }: { mobileOpen?: boolean; onClose
     return (
         <aside
             className={cn(
-                'fixed inset-y-0 left-0 lg:relative flex flex-col h-screen bg-white transition-all duration-300 shrink-0 select-none shadow-soft z-50',
+                'fixed inset-y-0 left-0 lg:relative flex flex-col h-screen bg-white transition-all duration-500 ease-in-out shrink-0 select-none shadow-premium z-50',
                 collapsed ? 'w-20' : 'w-64',
-                !mobileOpen ? '-translate-x-full lg:translate-x-0' : 'translate-x-0'
+                !mobileOpen ? '-translate-x-full lg:translate-x-0' : 'translate-x-0 translate-y-0 shadow-2xl'
             )}
         >
             {/* Logo */}
-            {!collapsed && (
-                <div className="px-5 py-6 mb-8">
-                    <Link href="/dashboard">
-                        <LocattusLogo size="lg" />
-                    </Link>
-                </div>
-            )}
+            <div className={cn("px-5 py-6 mb-4 sm:mb-8 flex items-center justify-between lg:justify-start", collapsed && "lg:justify-center px-2")}>
+                <Link href="/dashboard" className={cn("transition-opacity duration-300", collapsed && "lg:opacity-0 lg:pointer-events-none")}>
+                    <LocattusLogo size={collapsed ? "sm" : "lg"} />
+                </Link>
+                {/* Mobile close button could be here but Backdrop handles it */}
+            </div>
 
             {/* Nav */}
             <nav className="flex-1 px-4 space-y-1.5 overflow-y-auto no-scrollbar">

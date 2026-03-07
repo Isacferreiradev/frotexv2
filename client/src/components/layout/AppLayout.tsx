@@ -34,8 +34,10 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
 
             <div className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden">
                 <Navbar onMenuClick={() => setSidebarOpen(true)} />
-                <main className="flex-1 overflow-y-auto overflow-x-hidden no-scrollbar">
-                    {children}
+                <main className="flex-1 overflow-y-auto overflow-x-hidden no-scrollbar bg-slate-50/50">
+                    <div className="w-full max-w-[1600px] mx-auto p-4 sm:p-6 lg:p-8 transition-all duration-300">
+                        {children}
+                    </div>
                 </main>
             </div>
             <OnboardingTour />

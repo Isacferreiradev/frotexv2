@@ -55,14 +55,14 @@ const MetricCard = memo(({
             glass
             onClick={onClick}
             className={cn(
-                "p-8 flex flex-col gap-4 group border-none",
+                "p-4 sm:p-6 lg:p-8 flex flex-col gap-4 group border-none relative overflow-hidden",
                 onClick && "cursor-pointer hover:bg-white/5 transition-all"
             )}
         >
             <div className="flex items-center justify-between relative z-10">
                 <span className="text-[10px] font-extrabold text-zinc-400 uppercase tracking-[0.25em]">{title}</span>
                 <div className={cn(
-                    "p-3 rounded-2xl transition-all duration-500 group-hover:scale-110 group-hover:rotate-3",
+                    "p-2.5 sm:p-3 rounded-2xl transition-all duration-500 group-hover:scale-110 group-hover:rotate-3",
                     iconStyles[variant]
                 )}>
                     <Icon className="w-4 h-4" />
@@ -71,21 +71,21 @@ const MetricCard = memo(({
 
             <div className="flex flex-col gap-1 relative z-10">
                 {loading
-                    ? <Skeleton className="h-10 w-32 rounded-lg" />
+                    ? <Skeleton className="h-8 w-3/4 rounded-lg" />
                     : <span className={cn(
-                        'text-2xl sm:text-4xl font-bold tracking-tight font-jakarta',
+                        'text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight font-jakarta',
                         variant === 'critical' ? 'text-red-500' : 'text-foreground'
                     )}>{value}</span>
                 }
                 {subtitle && (
-                    <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mt-1 opacity-80 group-hover:opacity-100 transition-opacity">
+                    <span className="text-[9px] sm:text-[10px] font-bold text-zinc-500 uppercase tracking-widest mt-1 opacity-80 group-hover:opacity-100 transition-opacity">
                         {subtitle}
                     </span>
                 )}
             </div>
 
             <div className={cn(
-                "absolute bottom-0 left-8 right-8 h-1 rounded-t-full transition-all duration-500 opacity-0 group-hover:opacity-100",
+                "absolute bottom-0 left-4 right-4 sm:left-8 sm:right-8 h-1 rounded-t-full transition-all duration-500 opacity-0 group-hover:opacity-100",
                 variant === 'default' ? "bg-primary" : variant === 'warning' ? "bg-amber-500" : "bg-red-500"
             )} />
         </Card>
@@ -144,8 +144,8 @@ const BillingRuleWidget = ({ onOpenDetail }: { onOpenDetail: (rental: any) => vo
     };
 
     return (
-        <Card glass className="md:col-span-2 xl:col-span-2 border-none">
-            <CardHeader className="flex flex-row items-center justify-between pb-6">
+        <Card glass className="md:col-span-1 xl:col-span-2 border-none h-full">
+            <CardHeader className="flex flex-row items-center justify-between pb-4 sm:pb-6">
                 <div className="flex items-center gap-3">
                     <History className="w-5 h-5 text-primary" />
                     <CardTitle className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-zinc-400">Régua de Cobrança</CardTitle>
@@ -212,17 +212,17 @@ export default function DashboardPage() {
     const today = new Intl.DateTimeFormat('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' }).format(new Date());
 
     return (
-        <div className="space-y-6 sm:space-y-10 max-w-[1600px] mx-auto py-6 sm:py-10 px-4 sm:px-8">
+        <div className="space-y-6 sm:space-y-10 transition-all duration-500">
             {/* ── Welcome Header & Quick Filters ── */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-8">
+            <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-6 sm:gap-8">
                 <div>
-                    <h1 className="text-3xl font-bold text-foreground tracking-tight sm:text-5xl font-jakarta">
+                    <h1 className="text-2xl xs:text-3xl sm:text-5xl font-bold text-foreground tracking-tight font-jakarta">
                         {greeting}, <span className="text-primary italic">{firstName}</span>
                     </h1>
-                    <div className="flex items-center gap-4 mt-4">
-                        <p className="text-[11px] font-extrabold text-primary uppercase tracking-[0.3em]">{today}</p>
-                        <div className="w-1.5 h-1.5 rounded-full bg-primary/20" />
-                        <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-[0.2em]">Inteligência de Ativos v2.0</p>
+                    <div className="flex flex-wrap items-center gap-2 sm:gap-4 mt-3 sm:mt-4">
+                        <p className="text-[10px] sm:text-[11px] font-extrabold text-primary uppercase tracking-[0.3em]">{today}</p>
+                        <div className="hidden xs:block w-1.5 h-1.5 rounded-full bg-primary/20" />
+                        <p className="text-[10px] sm:text-[11px] font-bold text-muted-foreground uppercase tracking-[0.2em]">Inteligência de Ativos v2.0</p>
                     </div>
                 </div>
 
@@ -297,10 +297,10 @@ export default function DashboardPage() {
                             Relatório Completo <ArrowUpRight className="ml-2 w-3 h-3" />
                         </Button>
                     </CardHeader>
-                    <CardContent className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 sm:gap-8 relative z-10 py-6">
+                    <CardContent className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 relative z-10 py-6">
                         <div className="space-y-2">
-                            <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">ROI Médio Real</p>
-                            <p className="text-4xl font-extrabold font-jakarta text-emerald-400">
+                            <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">ROI MÉDIO REAL</p>
+                            <p className="text-3xl sm:text-4xl font-extrabold font-jakarta text-emerald-400">
                                 {stats?.total > 0 ? (stats.topToolsByROI?.reduce((sum: number, t: any) => sum + t.roi, 0) / stats.topToolsByROI?.length || 0).toFixed(1) : 0}%
                             </p>
                             <p className="text-[10px] text-zinc-500 leading-relaxed font-medium">Contabilizando depreciação de 20%/ano e custos de manutenção.</p>
@@ -396,7 +396,7 @@ export default function DashboardPage() {
                             <CardTitle className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-red-500">Equipamentos Zumbis</CardTitle>
                             <Skull className="w-4 h-4 text-red-500" />
                         </CardHeader>
-                        <CardContent className="space-y-3">
+                        <CardContent className="space-y-3 pb-6">
                             {stats?.zombieEquipment?.length > 0 ? (
                                 stats.zombieEquipment.slice(0, 3).map((tool: any) => (
                                     <div
@@ -423,13 +423,13 @@ export default function DashboardPage() {
                             </div>
                             <Activity className="w-4 h-4 text-primary opacity-20" />
                         </CardHeader>
-                        <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center py-4">
+                        <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-8 items-center py-4 lg:py-6">
                             <div className="space-y-4">
                                 <div className="flex justify-between items-end">
-                                    <span className="text-4xl font-bold font-jakarta tracking-tight">
+                                    <span className="text-3xl sm:text-4xl font-bold font-jakarta tracking-tight leading-none">
                                         {stats?.total > 0 ? (100 - (stats.maintenanceAlertsCount / stats.total * 100)).toFixed(0) : 100}%
                                     </span>
-                                    <span className="text-[10px] font-bold text-primary uppercase tracking-widest">{stats?.maintenanceAlertsCount ?? 0} pendências</span>
+                                    <span className="text-[10px] font-bold text-primary uppercase tracking-widest leading-none pb-1">{stats?.maintenanceAlertsCount ?? 0} pendências</span>
                                 </div>
                                 <div className="h-2.5 bg-muted rounded-full overflow-hidden shadow-inner">
                                     <div
@@ -438,12 +438,12 @@ export default function DashboardPage() {
                                     />
                                 </div>
                             </div>
-                            <div className="space-y-2 border-l border-zinc-100 pl-8 hidden md:block">
+                            <div className="space-y-2 border-l border-zinc-100 pl-4 sm:pl-8 hidden xs:block">
                                 <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-1">Status Preditivo</p>
-                                <p className="text-sm font-medium text-zinc-600 leading-relaxed">
+                                <p className="text-xs sm:text-sm font-medium text-zinc-600 leading-relaxed truncate-2-lines">
                                     {stats?.maintenanceAlertsCount > 0
-                                        ? `Existem ${stats.maintenanceAlertsCount} equipamentos que exigem atenção imediata para evitar paradas não planejadas.`
-                                        : "Toda a sua frota está operando dentro dos parâmetros ideais de manutenção."}
+                                        ? `Existem ${stats.maintenanceAlertsCount} equipamentos que exigem atenção imediata.`
+                                        : "Toda a sua frota está operando dentro dos parâmetros ideais."}
                                 </p>
                             </div>
                         </CardContent>

@@ -130,14 +130,14 @@ export default function RegisterPage() {
             {/* ─── PAINEL DIREITO: Form ─── */}
             <div className="flex-1 flex flex-col p-6 sm:p-10 lg:p-16 relative z-10 overflow-y-auto">
                 {/* Mobile Top Bar */}
-                <div className="flex items-center justify-between lg:hidden mb-12">
+                <div className="flex items-center justify-between lg:hidden mb-10">
                     <Link href="/">
                         <div className="flex items-center gap-2">
-                            <div className="w-10 h-10 bg-zinc-950 rounded-xl flex items-center justify-center text-white font-extrabold shadow-lg">L</div>
-                            <span className="text-2xl font-extrabold italic tracking-tight text-zinc-950 font-outfit">Locattus<span className="text-violet-600 not-italic">.</span></span>
+                            <div className="w-9 h-9 bg-zinc-950 rounded-xl flex items-center justify-center text-white font-extrabold shadow-lg">L</div>
+                            <span className="text-xl font-extrabold italic tracking-tight text-zinc-950 font-outfit">Locattus<span className="text-violet-600 not-italic">.</span></span>
                         </div>
                     </Link>
-                    <Link href="/login" className="text-[10px] font-extrabold text-violet-600 uppercase tracking-widest bg-violet-50 px-4 py-2 rounded-full">
+                    <Link href="/login" className="text-[10px] font-extrabold text-violet-600 uppercase tracking-widest bg-violet-50 px-4 py-2 rounded-full active:scale-95 transition-transform">
                         Login
                     </Link>
                 </div>
@@ -195,8 +195,8 @@ export default function RegisterPage() {
                                             {errors.password && <p className="text-[9px] text-red-500 font-bold uppercase tracking-widest">{errors.password.message}</p>}
                                         </div>
                                     </div>
-                                    <div className="pt-6">
-                                        <button type="button" onClick={nextStep} className="w-full h-16 bg-slate-950 hover:bg-violet-700 text-white font-extrabold rounded-2xl transition-all shadow-xl flex items-center justify-center gap-3 text-[10px] uppercase tracking-widest group">
+                                    <div className="pt-4 sm:pt-6">
+                                        <button type="button" onClick={nextStep} className="w-full h-14 sm:h-16 bg-slate-950 hover:bg-violet-700 text-white font-extrabold rounded-2xl transition-all shadow-xl flex items-center justify-center gap-3 text-[10px] uppercase tracking-widest group">
                                             Avançar <ChevronRight className="w-4 h-4 group-hover:translate-x-1" />
                                         </button>
                                     </div>

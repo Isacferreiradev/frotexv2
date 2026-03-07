@@ -58,7 +58,8 @@ export function DataTable<T extends { id: string | number }>({
                 "rounded-2xl border border-border/40 overflow-hidden shadow-soft transition-all",
                 glass ? "glass-v2" : "bg-white"
             )}>
-                <div className="overflow-x-auto">
+                {/* Desktop view (sm+) */}
+                <div className="hidden sm:block overflow-x-auto">
                     <table className="w-full border-collapse">
                         <thead>
                             <tr className="border-b border-border/40 bg-muted/20">
@@ -80,8 +81,8 @@ export function DataTable<T extends { id: string | number }>({
                                 {isLoading ? (
                                     Array(5).fill(0).map((_, i) => (
                                         <tr key={`skeleton-${i}`} className="animate-pulse">
-                                            {columns.map((_, j) => (
-                                                <td key={j} className="px-3 sm:px-6 py-4 sm:py-6 font-jakarta">
+                                            {columns.map((col, j) => (
+                                                <td key={j} className={cn("px-6 py-4 font-jakarta", col.className)}>
                                                     <div className="h-4 bg-muted/40 rounded-md w-full" />
                                                 </td>
                                             ))}
@@ -97,10 +98,10 @@ export function DataTable<T extends { id: string | number }>({
                                     data.map((item, index) => (
                                         <motion.tr
                                             key={item.id}
-                                            initial={{ opacity: 0, x: -10 }}
-                                            animate={{ opacity: 1, x: 0 }}
-                                            exit={{ opacity: 0, x: 10 }}
-                                            transition={{ delay: index * 0.05, duration: 0.3 }}
+                                            initial={{ opacity: 0, y: 5 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            exit={{ opacity: 0, y: -5 }}
+                                            transition={{ delay: index * 0.03 }}
                                             onClick={() => onRowClick?.(item)}
                                             className={cn(
                                                 "group hover:bg-primary/[0.02] transition-colors",
@@ -111,7 +112,7 @@ export function DataTable<T extends { id: string | number }>({
                                                 <td
                                                     key={i}
                                                     className={cn(
-                                                        "px-3 sm:px-6 py-4 sm:py-6 text-sm text-foreground font-medium font-jakarta",
+                                                        "px-6 py-4 text-sm text-foreground font-medium font-jakarta",
                                                         col.className
                                                     )}
                                                 >
@@ -124,6 +125,47 @@ export function DataTable<T extends { id: string | number }>({
                             </AnimatePresence>
                         </tbody>
                     </table>
+                </div>
+
+                {/* Mobile view (xs) */}
+                <div className="block sm:hidden divide-y divide-border/40">
+                    <AnimatePresence mode="popLayout">
+                        {isLoading ? (
+                            Array(3).fill(0).map((_, i) => (
+                                <div key={`skeleton-m-${i}`} className="p-4 space-y-4 animate-pulse">
+                                    <div className="h-4 bg-muted/40 rounded w-1/2" />
+                                    <div className="h-3 bg-muted/20 rounded w-3/4" />
+                                    <div className="h-3 bg-muted/20 rounded w-1/4" />
+                                </div>
+                            ))
+                        ) : data.length === 0 ? (
+                            <div className="p-10 text-center text-muted-foreground text-sm font-medium">
+                                Nenhum registro encontrado
+                            </div>
+                        ) : (
+                            data.map((item, index) => (
+                                <motion.div
+                                    key={item.id}
+                                    initial={{ opacity: 0, x: -10 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    transition={{ delay: index * 0.05 }}
+                                    onClick={() => onRowClick?.(item)}
+                                    className="p-4 space-y-3 active:bg-muted/30 transition-colors"
+                                >
+                                    {columns.map((col, i) => (
+                                        <div key={i} className="flex justify-between items-start gap-4">
+                                            <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest pt-1">
+                                                {col.header}
+                                            </span>
+                                            <div className="text-right text-sm font-medium text-foreground max-w-[60%] truncate">
+                                                {col.cell ? col.cell(item) : (item[col.accessorKey as keyof T] as React.ReactNode)}
+                                            </div>
+                                        </div>
+                                    ))}
+                                </motion.div>
+                            ))
+                        )}
+                    </AnimatePresence>
                 </div>
             </div>
         </div>
