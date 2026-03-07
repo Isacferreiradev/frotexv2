@@ -13,6 +13,7 @@ import { RentalDetailSheet } from '@/components/shared/RentalDetailSheet';
 
 import { OnboardingChecklist } from '@/components/dashboard/OnboardingChecklist';
 import { memo, useState } from 'react';
+import { motion } from 'framer-motion';
 
 import { formatCurrency, cn } from '@/lib/utils';
 import api from '@/lib/api';
@@ -51,44 +52,52 @@ const MetricCard = memo(({
     };
 
     return (
-        <Card
-            glass
-            onClick={onClick}
-            className={cn(
-                "p-4 sm:p-6 lg:p-8 flex flex-col gap-4 group border-none relative overflow-hidden",
-                onClick && "cursor-pointer hover:bg-white/5 transition-all"
-            )}
+        <motion.div
+            whileHover={{ y: -4, scale: 1.01 }}
+            whileTap={{ scale: 0.98 }}
+            transition={{ type: "spring", stiffness: 300, damping: 20 }}
         >
-            <div className="flex items-center justify-between relative z-10">
-                <span className="text-[10px] font-extrabold text-zinc-400 uppercase tracking-[0.25em]">{title}</span>
-                <div className={cn(
-                    "p-2.5 sm:p-3 rounded-2xl transition-all duration-500 group-hover:scale-110 group-hover:rotate-3",
-                    iconStyles[variant]
-                )}>
-                    <Icon className="w-4 h-4" />
-                </div>
-            </div>
-
-            <div className="flex flex-col gap-1 relative z-10">
-                {loading
-                    ? <Skeleton className="h-8 w-3/4 rounded-lg" />
-                    : <span className={cn(
-                        'text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight font-jakarta',
-                        variant === 'critical' ? 'text-red-500' : 'text-foreground'
-                    )}>{value}</span>
-                }
-                {subtitle && (
-                    <span className="text-[9px] sm:text-[10px] font-bold text-zinc-500 uppercase tracking-widest mt-1 opacity-80 group-hover:opacity-100 transition-opacity">
-                        {subtitle}
-                    </span>
+            <Card
+                glass
+                onClick={onClick}
+                className={cn(
+                    "p-4 sm:p-6 lg:p-8 flex flex-col gap-4 group border-none relative overflow-hidden",
+                    onClick && "cursor-pointer"
                 )}
-            </div>
+            >
+                <div className="flex items-center justify-between relative z-10">
+                    <span className="text-[10px] font-extrabold text-zinc-400 uppercase tracking-[0.25em]">{title}</span>
+                    <motion.div
+                        whileHover={{ rotate: 12, scale: 1.1 }}
+                        className={cn(
+                            "p-2.5 sm:p-3 rounded-2xl transition-all duration-500",
+                            iconStyles[variant]
+                        )}>
+                        <Icon className="w-4 h-4" />
+                    </motion.div>
+                </div>
 
-            <div className={cn(
-                "absolute bottom-0 left-4 right-4 sm:left-8 sm:right-8 h-1 rounded-t-full transition-all duration-500 opacity-0 group-hover:opacity-100",
-                variant === 'default' ? "bg-primary" : variant === 'warning' ? "bg-amber-500" : "bg-red-500"
-            )} />
-        </Card>
+                <div className="flex flex-col gap-1 relative z-10">
+                    {loading
+                        ? <Skeleton className="h-8 w-3/4 rounded-lg" />
+                        : <span className={cn(
+                            'text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight font-jakarta',
+                            variant === 'critical' ? 'text-red-500' : 'text-foreground'
+                        )}>{value}</span>
+                    }
+                    {subtitle && (
+                        <span className="text-[9px] sm:text-[10px] font-bold text-zinc-500 uppercase tracking-widest mt-1 opacity-80 group-hover:opacity-100 transition-opacity">
+                            {subtitle}
+                        </span>
+                    )}
+                </div>
+
+                <div className={cn(
+                    "absolute bottom-0 left-4 right-4 sm:left-8 sm:right-8 h-1 rounded-t-full transition-all duration-500 opacity-0 group-hover:opacity-100 shadow-[0_0_12px_rgba(139,92,246,0.5)]",
+                    variant === 'default' ? "bg-primary" : variant === 'warning' ? "bg-amber-500" : "bg-red-500"
+                )} />
+            </Card>
+        </motion.div>
     );
 });
 MetricCard.displayName = 'MetricCard';

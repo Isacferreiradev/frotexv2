@@ -1,10 +1,12 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import { Bell, Search, Menu } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import { CommandMenu } from '../shared/CommandMenu';
 import { NotificationCenter } from '../shared/NotificationCenter';
+import { cn } from '@/lib/utils';
 
 const pageTitles: Record<string, string> = {
     '/dashboard/automacao-cobranca': 'Automação de Cobrança',
@@ -19,6 +21,16 @@ const pageTitles: Record<string, string> = {
 export function Navbar({ onMenuClick }: { onMenuClick?: () => void }) {
     const pathname = usePathname();
     const user = useAuthStore((s) => s.user);
+    const [isCompact, setIsCompact] = useState(false);
+
+    useEffect(() => {
+        const checkHeight = () => {
+            setIsCompact(window.innerHeight < 800);
+        };
+        checkHeight();
+        window.addEventListener('resize', checkHeight);
+        return () => window.removeEventListener('resize', checkHeight);
+    }, []);
 
     const getTitle = () => {
         for (const [path, title] of Object.entries(pageTitles)) {
@@ -28,7 +40,10 @@ export function Navbar({ onMenuClick }: { onMenuClick?: () => void }) {
     };
 
     return (
-        <header className="sticky top-0 z-40 px-4 sm:px-6 lg:px-8 py-3.5 sm:py-4 flex items-center justify-between glass-v2 shadow-soft border-b border-white/10">
+        <header className={cn(
+            "sticky top-0 z-40 px-4 sm:px-6 lg:px-8 flex items-center justify-between glass-v2 shadow-soft border-b border-white/10 transition-all duration-300",
+            isCompact ? "py-2 sm:py-2.5" : "py-3.5 sm:py-4"
+        )}>
             <div className="flex items-center gap-3 sm:gap-8">
                 {/* Mobile Menu Trigger */}
                 <button

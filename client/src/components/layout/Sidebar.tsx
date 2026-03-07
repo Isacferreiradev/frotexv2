@@ -44,6 +44,14 @@ export function Sidebar({ mobileOpen, onClose }: { mobileOpen?: boolean; onClose
     const queryClient = useQueryClient();
     const [collapsed, setCollapsed] = useState(false);
 
+    // Notebook optimization: Auto-collapse on smaller desktop screens
+    useState(() => {
+        if (typeof window !== 'undefined') {
+            const isNotebook = window.innerWidth >= 1024 && window.innerWidth <= 1366;
+            if (isNotebook) setCollapsed(true);
+        }
+    });
+
     // Use granular selectors to prevent sidebar from re-rendering on every auth change
     const user = useAuthStore((s) => s.user);
     const logout = useAuthStore((s) => s.logout);
