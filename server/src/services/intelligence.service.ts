@@ -74,7 +74,7 @@ export function calculateAssetHealth(tool: any): { score: number, status: 'excel
 export async function getRoiInsights(tenantId: string): Promise<RoiInsight[]> {
     // 1. Fetch all tools for the tenant
     const allTools = await db.query.tools.findMany({
-        where: and(eq(tools.tenantId, tenantId), isNull(tools.deletedAt)),
+        where: eq(tools.tenantId, tenantId),
         with: {
             category: true,
             maintenanceLogs: true,
@@ -87,7 +87,6 @@ export async function getRoiInsights(tenantId: string): Promise<RoiInsight[]> {
 
         // Sum revenue from actual rentals (excluding deleted ones)
         const revenue = tool.rentals.reduce((acc, r) => {
-            if (r.deletedAt) return acc;
             return acc + parseFloat(r.totalAmountActual || '0');
         }, 0);
 
@@ -209,7 +208,7 @@ export async function getCashFlowIntelligence(tenantId: string): Promise<CashFlo
         db.select().from(expenses).where(and(eq(expenses.tenantId, tenantId), gte(expenses.createdAt, thirtyDaysAgo))),
         db.select({ totalAmountExpected: rentals.totalAmountExpected, endDateExpected: rentals.endDateExpected })
             .from(rentals)
-            .where(and(eq(rentals.tenantId, tenantId), eq(rentals.status, 'active'), isNull(rentals.deletedAt)))
+            .where(and(eq(rentals.tenantId, tenantId), eq(rentals.status, 'active')))
     ]);
 
     const revenue30d = paymentRows.filter(p => p.status === 'completed').reduce((acc, p) => acc + parseFloat(p.amount || '0'), 0);
@@ -253,7 +252,6 @@ export async function getNewCustomersReport(tenantId: string, startDate: Date, e
     const data = await db.query.customers.findMany({
         where: and(
             eq(customers.tenantId, tenantId),
-            isNull(customers.deletedAt),
             gte(customers.createdAt, startDate),
             lte(customers.createdAt, endDate)
         )
@@ -266,7 +264,6 @@ export async function getOperationalSummary(tenantId: string, startDate: Date, e
         .from(rentals)
         .where(and(
             eq(rentals.tenantId, tenantId),
-            isNull(rentals.deletedAt),
             gte(rentals.createdAt, startDate),
             lte(rentals.createdAt, endDate)
         ));
@@ -275,7 +272,6 @@ export async function getOperationalSummary(tenantId: string, startDate: Date, e
         .from(rentals)
         .where(and(
             eq(rentals.tenantId, tenantId),
-            isNull(rentals.deletedAt),
             eq(rentals.status, 'returned'),
             gte(rentals.updatedAt, startDate),
             lte(rentals.updatedAt, endDate)

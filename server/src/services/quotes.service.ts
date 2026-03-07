@@ -20,7 +20,7 @@ export const createQuoteSchema = z.object({
 });
 
 async function generateQuoteCode(tenantId: string): Promise<string> {
-    const existing = await db.select({ code: quotes.quoteCode }).from(quotes).where(and(eq(quotes.tenantId, tenantId), isNull(quotes.deletedAt)));
+    const existing = await db.select({ code: quotes.quoteCode }).from(quotes).where(eq(quotes.tenantId, tenantId));
     const maxNum = existing.reduce((max, r) => {
         const num = parseInt(r.code.slice(3)) || 0;
         return Math.max(max, num);
@@ -30,7 +30,7 @@ async function generateQuoteCode(tenantId: string): Promise<string> {
 
 export const listQuotes = async (tenantId: string) => {
     return await db.query.quotes.findMany({
-        where: and(eq(quotes.tenantId, tenantId), isNull(quotes.deletedAt)),
+        where: eq(quotes.tenantId, tenantId),
         with: {
             customer: true,
             items: {
@@ -91,7 +91,7 @@ export const createQuote = async (tenantId: string, data: any) => {
 export const updateQuoteStatus = async (tenantId: string, id: string, status: string) => {
     const [updated] = await db.update(quotes)
         .set({ status: status as any, updatedAt: new Date() })
-        .where(and(eq(quotes.id, id), eq(quotes.tenantId, tenantId), isNull(quotes.deletedAt)))
+        .where(and(eq(quotes.id, id), eq(quotes.tenantId, tenantId)))
         .returning();
 
     return updated;
@@ -99,7 +99,7 @@ export const updateQuoteStatus = async (tenantId: string, id: string, status: st
 
 export const getQuote = async (tenantId: string, id: string) => {
     return await db.query.quotes.findFirst({
-        where: and(eq(quotes.id, id), eq(quotes.tenantId, tenantId), isNull(quotes.deletedAt)),
+        where: and(eq(quotes.id, id), eq(quotes.tenantId, tenantId)),
         with: {
             customer: true,
             items: {
@@ -112,8 +112,8 @@ export const getQuote = async (tenantId: string, id: string) => {
 export const deleteQuote = async (tenantId: string, id: string) => {
     const [quote] = await db
         .update(quotes)
-        .set({ deletedAt: new Date(), updatedAt: new Date() })
-        .where(and(eq(quotes.id, id), eq(quotes.tenantId, tenantId), isNull(quotes.deletedAt)))
+        .set({ status: 'expired', updatedAt: new Date() })
+        .where(and(eq(quotes.id, id), eq(quotes.tenantId, tenantId)))
         .returning();
     if (!quote) throw new AppError(404, 'Orçamento não encontrado');
     return { success: true };
@@ -122,7 +122,7 @@ export const deleteQuote = async (tenantId: string, id: string) => {
 export const convertToRental = async (tenantId: string, quoteId: string, userId: string) => {
     return await db.transaction(async (tx) => {
         const quote = await tx.query.quotes.findFirst({
-            where: and(eq(quotes.id, quoteId), eq(quotes.tenantId, tenantId), isNull(quotes.deletedAt)),
+            where: and(eq(quotes.id, quoteId), eq(quotes.tenantId, tenantId)),
             with: { items: { with: { tool: true } } }
         });
 
@@ -158,7 +158,7 @@ export const convertToRental = async (tenantId: string, quoteId: string, userId:
 
         await tx.update(quotes)
             .set({ status: 'accepted', updatedAt: new Date() })
-            .where(and(eq(quotes.id, quoteId), isNull(quotes.deletedAt)));
+            .where(and(eq(quotes.id, quoteId)));
 
         return createdRentals;
     });

@@ -29,7 +29,7 @@ export const toolSchema = z.object({
 });
 
 export async function listTools(tenantId: string, filters: { status?: string; categoryId?: string; search?: string }) {
-    const conditions: SQL[] = [eq(tools.tenantId, tenantId), isNull(tools.deletedAt)];
+    const conditions: SQL[] = [eq(tools.tenantId, tenantId)];
 
     if (filters.status) {
         conditions.push(eq(tools.status, filters.status as any));
@@ -71,7 +71,6 @@ export async function listTools(tenantId: string, filters: { status?: string; ca
             acquisitionCost: tools.acquisitionCost,
             createdAt: tools.createdAt,
             categoryId: tools.categoryId,
-            subcategoryId: tools.subcategoryId,
             categoryName: toolCategories.name,
         })
         .from(tools)
@@ -103,12 +102,11 @@ export async function getTool(tenantId: string, id: string) {
             acquisitionCost: tools.acquisitionCost,
             createdAt: tools.createdAt,
             categoryId: tools.categoryId,
-            subcategoryId: tools.subcategoryId,
             categoryName: toolCategories.name,
         })
         .from(tools)
         .leftJoin(toolCategories, eq(tools.categoryId, toolCategories.id))
-        .where(and(eq(tools.tenantId, tenantId), eq(tools.id, id), isNull(tools.deletedAt)));
+        .where(and(eq(tools.tenantId, tenantId), eq(tools.id, id)));
 
     if (!tool) throw new AppError(404, 'Ferramenta não encontrada');
     return tool;
@@ -127,7 +125,6 @@ export async function createTool(tenantId: string, data: z.infer<typeof toolSche
     const [tool] = await db.insert(tools).values({
         tenantId,
         categoryId: data.categoryId,
-        subcategoryId: data.subcategoryId,
         name: data.name,
         brand: data.brand,
         model: data.model,
@@ -160,7 +157,7 @@ export async function updateTool(tenantId: string, id: string, data: Partial<z.i
             acquisitionCost: data.acquisitionCost !== undefined ? String(data.acquisitionCost) : undefined,
             updatedAt: new Date(),
         })
-        .where(and(eq(tools.tenantId, tenantId), eq(tools.id, id), isNull(tools.deletedAt)))
+        .where(and(eq(tools.tenantId, tenantId), eq(tools.id, id)))
         .returning();
     if (!tool) throw new AppError(404, 'Ferramenta não encontrada');
     return tool;
@@ -169,8 +166,8 @@ export async function updateTool(tenantId: string, id: string, data: Partial<z.i
 export async function deleteTool(tenantId: string, id: string) {
     const [tool] = await db
         .update(tools)
-        .set({ deletedAt: new Date(), updatedAt: new Date() })
-        .where(and(eq(tools.tenantId, tenantId), eq(tools.id, id), isNull(tools.deletedAt)))
+        .set({ status: 'unavailable', updatedAt: new Date() })
+        .where(and(eq(tools.tenantId, tenantId), eq(tools.id, id)))
         .returning();
     if (!tool) throw new AppError(404, 'Ferramenta não encontrada');
     return { success: true };
@@ -179,8 +176,8 @@ export async function deleteTool(tenantId: string, id: string) {
 export async function bulkDeleteTools(tenantId: string, ids: string[]) {
     await db
         .update(tools)
-        .set({ deletedAt: new Date(), updatedAt: new Date() })
-        .where(and(eq(tools.tenantId, tenantId), sql`${tools.id} IN ${ids}`, isNull(tools.deletedAt)));
+        .set({ status: 'unavailable', updatedAt: new Date() })
+        .where(and(eq(tools.tenantId, tenantId), sql`${tools.id} IN ${ids}`));
     return { success: true };
 }
 
@@ -188,7 +185,7 @@ import { calculateAssetHealth } from './intelligence.service';
 
 export async function getTool360(tenantId: string, id: string) {
     const tool = await db.query.tools.findFirst({
-        where: and(eq(tools.tenantId, tenantId), eq(tools.id, id), isNull(tools.deletedAt)),
+        where: and(eq(tools.tenantId, tenantId), eq(tools.id, id)),
         with: {
             category: true,
             maintenanceLogs: {
