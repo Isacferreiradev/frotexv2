@@ -58,56 +58,59 @@ export default function LoginPage() {
         <div className="h-screen bg-[#FDFDFD] flex overflow-hidden font-inter selection:bg-violet-100">
 
             {/* ─── PAINEL ESQUERDO: Hero ─── */}
-            <div className="hidden lg:flex lg:w-[45%] relative bg-zinc-950 p-16 flex-col justify-between overflow-hidden">
+            <div className="hidden lg:flex lg:w-[42%] xl:w-[45%] relative bg-zinc-950 p-8 xl:p-16 flex-col justify-between overflow-hidden">
                 {/* Background glow */}
                 <div className="absolute inset-0 z-0 opacity-40">
                     <div className="absolute top-[-10%] left-[-10%] w-[80%] h-[80%] bg-violet-600/30 rounded-full blur-[120px]" />
                     <div className="absolute bottom-[-10%] right-[-10%] w-[70%] h-[70%] bg-indigo-600/20 rounded-full blur-[100px]" />
                 </div>
 
-                <div className="relative z-10 space-y-32 flex-1 flex flex-col pt-12">
-                    {/* Logo */}
-                    <Link href="/">
+                <div className="relative z-10 flex-1 flex flex-col justify-center py-8 xl:py-12">
+                    {/* Logo - Top aligned in the flex container if needed, but we used justify-center for middle... 
+                        Actually, let's keep logo at top and protocols at bottom, with center growing. */}
+                    <Link href="/" className="absolute top-0 left-0 pt-4 xl:pt-12">
                         <div className="flex items-center gap-2 group cursor-pointer">
-                            <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-zinc-950 font-extrabold shadow-lg shadow-white/5 transition-colors">L</div>
-                            <span className="text-2xl font-extrabold italic tracking-tight text-white font-outfit">Locattus<span className="text-violet-400 not-italic">.</span></span>
+                            <div className="w-8 h-8 xl:w-10 xl:h-10 bg-white rounded-lg xl:rounded-xl flex items-center justify-center text-zinc-950 font-extrabold shadow-lg transition-transform active:scale-95">L</div>
+                            <span className="text-xl xl:text-2xl font-extrabold italic tracking-tight text-white font-outfit">Locattus<span className="text-violet-400 not-italic">.</span></span>
                         </div>
                     </Link>
 
-                    {/* Headline */}
-                    <div className="space-y-12">
-                        <div className="space-y-6">
-                            <h1 className="text-6xl font-extrabold text-white leading-[0.9] tracking-tight font-outfit">
+                    {/* Main Content Area */}
+                    <div className="space-y-8 xl:space-y-16">
+                        {/* Headline */}
+                        <div className="space-y-3 xl:space-y-6">
+                            <h1 className="text-3xl sm:text-4xl xl:text-6xl font-extrabold text-white leading-[1] xl:leading-[0.9] tracking-tight font-outfit">
                                 Escalar é o seu <br />
                                 <span className="text-violet-400 italic">Destino.</span>
                             </h1>
-                            <p className="text-zinc-500 text-lg font-medium leading-relaxed max-w-sm">
+                            <p className="text-zinc-500 text-sm xl:text-lg font-medium leading-relaxed max-w-sm">
                                 O cockpit definitivo para locadoras que buscam alta performance e controle total.
                             </p>
                         </div>
 
-                        <div className="space-y-8 pt-6 border-t border-white/5">
+                        {/* Features List */}
+                        <div className="space-y-4 xl:space-y-8 pt-6 border-t border-white/5">
                             {[
                                 { icon: Zap, title: 'Gestão Ágil', desc: 'Interface desenhada para velocidade operacional.' },
                                 { icon: Shield, title: 'Segurança Elite', desc: 'Protocolos de criptografia de ponta a ponta.' },
                                 { icon: TrendingUp, title: 'Foco em ROI', desc: 'Insights preditivos sobre o lucro da sua frota.' }
                             ].map((item, i) => (
-                                <div key={i} className="flex gap-5 items-start">
-                                    <div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-violet-400 shrink-0">
-                                        <item.icon className="w-6 h-6 stroke-[1.5px]" />
+                                <div key={i} className="flex gap-4 xl:gap-5 items-start group">
+                                    <div className="w-9 h-9 xl:w-12 xl:h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-violet-400 shrink-0 group-hover:bg-violet-600/10 group-hover:border-violet-600/20 transition-all">
+                                        <item.icon className="w-4 h-4 xl:w-6 xl:h-6 stroke-[1.5px]" />
                                     </div>
-                                    <div className="space-y-1">
-                                        <p className="text-white font-bold text-sm tracking-tight">{item.title}</p>
-                                        <p className="text-zinc-500 text-sm leading-relaxed">{item.desc}</p>
+                                    <div className="space-y-0 xl:space-y-1">
+                                        <p className="text-white font-bold text-[13px] xl:text-sm tracking-tight">{item.title}</p>
+                                        <p className="text-zinc-400/60 text-[11px] xl:text-sm leading-relaxed">{item.desc}</p>
                                     </div>
                                 </div>
                             ))}
                         </div>
                     </div>
-                </div>
 
-                <div className="relative z-10">
-                    <p className="text-[10px] font-extrabold text-white/20 uppercase tracking-[0.4em]">LOCATTUS SECURITY PROTOCOLS © 2026</p>
+                    <div className="absolute bottom-0 left-0 pb-4 xl:pb-12">
+                        <p className="text-[9px] xl:text-[10px] font-extrabold text-white/20 uppercase tracking-[0.4em]">LOCATTUS SECURITY PROTOCOLS © 2026</p>
+                    </div>
                 </div>
             </div>
 

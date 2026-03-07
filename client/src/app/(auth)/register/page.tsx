@@ -100,29 +100,33 @@ export default function RegisterPage() {
             />
 
             {/* ─── PAINEL ESQUERDO: Hero (Visible on Desktop) ─── */}
-            <div className="hidden lg:flex lg:w-[40%] relative bg-zinc-950 p-16 flex-col justify-between overflow-hidden shrink-0">
+            <div className="hidden lg:flex lg:w-[38%] xl:w-[40%] relative bg-zinc-950 p-8 xl:p-16 flex-col justify-between overflow-hidden shrink-0">
                 <div className="absolute inset-0 z-0 opacity-40">
                     <div className="absolute top-[-10%] left-[-10%] w-[80%] h-[80%] bg-violet-600/30 rounded-full blur-[120px]" />
                 </div>
 
-                <div className="relative z-10 space-y-32 flex-1 flex flex-col pt-12">
-                    <Link href="/">
+                <div className="relative z-10 flex-1 flex flex-col justify-center py-8 xl:py-12">
+                    <Link href="/" className="absolute top-0 left-0 pt-4 xl:pt-12">
                         <div className="flex items-center gap-2 group cursor-pointer transition-transform active:scale-95">
-                            <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-zinc-950 font-extrabold shadow-lg shadow-white/5 transition-colors">L</div>
-                            <span className="text-2xl font-extrabold italic tracking-tight text-white font-outfit">Locattus<span className="text-violet-400 not-italic">.</span></span>
+                            <div className="w-8 h-8 xl:w-10 xl:h-10 bg-white rounded-lg xl:rounded-xl flex items-center justify-center text-zinc-950 font-extrabold shadow-lg transition-colors">L</div>
+                            <span className="text-xl xl:text-2xl font-extrabold italic tracking-tight text-white font-outfit">Locattus<span className="text-violet-400 not-italic">.</span></span>
                         </div>
                     </Link>
 
-                    <div className="space-y-12">
-                        <div className="space-y-6">
-                            <h1 className="text-5xl font-extrabold text-white leading-[0.9] tracking-tight font-outfit">
+                    <div className="space-y-8 xl:space-y-16">
+                        <div className="space-y-4 xl:space-y-6">
+                            <h1 className="text-3xl xl:text-5xl font-extrabold text-white leading-[1] xl:leading-[0.9] tracking-tight font-outfit">
                                 A Revolução na <br />
                                 <span className="text-violet-400 italic">Gestão de Frotas.</span>
                             </h1>
-                            <p className="text-zinc-500 text-lg font-medium leading-relaxed max-w-sm">
+                            <p className="text-zinc-500 text-sm xl:text-lg font-medium leading-relaxed max-w-sm">
                                 Comece hoje sua jornada para a eficiência operacional absoluta.
                             </p>
                         </div>
+                    </div>
+
+                    <div className="absolute bottom-0 left-0 pb-4 xl:pb-12">
+                        <p className="text-[9px] xl:text-[10px] font-extrabold text-white/20 uppercase tracking-[0.4em]">LOCATTUS SCALE INFRA © 2026</p>
                     </div>
                 </div>
             </div>
