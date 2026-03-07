@@ -19,7 +19,7 @@ export const LocattusLogo = memo(({ className, size = 'md', variant = 'normal' }
         return (
             <div className={cn('relative select-none', className)}>
                 <Image
-                    src="/brand/symbol.png"
+                    src="/symbol.png"
                     alt="Locattus Symbol"
                     width={size === 'lg' ? 48 : size === 'sm' ? 32 : 40}
                     height={size === 'lg' ? 48 : size === 'sm' ? 32 : 40}
@@ -32,7 +32,7 @@ export const LocattusLogo = memo(({ className, size = 'md', variant = 'normal' }
     return (
         <div className={cn('flex items-center select-none', className)}>
             <Image
-                src={isWhite ? "/brand/logo-white.png" : "/brand/logo-black.png"}
+                src={isWhite ? "/logo-white.png" : "/logo-black.png"}
                 alt="Locattus Logo"
                 width={size === 'lg' ? 180 : size === 'sm' ? 120 : 150}
                 height={60}
