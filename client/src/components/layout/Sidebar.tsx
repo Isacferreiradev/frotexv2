@@ -104,10 +104,9 @@ export function Sidebar({ mobileOpen, onClose }: { mobileOpen?: boolean; onClose
         >
             {/* Logo */}
             <div className={cn("px-5 py-6 mb-4 sm:mb-8 flex items-center justify-between lg:justify-start", collapsed && "lg:justify-center px-2")}>
-                <Link href="/dashboard" className={cn("transition-opacity duration-300", collapsed && "lg:opacity-0 lg:pointer-events-none")}>
-                    <LocattusLogo size={collapsed ? "sm" : "lg"} />
+                <Link href="/dashboard" className="transition-all duration-300">
+                    <LocattusLogo variant={collapsed ? "symbol" : "normal"} size={collapsed ? "sm" : "md"} />
                 </Link>
-                {/* Mobile close button could be here but Backdrop handles it */}
             </div>
 
             {/* Nav */}

@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import api from '@/lib/api';
+import { LocattusLogo } from '@/components/shared/LocattusLogo';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const registerSchema = z.object({
@@ -107,10 +108,7 @@ export default function RegisterPage() {
 
                 <div className="relative z-10 flex-1 flex flex-col justify-center py-8 xl:py-12">
                     <Link href="/" className="absolute top-0 left-0 pt-4 xl:pt-12">
-                        <div className="flex items-center gap-2 group cursor-pointer transition-transform active:scale-95">
-                            <div className="w-8 h-8 xl:w-10 xl:h-10 bg-white rounded-lg xl:rounded-xl flex items-center justify-center text-zinc-950 font-extrabold shadow-lg transition-colors">L</div>
-                            <span className="text-xl xl:text-2xl font-extrabold italic tracking-tight text-white font-outfit">Locattus<span className="text-violet-400 not-italic">.</span></span>
-                        </div>
+                        <LocattusLogo variant="white" size="md" />
                     </Link>
 
                     <div className="space-y-8 xl:space-y-16">

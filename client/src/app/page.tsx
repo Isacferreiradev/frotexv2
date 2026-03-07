@@ -25,6 +25,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import { LocattusLogo } from '@/components/shared/LocattusLogo';
 
 const plans = [
   {
@@ -127,10 +128,7 @@ export default function HomePage() {
             animate={{ opacity: 1, x: 0 }}
           >
             <Link href="/">
-              <div className="flex items-center gap-2 group cursor-pointer">
-                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-zinc-950 rounded-lg sm:rounded-xl flex items-center justify-center text-white font-extrabold shadow-lg group-hover:bg-violet-600 transition-colors">L</div>
-                <span className="text-xl sm:text-2xl font-extrabold italic tracking-tight underline-offset-4">Locattus<span className="text-violet-600 not-italic">.</span></span>
-              </div>
+              <LocattusLogo variant="black" size="md" />
             </Link>
           </motion.div>
 

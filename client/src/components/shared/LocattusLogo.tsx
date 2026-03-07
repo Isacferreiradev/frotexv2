@@ -2,37 +2,43 @@
 
 import { cn } from '@/lib/utils';
 import { memo } from 'react';
+import Image from 'next/image';
 
 interface LocattusLogoProps {
     className?: string;
     collapsed?: boolean;
     size?: 'sm' | 'md' | 'lg';
-    variant?: 'normal' | 'white';
+    variant?: 'normal' | 'white' | 'black' | 'symbol';
 }
 
 export const LocattusLogo = memo(({ className, size = 'md', variant = 'normal' }: LocattusLogoProps) => {
-    // Locattus uses high-contract typography-based branding as per user request
-    const sizeClasses = {
-        sm: 'text-lg',
-        md: 'text-2xl',
-        lg: 'text-3xl'
-    };
+    const isWhite = variant === 'white';
+    const isSymbol = variant === 'symbol';
+
+    if (isSymbol) {
+        return (
+            <div className={cn('relative select-none', className)}>
+                <Image
+                    src="/brand/symbol.png"
+                    alt="Locattus Symbol"
+                    width={size === 'lg' ? 48 : size === 'sm' ? 32 : 40}
+                    height={size === 'lg' ? 48 : size === 'sm' ? 32 : 40}
+                    className="object-contain"
+                />
+            </div>
+        );
+    }
 
     return (
-        <div className={cn('flex items-center gap-2 select-none group', className)}>
-            <div className={cn(
-                "w-10 h-10 bg-zinc-950 rounded-xl flex items-center justify-center text-white font-extrabold shadow-lg group-hover:bg-violet-600 transition-colors duration-300",
-                size === 'lg' && 'w-12 h-12 text-xl',
-                size === 'sm' && 'w-8 h-8 text-sm'
-            )}>
-                L
-            </div>
-            <span className={cn(
-                "font-extrabold tracking-tight text-zinc-900 uppercase italic",
-                sizeClasses[size]
-            )}>
-                Locattus<span className="text-violet-600 not-italic">.</span>
-            </span>
+        <div className={cn('flex items-center select-none', className)}>
+            <Image
+                src={isWhite ? "/brand/logo-white.png" : "/brand/logo-black.png"}
+                alt="Locattus Logo"
+                width={size === 'lg' ? 180 : size === 'sm' ? 120 : 150}
+                height={60}
+                className="object-contain"
+                priority
+            />
         </div>
     );
 });
