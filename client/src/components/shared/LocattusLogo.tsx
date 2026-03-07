@@ -7,7 +7,7 @@ import Image from 'next/image';
 interface LocattusLogoProps {
     className?: string;
     collapsed?: boolean;
-    size?: 'sm' | 'md' | 'lg';
+    size?: 'sm' | 'md' | 'lg' | 'xl';
     variant?: 'normal' | 'white' | 'black' | 'symbol';
 }
 
@@ -21,8 +21,8 @@ export const LocattusLogo = memo(({ className, size = 'md', variant = 'normal' }
                 <Image
                     src="/symbol.png"
                     alt="Locattus Symbol"
-                    width={size === 'lg' ? 48 : size === 'sm' ? 32 : 40}
-                    height={size === 'lg' ? 48 : size === 'sm' ? 32 : 40}
+                    width={size === 'xl' ? 64 : size === 'lg' ? 56 : size === 'sm' ? 36 : 44}
+                    height={size === 'xl' ? 64 : size === 'lg' ? 56 : size === 'sm' ? 36 : 44}
                     className="object-contain"
                 />
             </div>
@@ -34,8 +34,8 @@ export const LocattusLogo = memo(({ className, size = 'md', variant = 'normal' }
             <Image
                 src={isWhite ? "/logo-white.png" : "/logo-black.png"}
                 alt="Locattus Logo"
-                width={size === 'lg' ? 180 : size === 'sm' ? 120 : 150}
-                height={60}
+                width={size === 'xl' ? 240 : size === 'lg' ? 200 : size === 'sm' ? 140 : 170}
+                height={80}
                 className="object-contain"
                 priority
             />

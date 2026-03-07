@@ -121,14 +121,14 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-[#FDFDFD] text-slate-900 selection:bg-violet-100">
       {/* Header / Nav */}
-      <header className="fixed top-0 w-full z-[100] transition-all duration-300">
+      <header className="fixed top-0 w-full z-[100] transition-all duration-300 pt-4 sm:pt-6">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 sm:h-20 flex items-center justify-between">
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
           >
             <Link href="/">
-              <LocattusLogo variant="black" size="md" />
+              <LocattusLogo variant="black" size="lg" />
             </Link>
           </motion.div>
 

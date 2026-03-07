@@ -68,44 +68,44 @@ export default function LoginPage() {
 
                 <div className="relative z-10 flex-1 flex flex-col justify-center py-8 xl:py-12">
                     {/* Logo */}
-                    <Link href="/">
-                        <LocattusLogo variant="white" size="md" />
+                    <Link href="/" className="absolute top-0 left-0 pt-6 xl:pt-14">
+                        <LocattusLogo variant="white" size="xl" />
                     </Link>
 
                     {/* Main Content Area */}
-                    <div className="space-y-8 xl:space-y-16">
+                    <div className="space-y-[4vh] xl:space-y-[6vh] mt-12">
                         {/* Headline */}
-                        <div className="space-y-3 xl:space-y-6">
-                            <h1 className="text-3xl sm:text-4xl xl:text-6xl font-extrabold text-white leading-[1] xl:leading-[0.9] tracking-tight font-outfit">
+                        <div className="space-y-4 xl:space-y-6">
+                            <h1 className="text-[clamp(2.5rem,5vh,5rem)] font-extrabold text-white leading-[1.1] xl:leading-[0.95] tracking-tight font-outfit">
                                 Escalar é o seu <br />
                                 <span className="text-violet-400 italic">Destino.</span>
                             </h1>
-                            <p className="text-zinc-500 text-sm xl:text-lg font-medium leading-relaxed max-w-sm">
+                            <p className="text-zinc-500 text-[clamp(0.875rem,2vh,1.25rem)] font-medium leading-relaxed max-w-md">
                                 O cockpit definitivo para locadoras que buscam alta performance e controle total.
                             </p>
                         </div>
 
                         {/* Features List */}
-                        <div className="space-y-4 xl:space-y-8 pt-6 border-t border-white/5">
+                        <div className="space-y-[2vh] xl:space-y-[3vh] pt-8 border-t border-white/5">
                             {[
                                 { icon: Zap, title: 'Gestão Ágil', desc: 'Interface desenhada para velocidade operacional.' },
                                 { icon: Shield, title: 'Segurança Elite', desc: 'Protocolos de criptografia de ponta a ponta.' },
                                 { icon: TrendingUp, title: 'Foco em ROI', desc: 'Insights preditivos sobre o lucro da sua frota.' }
                             ].map((item, i) => (
-                                <div key={i} className="flex gap-4 xl:gap-5 items-start group">
-                                    <div className="w-9 h-9 xl:w-12 xl:h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-violet-400 shrink-0 group-hover:bg-violet-600/10 group-hover:border-violet-600/20 transition-all">
-                                        <item.icon className="w-4 h-4 xl:w-6 xl:h-6 stroke-[1.5px]" />
+                                <div key={i} className="flex gap-4 xl:gap-6 items-start group">
+                                    <div className="w-[clamp(2.5rem,5vh,3.5rem)] h-[clamp(2.5rem,5vh,3.5rem)] rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-violet-400 shrink-0 group-hover:bg-violet-600/10 group-hover:border-violet-600/20 transition-all">
+                                        <item.icon className="w-1/2 h-1/2 stroke-[1.5px]" />
                                     </div>
-                                    <div className="space-y-0 xl:space-y-1">
-                                        <p className="text-white font-bold text-[13px] xl:text-sm tracking-tight">{item.title}</p>
-                                        <p className="text-zinc-400/60 text-[11px] xl:text-sm leading-relaxed">{item.desc}</p>
+                                    <div className="space-y-1">
+                                        <p className="text-white font-bold text-[clamp(0.75rem,1.8vh,1rem)] tracking-tight">{item.title}</p>
+                                        <p className="text-zinc-400/60 text-[clamp(0.7rem,1.6vh,0.9rem)] leading-relaxed">{item.desc}</p>
                                     </div>
                                 </div>
                             ))}
                         </div>
                     </div>
 
-                    <div className="absolute bottom-0 left-0 pb-4 xl:pb-12">
+                    <div className="absolute bottom-0 left-0 pb-6 xl:pb-14">
                         <p className="text-[9px] xl:text-[10px] font-extrabold text-white/20 uppercase tracking-[0.4em]">LOCATTUS SECURITY PROTOCOLS © 2026</p>
                     </div>
                 </div>
