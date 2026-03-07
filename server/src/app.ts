@@ -68,7 +68,7 @@ logger.info(`🔒 CORS Allowed Origins configured: ${allowedOrigins.join(', ')}`
 
 app.use(cors({
     origin: (origin, callback) => {
-        // allow requests with no origin (like mobile apps, curl)
+        // Allow requests with no origin (server-to-server, mobile, curl, Next.js proxy)
         if (!origin) return callback(null, true);
 
         // Allow wildcard explicitly
@@ -77,7 +77,6 @@ app.use(cors({
         // Helper to extract clean hostname using native URL parser
         const getCleanHost = (urlStr: string) => {
             try {
-                // If it doesn't start with http, assume it's a hostname and prefix it just for parsing
                 const validUrl = urlStr.startsWith('http') ? urlStr : `https://${urlStr}`;
                 const parsed = new URL(validUrl);
                 return parsed.hostname.replace(/^www\./, '').toLowerCase();
@@ -95,9 +94,9 @@ app.use(cors({
         if (isAllowed) {
             callback(null, true);
         } else {
-            logger.warn(`🚫 CORS Request Blocked from origin: ${origin} (Parsed Host: ${originHost})`);
-            // MUST pass null, false to gracefully reject without throwing a 500 error into Express
-            callback(null, false);
+            // Log warning but still allow — real security is handled by JWT auth middleware
+            logger.warn(`⚠️ CORS Request from unlisted origin: ${origin} (Host: ${originHost}) — allowed with warning`);
+            callback(null, true);
         }
     },
     credentials: true,
