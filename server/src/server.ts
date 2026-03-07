@@ -8,11 +8,16 @@ import { initCronJobs } from './utils/cron';
 async function startServer() {
     logger.info(`📁 Working Directory: ${process.cwd()}`);
     // Start listening immediately to pass Railway healthchecks
-    logger.info(`📡 Attempting to bind to PORT: ${env.PORT} (Raw: ${process.env.PORT})`);
-    const server = app.listen(env.PORT, '0.0.0.0', () => {
-        logger.info(`🚀 AlugaFácil Pro API running on port ${env.PORT}`);
-        logger.info(`🌐 Binding: 0.0.0.0:${env.PORT}`);
+    const listenPort = env.INTERNAL_BACKEND_PORT || env.PORT;
+    logger.info(`📡 Attempting to bind to PORT: ${listenPort} (System PORT: ${process.env.PORT}, Internal: ${env.INTERNAL_BACKEND_PORT})`);
+
+    const server = app.listen(listenPort, '0.0.0.0', () => {
+        logger.info(`🚀 AlugaFácil Pro API running on port ${listenPort}`);
+        logger.info(`🌐 Binding: 0.0.0.0:${listenPort}`);
         logger.info(`📊 Environment: ${env.NODE_ENV}`);
+    }).on('error', (err: any) => {
+        logger.error('❌ FATAL: Server failed to start:', err);
+        process.exit(1);
     });
 
     try {

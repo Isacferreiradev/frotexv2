@@ -10,6 +10,7 @@ const envSchema = z.object({
     JWT_EXPIRES_IN: z.string().default('15m'),
     JWT_REFRESH_EXPIRES_IN: z.string().default('7d'),
     PORT: z.coerce.number().default(4000),
+    INTERNAL_BACKEND_PORT: z.coerce.number().optional(),
     NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
     CORS_ORIGIN: z.string().default('http://localhost:3000'),
     SMTP_HOST: z.string().default('smtp.hostinger.com'),
