@@ -12,15 +12,12 @@ export interface ExportFilters {
 
 export async function getToolsData(tenantId: string, filters: ExportFilters) {
     const whereConditions = [eq(tools.tenantId, tenantId)];
-
     if (filters.categoryId) whereConditions.push(eq(tools.categoryId, filters.categoryId));
     if (filters.status) whereConditions.push(eq(tools.status, filters.status as any));
 
     const data = await db.query.tools.findMany({
         where: and(...whereConditions),
-        with: {
-            category: true
-        },
+        with: { category: true },
         orderBy: [desc(tools.createdAt)]
     });
 
@@ -89,7 +86,6 @@ export async function getCustomersData(tenantId: string) {
 
 export async function getRentalsData(tenantId: string, filters: ExportFilters) {
     const whereConditions = [eq(rentals.tenantId, tenantId)];
-
     if (filters.startDate) whereConditions.push(gte(rentals.startDate, new Date(filters.startDate)));
     if (filters.endDate) whereConditions.push(lte(rentals.startDate, new Date(filters.endDate)));
     if (filters.status) whereConditions.push(eq(rentals.status, filters.status as any));
@@ -97,10 +93,7 @@ export async function getRentalsData(tenantId: string, filters: ExportFilters) {
     try {
         const data = await db.query.rentals.findMany({
             where: and(...whereConditions),
-            with: {
-                tool: true,
-                customer: true
-            },
+            with: { tool: true, customer: true },
             orderBy: [desc(rentals.startDate)]
         });
 
@@ -132,8 +125,8 @@ export async function getRentalsData(tenantId: string, filters: ExportFilters) {
 
             return basicData.map(r => ({
                 "Código": r.rentalCode,
-                "Cliente": 'N/A (Esquema Antigo)',
-                "Equipamento": 'N/A (Esquema Antigo)',
+                "Cliente": 'N/A',
+                "Equipamento": 'N/A',
                 "Início": new Date(r.startDate).toLocaleDateString('pt-BR'),
                 "Fim Previsto": new Date(r.endDateExpected).toLocaleDateString('pt-BR'),
                 "Valor Acordado": parseFloat(r.dailyRateAgreed).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
@@ -149,35 +142,19 @@ export async function getFinanceData(tenantId: string, filters: ExportFilters) {
     const start = filters.startDate ? new Date(filters.startDate) : new Date(Date.now() - 30 * 86400000);
     const end = filters.endDate ? new Date(filters.endDate) : new Date();
 
-    // Queries para as três frentes financeiras
     const payData = await db.query.payments.findMany({
-        where: and(
-            eq(payments.tenantId, tenantId),
-            gte(payments.paymentDate, start),
-            lte(payments.paymentDate, end)
-        ),
-        with: {
-            rental: true
-        }
+        where: and(eq(payments.tenantId, tenantId), gte(payments.paymentDate, start), lte(payments.paymentDate, end)),
+        with: { rental: true }
     });
 
     const expData = await db.query.expenses.findMany({
-        where: and(
-            eq(expenses.tenantId, tenantId),
-            gte(expenses.date, start),
-            lte(expenses.date, end)
-        )
+        where: and(eq(expenses.tenantId, tenantId), gte(expenses.date, start), lte(expenses.date, end))
     });
 
     const revData = await db.query.otherRevenues.findMany({
-        where: and(
-            eq(otherRevenues.tenantId, tenantId),
-            gte(otherRevenues.date, start),
-            lte(otherRevenues.date, end)
-        )
+        where: and(eq(otherRevenues.tenantId, tenantId), gte(otherRevenues.date, start), lte(otherRevenues.date, end))
     });
 
-    // Unificar para exportação tabular
     const unified = [
         ...payData.map(p => ({
             "Data": new Date(p.paymentDate).toLocaleDateString('pt-BR'),
@@ -210,18 +187,9 @@ export async function getFinanceData(tenantId: string, filters: ExportFilters) {
 
 export function jsonToCsv(data: any[]) {
     if (data.length === 0) return "";
-
     const headers = Object.keys(data[0]);
-    const csvRows = [
+    return [
         headers.join(','),
-        ...data.map(row =>
-            headers.map(fieldName => {
-                const value = row[fieldName];
-                const escaped = ('' + value).replace(/"/g, '""');
-                return `"${escaped}"`;
-            }).join(',')
-        )
-    ];
-
-    return csvRows.join('\n');
+        ...data.map(row => headers.map(fieldName => `"${('' + row[fieldName]).replace(/"/g, '""')}"`).join(','))
+    ].join('\n');
 }

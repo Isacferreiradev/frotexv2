@@ -177,7 +177,6 @@ export async function updateCustomer(tenantId: string, id: string, data: Partial
 
 export async function deleteCustomer(tenantId: string, id: string) {
     try {
-        // Try soft delete update first if possible (though we don't use deleted_at here yet, just isBlocked)
         const [customer] = await db
             .update(customers)
             .set({ updatedAt: new Date(), isBlocked: true })
@@ -187,7 +186,6 @@ export async function deleteCustomer(tenantId: string, id: string) {
         return { success: true };
     } catch (err: any) {
         if (err.code === '42703') {
-            // If somehow deleted_at was being triggered by a default select in returning()
             logger.warn(`[CUSTOMERS] delete fallback (hard blocked)`);
             await db
                 .update(customers)
@@ -200,12 +198,8 @@ export async function deleteCustomer(tenantId: string, id: string) {
 }
 
 export async function getCustomer360(tenantId: string, id: string) {
-    console.log(`[SERVICE] getCustomer360 - params:`, { tenantId, id });
-
-    // Validate UUID format to avoid Drizzle/PG potential errors
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
     if (!uuidRegex.test(id)) {
-        console.warn(`[SERVICE] getCustomer360 - Invalid UUID format: ${id}`);
         throw new AppError(400, 'ID de cliente inválido');
     }
 
@@ -215,31 +209,15 @@ export async function getCustomer360(tenantId: string, id: string) {
             where: and(eq(customers.tenantId, tenantId), eq(customers.id, id)),
             with: {
                 rentals: {
-                    with: {
-                        tool: true,
-                        payments: true,
-                    },
+                    with: { tool: true, payments: true },
                     orderBy: (rentals, { desc }) => [desc(rentals.createdAt)],
                 },
                 quotes: {
-                    with: {
-                        items: {
-                            with: {
-                                tool: true
-                            }
-                        },
-                    },
+                    with: { items: { with: { tool: true } } },
                     orderBy: (quotes, { desc }) => [desc(quotes.createdAt)],
                 },
                 clientCommunications: {
-                    with: {
-                        user: {
-                            columns: {
-                                fullName: true,
-                                avatarUrl: true
-                            }
-                        }
-                    },
+                    with: { user: { columns: { fullName: true, avatarUrl: true } } },
                     orderBy: (comm, { desc }) => [desc(comm.createdAt)],
                 }
             },
@@ -271,49 +249,29 @@ export async function getCustomer360(tenantId: string, id: string) {
                 }
             });
         } else {
-            console.error(`[SERVICE] getCustomer360 - Query failed for tenant ${tenantId} and id ${id}:`, queryError);
             throw queryError;
         }
     }
 
-    if (!customer) {
-        console.warn(`[SERVICE] getCustomer360 - Customer not found for tenant ${tenantId} and id ${id}`);
-        throw new AppError(404, 'Cliente não encontrado');
-    }
+    if (!customer) throw new AppError(404, 'Cliente não encontrado');
 
-    // Calculate aggregated metrics
     const totalRentals = customer.rentals.length;
     const activeRentals = customer.rentals.filter(r => r.status === 'active' || r.status === 'overdue').length;
     const totalSpent = customer.rentals.reduce((sum, r) => sum + parseFloat(r.totalAmountActual || r.totalAmountExpected || '0'), 0);
-
-    // Inadimplência logic
     const hasOverdue = customer.rentals.some(r => r.status === 'overdue');
-
-    // Automatic Classification Logic
     const daysSinceLastRental = customer.rentals[0]
         ? Math.floor((new Date().getTime() - new Date(customer.rentals[0].startDate).getTime()) / (1000 * 60 * 60 * 24))
         : 999;
 
     let classification: 'vip' | 'new' | 'risk' | 'inactive' = 'new';
-
-    if (hasOverdue || customer.isBlocked) {
-        classification = 'risk';
-    } else if (totalSpent > 5000 || totalRentals > 15) {
-        classification = 'vip';
-    } else if (daysSinceLastRental > 120 && totalRentals > 0) {
-        classification = 'inactive';
-    } else if (totalRentals < 3) {
-        classification = 'new';
-    }
+    if (hasOverdue || customer.isBlocked) classification = 'risk';
+    else if (totalSpent > 5000 || totalRentals > 15) classification = 'vip';
+    else if (daysSinceLastRental > 120 && totalRentals > 0) classification = 'inactive';
+    else if (totalRentals < 3) classification = 'new';
 
     return {
         ...customer,
-        classification, // Return calculated classification
-        metrics: {
-            totalRentals,
-            activeRentals,
-            totalSpent,
-            hasOverdue,
-        }
+        classification,
+        metrics: { totalRentals, activeRentals, totalSpent, hasOverdue }
     };
 }
