@@ -23,10 +23,11 @@ async function handler(
     const search = req.nextUrl.search ?? '';
     const targetUrl = `${BACKEND_URL}/api/${pathString}${search}`;
 
-    // Forward all headers except 'host'
+    // Forward only safe headers to prevent Node fetch protocol errors (like 502 Bad Gateway on POST)
     const headers: Record<string, string> = {};
+    const safeHeaders = ['authorization', 'content-type', 'accept', 'user-agent'];
     req.headers.forEach((value, key) => {
-        if (key.toLowerCase() !== 'host') {
+        if (safeHeaders.includes(key.toLowerCase())) {
             headers[key] = value;
         }
     });
