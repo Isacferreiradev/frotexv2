@@ -8,6 +8,7 @@ interface User {
     tenantId: string;
     avatarUrl?: string | null;
     hasOnboarded?: boolean;
+    hasSeenTour?: boolean;
 }
 
 interface AuthState {

@@ -12,6 +12,7 @@ export async function getStatus(req: Request, res: Response, next: NextFunction)
         // Check user status
         const [user] = await db.select({
             hasOnboarded: users.hasOnboarded,
+            hasSeenTour: users.hasSeenTour,
             onboardingStep: users.onboardingStep
         }).from(users).where(eq(users.id, userId));
 
@@ -24,6 +25,7 @@ export async function getStatus(req: Request, res: Response, next: NextFunction)
             success: true,
             data: {
                 hasOnboarded: user?.hasOnboarded ?? false,
+                hasSeenTour: user?.hasSeenTour ?? false,
                 onboardingStep: user?.onboardingStep ?? 1,
                 steps: {
                     toolCreated: Number((toolsCount as any).count) > 0,
@@ -69,5 +71,31 @@ export async function updateStep(req: Request, res: Response, next: NextFunction
             .where(eq(users.id, userId));
 
         res.json({ success: true, message: 'Step atualizado' });
+    } catch (err) { next(err); }
+}
+
+/** Mark the product tour as seen — call this when user completes or skips the tour */
+export async function completeTour(req: Request, res: Response, next: NextFunction) {
+    try {
+        const userId = req.user!.userId;
+
+        await db.update(users)
+            .set({ hasSeenTour: true, updatedAt: new Date() })
+            .where(eq(users.id, userId));
+
+        res.json({ success: true, message: 'Tour concluído' });
+    } catch (err) { next(err); }
+}
+
+/** Reset the product tour so the user can see it again */
+export async function resetTour(req: Request, res: Response, next: NextFunction) {
+    try {
+        const userId = req.user!.userId;
+
+        await db.update(users)
+            .set({ hasSeenTour: false, updatedAt: new Date() })
+            .where(eq(users.id, userId));
+
+        res.json({ success: true, message: 'Tour reiniciado' });
     } catch (err) { next(err); }
 }

@@ -1,0 +1,114 @@
+/**
+ * Product Tour — driver.js style overrides.
+ * Loaded globally via `layout.tsx` to override the default dark popover theme.
+ * All classes are namespaced to `.locattus-tour-popover` to avoid conflicts.
+ */
+
+/* Overlay */
+#driver-page-overlay {
+    background: rgba(0, 0, 0, 0.55) !important;
+}
+
+/* Popover base */
+.locattus-tour-popover.driver-popover {
+    background: #ffffff !important;
+    border-radius: 1.25rem !important;
+    border: 1px solid #ede9fe !important;
+    box-shadow: 0 20px 60px rgba(109, 40, 217, 0.12), 0 4px 16px rgba(0, 0, 0, 0.08) !important;
+    padding: 1.5rem !important;
+    max-width: 340px !important;
+    font-family: 'Inter', sans-serif !important;
+}
+
+/* Title */
+.locattus-tour-popover .driver-popover-title {
+    font-size: 1rem !important;
+    font-weight: 700 !important;
+    color: #18181b !important;
+    margin-bottom: 0.5rem !important;
+    letter-spacing: -0.02em !important;
+}
+
+/* Description */
+.locattus-tour-popover .driver-popover-description {
+    font-size: 0.8125rem !important;
+    line-height: 1.6 !important;
+    color: #52525b !important;
+}
+
+/* Progress */
+.locattus-tour-popover .driver-popover-progress-text {
+    font-size: 0.6875rem !important;
+    font-weight: 700 !important;
+    color: #7c3aed !important;
+    letter-spacing: 0.08em !important;
+    text-transform: uppercase !important;
+}
+
+/* Footer buttons */
+.locattus-tour-popover .driver-popover-footer {
+    margin-top: 1rem !important;
+    gap: 0.5rem !important;
+}
+
+.locattus-tour-popover .driver-popover-prev-btn,
+.locattus-tour-popover .driver-popover-next-btn,
+.locattus-tour-popover .driver-popover-close-btn {
+    font-size: 0.6875rem !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.08em !important;
+    text-transform: uppercase !important;
+    border-radius: 0.625rem !important;
+    padding: 0.5rem 1rem !important;
+    cursor: pointer !important;
+    transition: all 0.2s !important;
+    border: none !important;
+    outline: none !important;
+}
+
+/* Primary CTA: Next / Done */
+.locattus-tour-popover .driver-popover-next-btn {
+    background: #7c3aed !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3) !important;
+}
+
+.locattus-tour-popover .driver-popover-next-btn:hover {
+    background: #6d28d9 !important;
+    box-shadow: 0 6px 20px rgba(109, 40, 217, 0.4) !important;
+}
+
+/* Secondary: Back */
+.locattus-tour-popover .driver-popover-prev-btn {
+    background: transparent !important;
+    color: #71717a !important;
+    text-decoration: underline !important;
+    text-underline-offset: 2px !important;
+    box-shadow: none !important;
+}
+
+.locattus-tour-popover .driver-popover-prev-btn:hover {
+    color: #3f3f46 !important;
+}
+
+/* Close / Skip */
+.locattus-tour-popover .driver-popover-close-btn {
+    background: #f4f4f5 !important;
+    color: #71717a !important;
+}
+
+.locattus-tour-popover .driver-popover-close-btn:hover {
+    background: #e4e4e7 !important;
+    color: #18181b !important;
+}
+
+/* Arrow */
+.locattus-tour-popover .driver-popover-arrow {
+    border-color: #ffffff !important;
+}
+
+/* Highlighted element border */
+.driver-highlighted-element {
+    border-radius: 0.875rem !important;
+    box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.25), 0 0 0 2px rgba(124, 58, 237, 0.5) !important;
+}

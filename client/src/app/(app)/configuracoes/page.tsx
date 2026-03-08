@@ -2,7 +2,8 @@
 
 import { useState } from 'react';
 import { useAuthStore } from '@/store/authStore';
-import { User, Building2, Shield, Loader2, KeyRound, BadgeCheck, Mail, Calendar, CreditCard, Check, Zap } from 'lucide-react';
+import { User, Building2, Shield, Loader2, KeyRound, BadgeCheck, Mail, Calendar, CreditCard, Check, Zap, RotateCcw } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -276,6 +277,43 @@ function PasswordDialog() {
     );
 }
 
+function ResetTourButton() {
+    const router = useRouter();
+    const updateUser = useAuthStore((s) => s.updateUser);
+
+    const mutation = useMutation({
+        mutationFn: async () => api.post('/onboarding/tour-reset'),
+        onSuccess: () => {
+            updateUser({ hasSeenTour: false });
+            toast.success('Tour reiniciado! Redirecionando para o Dashboard...');
+            setTimeout(() => router.push('/dashboard'), 1200);
+        },
+        onError: (err: any) => toast.error(err.response?.data?.message || 'Erro ao reiniciar tour')
+    });
+
+    return (
+        <div className="bg-zinc-50 rounded-[28px] p-8 border border-zinc-100 space-y-6">
+            <div className="flex items-start gap-4">
+                <div className="w-10 h-10 bg-white border border-violet-100 rounded-xl flex items-center justify-center shrink-0">
+                    <RotateCcw className="w-5 h-5 text-violet-600" />
+                </div>
+                <div className="space-y-1">
+                    <h4 className="font-bold text-sm text-zinc-900">Tour do Produto</h4>
+                    <p className="text-xs text-zinc-400 leading-relaxed">Reinicie o tour guiado para ver novamente a apresentação interativa de cada área do sistema.</p>
+                </div>
+            </div>
+            <button
+                onClick={() => mutation.mutate()}
+                disabled={mutation.isPending}
+                className="px-6 py-3 bg-white border border-violet-100 rounded-2xl text-[11px] font-bold text-violet-600 uppercase tracking-widest hover:bg-violet-50 transition-all flex items-center gap-2 shadow-sm"
+            >
+                {mutation.isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RotateCcw className="w-3.5 h-3.5" />}
+                Reiniciar Tour do Produto
+            </button>
+        </div>
+    );
+}
+
 export default function ConfiguracoesPage() {
     const [activeTab, setActiveTab] = useState('perfil');
     const user = useAuthStore((s) => s.user);
@@ -410,6 +448,8 @@ export default function ConfiguracoesPage() {
                             </div>
                             <PasswordDialog />
                         </div>
+
+                        <ResetTourButton />
                     </div>
                 )}
 

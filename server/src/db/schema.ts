@@ -65,6 +65,7 @@ export const users = pgTable('users', {
     avatarUrl: text('avatar_url'),
     isActive: boolean('is_active').notNull().default(true),
     hasOnboarded: boolean('has_onboarded').notNull().default(false),
+    hasSeenTour: boolean('has_seen_tour').notNull().default(false),
     onboardingStep: integer('onboarding_step').notNull().default(1),
     isVerified: boolean('is_verified').notNull().default(false),
     verificationToken: text('verification_token'),

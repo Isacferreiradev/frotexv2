@@ -117,6 +117,7 @@ export function Sidebar({ mobileOpen, onClose }: { mobileOpen?: boolean; onClose
                     return (
                         <Link
                             key={item.href}
+                            id={`tour-nav-${item.href.replace('/', '')}`}
                             href={item.href}
                             prefetch={true}
                             onMouseEnter={() => prefetchData(item.href)}
