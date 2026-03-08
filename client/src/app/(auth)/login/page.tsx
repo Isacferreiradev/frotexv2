@@ -45,10 +45,14 @@ export default function LoginPage() {
             const res = await api.post('/auth/login', data);
             const { accessToken, refreshToken, user } = res.data.data;
             setAuth(user, accessToken, refreshToken);
-            router.push('/dashboard');
+
+            // CRITICAL FIX: Use window.location.href instead of router.push
+            // This violently destroys the Next.js App Router Client-Side Cache (Route Cache)
+            // ensuring that if fighting between test accounts, no cached views from the previous account bleed over.
+            window.location.href = '/dashboard';
         } catch (err: any) {
             if (err.response?.status === 403) {
-                router.push('/registration-success');
+                window.location.href = '/registration-success';
                 return;
             }
             setServerError(err.response?.data?.message || 'Email ou senha incorretos.');

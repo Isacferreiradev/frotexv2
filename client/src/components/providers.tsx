@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import { useAuthStore } from '@/store/authStore';
 import { cn } from '@/lib/utils';
 
-const queryClient = new QueryClient({
+export const queryClient = new QueryClient({
     defaultOptions: {
         queries: {
             staleTime: 1000 * 30, // 30 seconds

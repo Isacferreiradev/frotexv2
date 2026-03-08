@@ -54,6 +54,14 @@ export const useAuthStore = create<AuthState>((set) => ({
             localStorage.removeItem('user');
             // Remove auth cookie
             document.cookie = 'access_token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+
+            // CRITICAL FIX: Flush React Query cache to prevent data bleeding between accounts
+            try {
+                const { queryClient } = require('@/components/providers');
+                queryClient.clear();
+            } catch (e) {
+                console.error('Failed to clear query cache', e);
+            }
         }
         set({ user: null, accessToken: null, isAuthenticated: false });
     },
