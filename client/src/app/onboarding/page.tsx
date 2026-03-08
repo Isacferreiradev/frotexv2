@@ -28,7 +28,7 @@ import { useAuthStore } from '@/store/authStore';
 
 const toolSchema = z.object({
     name: z.string().min(2, 'Nome obrigatório'),
-    categoryId: z.string().uuid('Categoria obrigatória'),
+    categoryId: z.string().min(1, 'Categoria obrigatória'),
     dailyRate: z.coerce.number().min(0, 'Valor inválido'),
 });
 
@@ -100,9 +100,9 @@ function ProgressBar({ current, total }: { current: number; total: number }) {
 
 function StepCard({ children, onNext, onBack, onSkip, nextLabel = 'Próximo', isLoading = false, showBack = true, showSkip = false }: any) {
     return (
-        <div className="w-full max-w-xl mx-auto animate-in fade-in slide-in-from-bottom-8 duration-700">
-            <div className="bg-white border border-zinc-100 rounded-[2rem] p-6 sm:p-10 shadow-xl shadow-zinc-200/50 relative overflow-hidden group">
-                <div className="absolute top-0 right-0 w-64 h-64 bg-violet-600/5 blur-[80px] rounded-full -translate-y-1/2 translate-x-1/2" />
+        <div className="w-full flex items-center justify-center p-4 animate-in fade-in zoom-in-95 slide-in-from-bottom-8 duration-700">
+            <div className="w-full max-w-xl bg-white border border-zinc-100 rounded-[2.5rem] p-8 sm:p-12 shadow-[0_20px_50px_rgba(0,0,0,0.05)] relative overflow-hidden group">
+                <div className="absolute top-0 right-0 w-80 h-80 bg-violet-600/5 blur-[100px] rounded-full -translate-y-1/2 translate-x-1/2" />
 
                 <div className="relative z-10">
                     {children}
@@ -258,6 +258,10 @@ export default function OnboardingPage() {
             setCreatedCustomer(customer);
             updateStep.mutate(4);
             setStep(4);
+            // Pre-fill rental rate if tool already created
+            if (createdTool?.dailyRate) {
+                rentalForm.setValue('dailyRateAgreed', parseFloat(createdTool.dailyRate));
+            }
             toast.success('Cliente cadastrado!');
         },
         onError: (err: any) => toast.error(err.response?.data?.message || 'Erro ao cadastrar')
@@ -285,6 +289,20 @@ export default function OnboardingPage() {
         window.location.href = '/dashboard';
     };
 
+    const handleFinalStep = () => {
+        if (createdTool?.id && createdCustomer?.id) {
+            rentalForm.handleSubmit(
+                (d) => createRental.mutate(d),
+                (errors) => {
+                    console.log('Rental form errors:', errors);
+                    toast.error('Preencha os dados da locação corretamente.');
+                }
+            )();
+        } else {
+            finishOnboarding();
+        }
+    };
+
     if (statusLoading || user?.hasOnboarded) {
         return (
             <div className="min-h-screen bg-slate-50 flex items-center justify-center">
@@ -294,11 +312,7 @@ export default function OnboardingPage() {
     }
 
     return (
-        <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-4 sm:p-6 font-inter overflow-hidden relative selection:bg-violet-100 selection:text-violet-900">
-            {/* Ambient Backgrounds */}
-            <div className="absolute top-[-20%] left-[-10%] w-[70%] h-[70%] bg-violet-600/5 rounded-full blur-[120px] pointer-events-none" />
-            <div className="absolute bottom-[-20%] right-[-10%] w-[60%] h-[60%] bg-indigo-500/5 rounded-full blur-[100px] pointer-events-none" />
-
+        <div className="min-h-screen flex flex-col items-center justify-center p-4 sm:p-8 font-inter overflow-hidden relative selection:bg-violet-100 selection:text-violet-900">
             <div className="w-full max-w-2xl relative z-10 flex flex-col items-center justify-center">
                 <ProgressBar current={step} total={4} />
 
@@ -449,10 +463,7 @@ export default function OnboardingPage() {
                 {/* ─── STEP 4: RENTAL */}
                 {step === 4 && (
                     <StepCard
-                        onNext={rentalForm.handleSubmit(
-                            (d) => createRental.mutate(d),
-                            () => toast.error('Preencha todos os campos da locação.')
-                        )}
+                        onNext={handleFinalStep}
                         onBack={() => setStep(3)}
                         showSkip={false}
                         nextLabel="Completar Onboarding"
