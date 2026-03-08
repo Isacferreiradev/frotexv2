@@ -83,8 +83,8 @@ function ProgressBar({ current, total }: { current: number; total: number }) {
                                 {isDone ? <Check className="w-5 h-5 stroke-[3]" /> : <s.icon className="w-5 h-5" />}
                             </div>
                             <span className={cn(
-                                'text-[10px] font-extrabold uppercase tracking-widest hidden sm:block transition-colors',
-                                isActive ? 'text-violet-600' : isDone ? 'text-zinc-600' : 'text-zinc-400'
+                                'text-[8.5px] sm:text-[10px] font-extrabold uppercase tracking-widest transition-colors mt-2 text-center truncate max-w-[60px] sm:max-w-none',
+                                isActive ? 'text-violet-600' : isDone ? 'text-zinc-600' : 'text-zinc-400 opacity-0 sm:opacity-100'
                             )}>
                                 {s.label}
                             </span>
@@ -101,7 +101,7 @@ function ProgressBar({ current, total }: { current: number; total: number }) {
 function StepCard({ children, onNext, onBack, onSkip, nextLabel = 'Próximo', isLoading = false, showBack = true, showSkip = false }: any) {
     return (
         <div className="w-full max-w-xl mx-auto animate-in fade-in slide-in-from-bottom-8 duration-700">
-            <div className="bg-white border border-zinc-100 rounded-[2rem] p-8 sm:p-12 shadow-xl shadow-zinc-200/50 relative overflow-hidden group">
+            <div className="bg-white border border-zinc-100 rounded-[2rem] p-6 sm:p-10 shadow-xl shadow-zinc-200/50 relative overflow-hidden group">
                 <div className="absolute top-0 right-0 w-64 h-64 bg-violet-600/5 blur-[80px] rounded-full -translate-y-1/2 translate-x-1/2" />
 
                 <div className="relative z-10">
@@ -149,12 +149,21 @@ export default function OnboardingPage() {
     const [createdTool, setCreatedTool] = useState<any>(null);
     const [createdCustomer, setCreatedCustomer] = useState<any>(null);
     const [hasSynced, setHasSynced] = useState(false);
+    const [isCreatingCategory, setIsCreatingCategory] = useState(false);
+    const [newCategoryName, setNewCategoryName] = useState('');
+    const [localCategories, setLocalCategories] = useState<any[]>([]);
 
     // Queries
     const { data: categories } = useQuery({
         queryKey: ['categories'],
         queryFn: async () => (await api.get('/tool-categories')).data.data
     });
+
+    useEffect(() => {
+        if (categories) {
+            setLocalCategories(categories);
+        }
+    }, [categories]);
 
     const { data: onboardingStatus, isLoading: statusLoading } = useQuery({
         queryKey: ['onboarding-status'],
@@ -203,6 +212,34 @@ export default function OnboardingPage() {
     const updateStep = useMutation({
         mutationFn: async (newStep: number) => await api.patch('/onboarding/step', { step: newStep })
     });
+
+    const handleCreateToolWithCategory = async (data: ToolForm) => {
+        try {
+            let finalCategoryId = data.categoryId;
+
+            // Se o usuário selecionou criar nova, criamos a categoria primeiro
+            if (finalCategoryId === 'new' && newCategoryName.trim()) {
+                const catResponse = await api.post('/tool-categories', {
+                    name: newCategoryName.trim(),
+                    description: 'Categoria criada no onboarding'
+                });
+                finalCategoryId = catResponse.data.data.id;
+
+                // Atualiza local state para não perder a referência
+                setLocalCategories(prev => [...prev, catResponse.data.data]);
+                toolForm.setValue('categoryId', finalCategoryId);
+            } else if (finalCategoryId === 'new' && !newCategoryName.trim()) {
+                toast.error('Informe o nome da nova categoria.');
+                return;
+            }
+
+            // Agora cria a ferramenta com o categoryId real
+            const toolData = { ...data, categoryId: finalCategoryId };
+            createTool.mutate(toolData);
+        } catch (err: any) {
+            toast.error(err.response?.data?.message || 'Erro ao criar categoria.');
+        }
+    };
 
     const createTool = useMutation({
         mutationFn: async (data: ToolForm) => (await api.post('/tools', data)).data.data,
@@ -257,18 +294,12 @@ export default function OnboardingPage() {
     }
 
     return (
-        <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-4 sm:p-8 font-inter overflow-hidden relative selection:bg-violet-100 selection:text-violet-900">
+        <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-4 sm:p-6 font-inter overflow-hidden relative selection:bg-violet-100 selection:text-violet-900">
             {/* Ambient Backgrounds */}
             <div className="absolute top-[-20%] left-[-10%] w-[70%] h-[70%] bg-violet-600/5 rounded-full blur-[120px] pointer-events-none" />
             <div className="absolute bottom-[-20%] right-[-10%] w-[60%] h-[60%] bg-indigo-500/5 rounded-full blur-[100px] pointer-events-none" />
 
-            {/* Logo */}
-            <div className="mb-12 flex items-center gap-3 relative z-10 animate-in fade-in slide-in-from-top-4 duration-700">
-                <div className="w-10 h-10 bg-violet-600 rounded-xl flex items-center justify-center text-white font-extrabold text-lg shadow-lg border border-violet-500/20">L</div>
-                <span className="font-extrabold text-2xl text-zinc-900 tracking-tight italic font-outfit">Locattus<span className="text-violet-600 not-italic">.</span></span>
-            </div>
-
-            <div className="w-full max-w-2xl relative z-10">
+            <div className="w-full max-w-2xl relative z-10 flex flex-col items-center justify-center">
                 <ProgressBar current={step} total={4} />
 
                 {/* ─── STEP 1: WELCOME */}
@@ -297,7 +328,7 @@ export default function OnboardingPage() {
                 {/* ─── STEP 2: TOOL */}
                 {step === 2 && (
                     <StepCard
-                        onNext={toolForm.handleSubmit((d) => createTool.mutate(d))}
+                        onNext={toolForm.handleSubmit(handleCreateToolWithCategory)}
                         onBack={() => setStep(1)}
                         onSkip={() => { updateStep.mutate(3); setStep(3); }}
                         showSkip={true}
@@ -321,15 +352,35 @@ export default function OnboardingPage() {
                                 </div>
                                 <div className="space-y-2">
                                     <label className="text-[10px] font-extrabold text-zinc-500 uppercase tracking-widest">Categoria</label>
-                                    <select
-                                        {...toolForm.register('categoryId')}
-                                        className="w-full bg-slate-50 border border-zinc-200 rounded-xl px-4 py-3.5 text-zinc-900 focus:border-violet-500 focus:ring-1 focus:ring-violet-500 outline-none transition-all font-medium appearance-none"
-                                    >
-                                        <option value="" className="text-zinc-500">Selecione uma categoria...</option>
-                                        {categories?.map((c: any) => (
-                                            <option key={c.id} value={c.id}>{c.name}</option>
-                                        ))}
-                                    </select>
+                                    <div className="space-y-3">
+                                        <select
+                                            {...toolForm.register('categoryId')}
+                                            onChange={(e) => {
+                                                toolForm.setValue('categoryId', e.target.value);
+                                                setIsCreatingCategory(e.target.value === 'new');
+                                            }}
+                                            className="w-full bg-slate-50 border border-zinc-200 rounded-xl px-4 py-3.5 text-zinc-900 focus:border-violet-500 focus:ring-1 focus:ring-violet-500 outline-none transition-all font-medium appearance-none"
+                                        >
+                                            <option value="" className="text-zinc-500">Selecione uma categoria...</option>
+                                            <option value="new" className="text-violet-600 font-bold bg-violet-50">+ Criar nova Categoria</option>
+                                            {localCategories?.map((c: any) => (
+                                                <option key={c.id} value={c.id}>{c.name}</option>
+                                            ))}
+                                        </select>
+
+                                        {isCreatingCategory && (
+                                            <div className="animate-in fade-in slide-in-from-top-2">
+                                                <input
+                                                    type="text"
+                                                    value={newCategoryName}
+                                                    onChange={(e) => setNewCategoryName(e.target.value)}
+                                                    placeholder="Digite o nome da nova categoria"
+                                                    autoFocus
+                                                    className="w-full bg-white border border-violet-200 rounded-xl px-4 py-3 text-zinc-900 placeholder:text-zinc-400 focus:border-violet-500 focus:ring-1 focus:ring-violet-500 outline-none transition-all font-medium text-sm shadow-sm shadow-violet-100"
+                                                />
+                                            </div>
+                                        )}
+                                    </div>
                                     {toolForm.formState.errors.categoryId && <p className="text-xs text-red-500 font-medium">{toolForm.formState.errors.categoryId.message}</p>}
                                 </div>
                                 <div className="space-y-2">
@@ -402,8 +453,8 @@ export default function OnboardingPage() {
                         onBack={() => setStep(3)}
                         onSkip={finishOnboarding}
                         showSkip={true}
-                        nextLabel="Ativar Assinatura"
-                        isLoading={createRental.isPending}
+                        nextLabel="Completar Onboarding"
+                        isLoading={createRental.isPending || completeOnboarding.isPending}
                     >
                         <div className="space-y-8">
                             <div>
