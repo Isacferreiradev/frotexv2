@@ -35,10 +35,54 @@ import hpp from 'hpp';
 
 const app = express();
 
-// Global Rate limiting
+// ─── CORS & Preflight — MUST come BEFORE rate limiters and other middleware ──
+// If rate-limiter runs first it may respond to OPTIONS without CORS headers,
+// causing the browser to see "No Access-Control-Allow-Origin".
+
+// Parse comma-separated origins robustly
+const rawOrigins = env.CORS_ORIGIN.split(',');
+const allowedOrigins = rawOrigins.map(o =>
+    o.trim().replace(/^['"]|['"]$/g, '').replace(/\/$/, '')
+);
+
+logger.info(`🔒 CORS Allowed Origins configured: ${allowedOrigins.join(', ')}`);
+
+const corsOptions: cors.CorsOptions = {
+    // Allow ALL origins — real security is enforced by JWT authentication.
+    // We log unlisted origins for monitoring but never block them.
+    origin: (origin, callback) => {
+        if (!origin) return callback(null, true); // server-to-server / curl
+        if (allowedOrigins.includes('*')) return callback(null, true);
+
+        const getCleanHost = (urlStr: string) => {
+            try {
+                const validUrl = urlStr.startsWith('http') ? urlStr : `https://${urlStr}`;
+                return new URL(validUrl).hostname.replace(/^www\./, '').toLowerCase();
+            } catch {
+                return urlStr.toLowerCase().trim().replace(/^www\./, '');
+            }
+        };
+        const originHost = getCleanHost(origin);
+        const isAllowed = allowedOrigins.some(a => getCleanHost(a) === originHost);
+        if (!isAllowed) {
+            logger.warn(`⚠️ CORS from unlisted origin: ${origin} — allowed (JWT-secured)`);
+        }
+        callback(null, true);
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+    optionsSuccessStatus: 204,
+};
+
+// Answer ALL preflight OPTIONS requests immediately, before any other middleware
+app.options('*', cors(corsOptions));
+app.use(cors(corsOptions));
+
+// Global Rate limiting (after CORS so preflight is never rate-limited)
 app.use(globalLimiter);
 
-// Security
+// Security headers (after CORS so helmet doesn't interfere with preflight)
 app.set('trust proxy', 1);
 app.use(helmet({
     contentSecurityPolicy: {
@@ -55,52 +99,6 @@ app.use(helmet({
     },
 }));
 app.use(hpp());
-
-// Parse comma-separated origins robustly
-const rawOrigins = env.CORS_ORIGIN.split(',');
-const allowedOrigins = rawOrigins.map(o => {
-    // Remove whitespace, surrounding quotes, and trailing slashes
-    return o.trim().replace(/^['"]|['"]$/g, '').replace(/\/$/, '');
-});
-
-// Log the parsed origins on startup
-logger.info(`🔒 CORS Allowed Origins configured: ${allowedOrigins.join(', ')}`);
-
-app.use(cors({
-    origin: (origin, callback) => {
-        // Allow requests with no origin (server-to-server, mobile, curl, Next.js proxy)
-        if (!origin) return callback(null, true);
-
-        // Allow wildcard explicitly
-        if (allowedOrigins.includes('*')) return callback(null, true);
-
-        // Helper to extract clean hostname using native URL parser
-        const getCleanHost = (urlStr: string) => {
-            try {
-                const validUrl = urlStr.startsWith('http') ? urlStr : `https://${urlStr}`;
-                const parsed = new URL(validUrl);
-                return parsed.hostname.replace(/^www\./, '').toLowerCase();
-            } catch {
-                return urlStr.toLowerCase().trim().replace(/^www\./, '');
-            }
-        };
-
-        const originHost = getCleanHost(origin);
-
-        const isAllowed = allowedOrigins.some(allowed => {
-            return getCleanHost(allowed) === originHost;
-        });
-
-        if (isAllowed) {
-            callback(null, true);
-        } else {
-            // Log warning but still allow — real security is handled by JWT auth middleware
-            logger.warn(`⚠️ CORS Request from unlisted origin: ${origin} (Host: ${originHost}) — allowed with warning`);
-            callback(null, true);
-        }
-    },
-    credentials: true,
-}));
 
 // Stripe Webhooks & Routes (Handles raw body internally)
 app.use('/api/subscriptions', stripeRoutes);
