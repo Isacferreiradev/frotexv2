@@ -145,9 +145,9 @@ export async function getRoiInsights(tenantId: string): Promise<RoiInsight[]> {
                 text: 'Alta Demanda e Rentabilidade',
                 action: 'Aumentar diária em 15% ou adquirir nova unidade.'
             };
-        } else if (daysSinceLastRental > 45 && utilizationRate < 15 && daysOwned > 60) {
+        } else if (daysSinceLastRental > 45 && utilizationRate < 15 && daysOwned > 50) {
             suggestion = {
-                type: 'decrease',
+                type: 'alert',
                 text: 'Equipamento Zumbi (Inativo)',
                 action: 'Sem locações há 45+ dias. Aplicar promoção agressiva.'
             };

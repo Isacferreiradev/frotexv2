@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Plus, Search, FileText, AlertTriangle, X, Loader2, LayoutGrid, List, History } from 'lucide-react';
+import { Plus, Search, FileText, AlertTriangle, X, Loader2, LayoutGrid, List, History, Trash2 } from 'lucide-react';
 import { Skeleton, SkeletonCard } from '@/components/shared/SkeletonLoader';
 import { EmptyState } from '@/components/shared/EmptyState';
 import { useAuthStore } from '@/store/authStore';
@@ -100,6 +100,16 @@ export default function LocacoesPage() {
             toast.success('Locação cancelada');
         },
         onError: () => toast.error('Erro ao cancelar locação'),
+    });
+
+    const deleteMutation = useMutation({
+        mutationFn: (id: string) => api.delete(`/rentals/${id}`),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['rentals'] });
+            queryClient.invalidateQueries({ queryKey: ['tools'] });
+            toast.success('Registro de locação removido');
+        },
+        onError: (err: any) => toast.error(err.response?.data?.message || 'Erro ao remover locação'),
     });
 
     const filtered = (data || []).filter((r: any) =>
@@ -425,6 +435,17 @@ export default function LocacoesPage() {
                                 setDetailRental(r);
                                 setIsDetailOpen(true);
                             }}
+                            onDelete={(id) => {
+                                setConfirmModal({
+                                    isOpen: true,
+                                    title: 'Excluir Registro de Locação',
+                                    description: 'Esta ação removerá permanentemente o histórico desta locação. Use apenas para corrigir erros de lançamento. Prosseguir?',
+                                    onConfirm: () => {
+                                        deleteMutation.mutate(id);
+                                        setConfirmModal(prev => ({ ...prev, isOpen: false }));
+                                    }
+                                });
+                            }}
                         />
                     ))}
                 </div>
@@ -489,6 +510,26 @@ export default function LocacoesPage() {
                                             </td>
                                             <td className="px-10 py-6 text-right">
                                                 <div className="flex items-center justify-end gap-3 translate-x-2 opacity-0 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300">
+                                                    {(rental.status === 'returned' || rental.status === 'cancelled') && (
+                                                        <button
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                setConfirmModal({
+                                                                    isOpen: true,
+                                                                    title: 'Excluir Registro',
+                                                                    description: 'Isso apagará o histórico desta locação permanentemente. Confirmar?',
+                                                                    onConfirm: () => {
+                                                                        deleteMutation.mutate(rental.id);
+                                                                        setConfirmModal(prev => ({ ...prev, isOpen: false }));
+                                                                    }
+                                                                });
+                                                            }}
+                                                            className="w-10 h-10 flex items-center justify-center bg-white rounded-xl border border-border/40 text-muted-foreground hover:text-red-500 hover:border-red-100 hover:shadow-premium transition-all"
+                                                            title="Excluir Permanentemente"
+                                                        >
+                                                            <Trash2 className="w-4 h-4" />
+                                                        </button>
+                                                    )}
                                                     {rental.status === 'active' && (
                                                         <>
                                                             <button

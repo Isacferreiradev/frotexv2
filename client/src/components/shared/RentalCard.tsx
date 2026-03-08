@@ -1,6 +1,6 @@
 'use client';
 
-import { Calendar, User, Wrench, AlertTriangle, MoreVertical, CheckCircle2 } from 'lucide-react';
+import { Calendar, User, Wrench, AlertTriangle, MoreVertical, CheckCircle2, Trash2 } from 'lucide-react';
 import { cn, formatDate, formatCurrency } from '@/lib/utils';
 import { StatusPulse } from './StatusPulse';
 import { Rental } from '@/types';
@@ -10,9 +10,10 @@ interface RentalCardProps {
     onReturn: (rental: Rental) => void;
     onCancel: (id: string) => void;
     onDetail?: (rental: Rental) => void;
+    onDelete?: (id: string) => void;
 }
 
-export function RentalCard({ rental, onReturn, onCancel, onDetail }: RentalCardProps) {
+export function RentalCard({ rental, onReturn, onCancel, onDetail, onDelete }: RentalCardProps) {
     const isOverdue = rental.status === 'active' && new Date(rental.endDateExpected) < new Date();
 
     return (
@@ -117,9 +118,23 @@ export function RentalCard({ rental, onReturn, onCancel, onDetail }: RentalCardP
                             </button>
                         </div>
                     ) : (
-                        <div className="w-full bg-muted/40 border border-border/40 rounded-xl py-3.5 flex items-center justify-center gap-3">
-                            <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-                            <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">Locação Concluída</span>
+                        <div className="flex gap-3">
+                            <div className="flex-1 bg-muted/40 border border-border/40 rounded-xl py-3.5 flex items-center justify-center gap-3">
+                                <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                                <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">Concluída</span>
+                            </div>
+                            {onDelete && (
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        onDelete(rental.id);
+                                    }}
+                                    className="w-12 h-12 flex items-center justify-center bg-white border border-red-100 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all active:scale-95 shrink-0"
+                                    title="Excluir Registro"
+                                >
+                                    <Trash2 className="w-4 h-4" />
+                                </button>
+                            )}
                         </div>
                     )}
                 </div>

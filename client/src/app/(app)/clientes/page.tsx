@@ -254,6 +254,17 @@ export default function ClientesPage() {
                                 setIsSheetOpen(true);
                             }}
                             onToggleBlock={(id, isBlocked) => toggleBlockMutation.mutate({ id, isBlocked })}
+                            onDelete={(id) => {
+                                setConfirmModal({
+                                    isOpen: true,
+                                    title: 'Excluir Cliente',
+                                    description: `Deseja excluir definitivamente "${customer.fullName}"? Todos os dados associados serão removidos. Esta ação é irreversível.`,
+                                    onConfirm: () => {
+                                        deleteMutation.mutate(id);
+                                        setConfirmModal(prev => ({ ...prev, isOpen: false }));
+                                    }
+                                });
+                            }}
                         />
                     ))}
                 </div>

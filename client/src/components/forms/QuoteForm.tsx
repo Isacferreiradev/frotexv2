@@ -94,22 +94,35 @@ export function QuoteForm({ initialData, onSubmit, isLoading }: QuoteFormProps) 
         if (!startDate || !endDateExpected) return 1;
         const start = new Date(startDate);
         const end = new Date(endDateExpected);
-        if (isNaN(start.getTime()) || isNaN(end.getTime()) || end <= start) return 1;
-        return Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
+        if (isNaN(start.getTime()) || isNaN(end.getTime())) return 1;
+
+        // Se a data de fim for igual ou menor que a de início, garantimos pelo menos 1 dia para cobrança
+        if (end <= start) return 1;
+
+        const diffTime = Math.abs(end.getTime() - start.getTime());
+        return Math.max(1, Math.ceil(diffTime / (1000 * 60 * 60 * 24)));
     })();
 
     const subtotal = (watchedItems || []).reduce((acc, item) => {
-        const itemBase = (item?.dailyRate || 0) * (item?.quantity || 1) * days;
+        const itemDailyRate = parseFloat(item?.dailyRate?.toString() || '0');
+        const itemQuantity = parseInt(item?.quantity?.toString() || '1');
+        const itemBase = itemDailyRate * itemQuantity * days;
+
         let itemDiscount = 0;
+        const discountVal = parseFloat(item?.discountValue?.toString() || '0');
+
         if (item.discountType === 'percentage') {
-            itemDiscount = itemBase * ((item.discountValue || 0) / 100);
+            itemDiscount = itemBase * (discountVal / 100);
         } else {
-            itemDiscount = (item.discountValue || 0);
+            // Desconto fixo por UNIDADE e por DIA ou Desconto fixo TOTAL do item?
+            // Geralmente em locação o desconto é sobre o total do item
+            itemDiscount = discountVal;
         }
+
         return acc + Math.max(0, itemBase - itemDiscount);
     }, 0);
 
-    const total = Math.max(0, subtotal - (totalDiscount || 0));
+    const total = Math.max(0, subtotal - parseFloat(totalDiscount?.toString() || '0'));
 
     const nextStep = async () => {
         let fieldsToValidate: any[] = [];

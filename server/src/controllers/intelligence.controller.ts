@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import * as intelligenceService from '../services/intelligence.service';
+import logger from '../utils/logger';
 
 export async function getRoiInsights(req: Request, res: Response, next: NextFunction) {
     try {

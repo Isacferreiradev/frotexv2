@@ -1,6 +1,6 @@
 'use client';
 
-import { User, Phone, Mail, FileText, MoreVertical, MessageSquare, ExternalLink } from 'lucide-react';
+import { User, Phone, Mail, FileText, MoreVertical, MessageSquare, ExternalLink, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { StatusPulse } from './StatusPulse';
 import { useRouter } from 'next/navigation';
@@ -10,9 +10,10 @@ interface CustomerCardProps {
     customer: Customer;
     onEdit: (customer: Customer) => void;
     onToggleBlock: (id: string, isBlocked: boolean) => void;
+    onDelete?: (id: string) => void;
 }
 
-export function CustomerCard({ customer, onEdit, onToggleBlock }: CustomerCardProps) {
+export function CustomerCard({ customer, onEdit, onToggleBlock, onDelete }: CustomerCardProps) {
     const router = useRouter();
     const initials = customer.fullName
         .split(' ')
@@ -121,6 +122,19 @@ export function CustomerCard({ customer, onEdit, onToggleBlock }: CustomerCardPr
                     >
                         {customer.isBlocked ? 'Liberar' : 'Bloquear'}
                     </button>
+
+                    {onDelete && (
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onDelete(customer.id);
+                            }}
+                            className="w-12 h-12 flex items-center justify-center bg-white border border-red-100 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all active:scale-95 shrink-0"
+                            title="Excluir Cliente"
+                        >
+                            <Trash2 className="w-4 h-4" />
+                        </button>
+                    )}
                 </div>
             </div>
         </div>

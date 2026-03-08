@@ -56,19 +56,6 @@ export function ToolCard({ tool, onEdit, onDelete, onStatusChange, onShowQR, onC
                             {tool.status === 'available' ? 'Disponível' : tool.status === 'rented' ? 'Locado' : 'Manutenção'}
                         </span>
                     </div>
-
-                    {onShowQR && (
-                        <button
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                onShowQR(tool);
-                            }}
-                            className="w-9 h-9 bg-white/60 backdrop-blur-xl rounded-2xl border border-white/80 flex items-center justify-center text-zinc-500 hover:text-violet-600 hover:border-violet-200 hover:shadow-xl hover:-translate-y-0.5 transition-all shadow-[0_4px_20px_rgba(0,0,0,0.03)]"
-                            title="Ver QR Code"
-                        >
-                            <QrCode className="w-4 h-4" />
-                        </button>
-                    )}
                 </div>
 
                 <Wrench className="w-12 h-12 text-violet-200 group-hover:scale-110 group-hover:rotate-12 group-hover:text-violet-400 transition-all duration-700 ease-[0.34,1.56,0.64,1]" />
@@ -135,14 +122,19 @@ export function ToolCard({ tool, onEdit, onDelete, onStatusChange, onShowQR, onC
                             </button>
                         )}
 
-                        {onStatusChange && tool.status === 'available' && (
+                        {onStatusChange && (tool.status === 'available' || tool.status === 'maintenance') && (
                             <button
                                 onClick={(e) => {
                                     e.stopPropagation();
-                                    onStatusChange(tool.id, 'maintenance');
+                                    onStatusChange(tool.id, tool.status === 'available' ? 'maintenance' : 'available');
                                 }}
-                                className="bg-zinc-50 text-zinc-400 rounded-2xl w-12 h-12 flex items-center justify-center transition-all duration-500 hover:bg-violet-50 hover:text-violet-600 hover:shadow-inner shrink-0"
-                                title="Enviar para Manutenção"
+                                className={cn(
+                                    "rounded-2xl w-12 h-12 flex items-center justify-center transition-all duration-500 shrink-0",
+                                    tool.status === 'available'
+                                        ? "bg-zinc-50 text-zinc-400 hover:bg-violet-50 hover:text-violet-600 hover:shadow-inner"
+                                        : "bg-emerald-50 text-emerald-600 hover:bg-emerald-100 hover:shadow-md"
+                                )}
+                                title={tool.status === 'available' ? "Enviar para Manutenção" : "Finalizar Manutenção"}
                             >
                                 <Wrench className="w-4 h-4" />
                             </button>

@@ -1,12 +1,26 @@
 import { Request, Response, NextFunction } from 'express';
 import * as exportService from '../services/export.service';
-import ReactPDF from '@react-pdf/renderer';
+import ReactPDF, { Font } from '@react-pdf/renderer';
 import React from 'react';
 import { TabularReport } from '../services/reports.template';
 import { db } from '../db';
 import { tenants } from '../db/schema';
 import { eq } from 'drizzle-orm';
 import { AppError } from '../middleware/error.middleware';
+import logger from '../utils/logger';
+
+// Registrar fontes padrão para evitar erros no servidor
+try {
+    Font.register({
+        family: 'Helvetica',
+        fonts: [
+            { src: 'https://cdn.jsdelivr.net/npm/@canvas-fonts/helvetica@1.0.4/Helvetica.ttf' },
+            { src: 'https://cdn.jsdelivr.net/npm/@canvas-fonts/helvetica@1.0.4/Helvetica-Bold.ttf', fontWeight: 'bold' }
+        ]
+    });
+} catch (e) {
+    logger.warn('Failed to register external fonts for PDF, using defaults', e);
+}
 
 export async function generateExport(req: Request, res: Response, next: NextFunction) {
     try {
@@ -96,20 +110,34 @@ export async function generateExport(req: Request, res: Response, next: NextFunc
             res.setHeader('Content-Disposition', `attachment; filename=export-${module}-${Date.now()}.csv`);
             return res.send(csv);
         } else if (format === 'pdf') {
-            const stream = await ReactPDF.renderToStream(
-                (
-                    <TabularReport
-                        title={title}
-                        tenantName={tenant.name}
-                        period={periodStr}
-                        data={data}
-                        columns={columns}
-                    />
-                )
-            );
-            res.setHeader('Content-Type', 'application/pdf');
-            res.setHeader('Content-Disposition', `attachment; filename=export-${module}-${Date.now()}.pdf`);
-            return stream.pipe(res);
+            try {
+                logger.info(`Starting PDF generation for module: ${module}, tenant: ${tenantId}`);
+                const stream = await ReactPDF.renderToStream(
+                    (
+                        <TabularReport
+                            title={title}
+                            tenantName={tenant.name}
+                            period={periodStr}
+                            data={data}
+                            columns={columns}
+                        />
+                    )
+                );
+                res.setHeader('Content-Type', 'application/pdf');
+                res.setHeader('Content-Disposition', `attachment; filename=export-${module}-${Date.now()}.pdf`);
+
+                stream.on('error', (err) => {
+                    logger.error('Stream error during PDF generation:', err);
+                    if (!res.headersSent) {
+                        res.status(500).json({ success: false, message: 'Erro no processamento do arquivo' });
+                    }
+                });
+
+                return stream.pipe(res);
+            } catch (pdfErr) {
+                logger.error('Critical error rendering PDF to stream:', pdfErr);
+                throw new AppError(500, 'Falha catastrófica ao gerar PDF. Verifique os logs do servidor.');
+            }
         } else {
             throw new AppError(400, 'Formato inválido');
         }

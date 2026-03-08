@@ -264,11 +264,11 @@ export function ToolForm({ initialData, onSubmit, isLoading }: ToolFormProps) {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                         <div className="space-y-2">
-                            <Label htmlFor="assetTag" className="text-[11px] font-bold text-zinc-700 uppercase tracking-widest ml-1">Nº Patrimônio (Plaqueta)</Label>
+                            <Label htmlFor="assetTag" className="text-[11px] font-bold text-zinc-700 uppercase tracking-widest ml-1">Nº Patrimônio (Opcional)</Label>
                             <Input id="assetTag" {...register('assetTag')} placeholder="Ex: LOC-001" className="h-12 rounded-xl bg-slate-50 border-zinc-200" />
                         </div>
                         <div className="space-y-2">
-                            <Label htmlFor="serialNumber" className="text-[11px] font-bold text-zinc-700 uppercase tracking-widest ml-1">Nº de Série (Fabricante)</Label>
+                            <Label htmlFor="serialNumber" className="text-[11px] font-bold text-zinc-700 uppercase tracking-widest ml-1">Nº de Série (Opcional)</Label>
                             <Input id="serialNumber" {...register('serialNumber')} placeholder="Ex: SN-8829-BZ" className="h-12 rounded-xl bg-slate-50 border-zinc-200" />
                         </div>
                         <div className="space-y-2">
