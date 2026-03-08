@@ -449,10 +449,12 @@ export default function OnboardingPage() {
                 {/* ─── STEP 4: RENTAL */}
                 {step === 4 && (
                     <StepCard
-                        onNext={rentalForm.handleSubmit((d) => createRental.mutate(d))}
+                        onNext={rentalForm.handleSubmit(
+                            (d) => createRental.mutate(d),
+                            () => toast.error('Preencha todos os campos da locação.')
+                        )}
                         onBack={() => setStep(3)}
-                        onSkip={finishOnboarding}
-                        showSkip={true}
+                        showSkip={false}
                         nextLabel="Completar Onboarding"
                         isLoading={createRental.isPending || completeOnboarding.isPending}
                     >
