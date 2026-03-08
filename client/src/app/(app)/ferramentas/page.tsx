@@ -20,6 +20,7 @@ import { AvailabilityCalendar } from '@/components/shared/AvailabilityCalendar';
 import { CategoryForm } from '@/components/forms/CategoryForm';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
+import { ConfirmModal } from '@/components/shared/ConfirmModal';
 import { Skeleton, SkeletonCard, SkeletonList } from '@/components/shared/SkeletonLoader';
 import { EmptyState } from '@/components/shared/EmptyState';
 import { DataTable } from '@/components/shared/DataTable';
@@ -48,6 +49,18 @@ export default function FerramentasPage() {
     const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
     const [editingCategory, setEditingCategory] = useState<any>(null);
     const [selectedIds, setSelectedIds] = useState<string[]>([]);
+    const [confirmModal, setConfirmModal] = useState<{
+        isOpen: boolean;
+        title: string;
+        description: string;
+        onConfirm: () => void;
+        variant?: 'danger' | 'warning' | 'info';
+    }>({
+        isOpen: false,
+        title: '',
+        description: '',
+        onConfirm: () => { },
+    });
 
 
     const queryClient = useQueryClient();
@@ -241,9 +254,15 @@ export default function FerramentasPage() {
                                                     </button>
                                                     <button
                                                         onClick={() => {
-                                                            if (confirm('Deseja excluir esta categoria? Isso só funcionará se ela não estiver em uso.')) {
-                                                                deleteCategoryMutation.mutate(cat.id);
-                                                            }
+                                                            setConfirmModal({
+                                                                isOpen: true,
+                                                                title: 'Excluir Categoria',
+                                                                description: 'Deseja excluir esta categoria? Isso só funcionará se ela não estiver em uso.',
+                                                                onConfirm: () => {
+                                                                    deleteCategoryMutation.mutate(cat.id);
+                                                                    setConfirmModal(prev => ({ ...prev, isOpen: false }));
+                                                                }
+                                                            });
                                                         }}
                                                         className="p-1.5 hover:bg-red-50 text-red-300 hover:text-red-500 rounded-lg"
                                                     >
@@ -406,9 +425,15 @@ export default function FerramentasPage() {
                                         setIsSheetOpen(true);
                                     }}
                                     onDelete={(id) => {
-                                        if (confirm(`Deseja excluir "${tool.name}"?`)) {
-                                            deleteMutation.mutate(id);
-                                        }
+                                        setConfirmModal({
+                                            isOpen: true,
+                                            title: 'Excluir Equipamento',
+                                            description: `Deseja excluir definitivamente "${tool.name}"? Esta ação não poderá ser desfeita.`,
+                                            onConfirm: () => {
+                                                deleteMutation.mutate(id);
+                                                setConfirmModal(prev => ({ ...prev, isOpen: false }));
+                                            }
+                                        });
                                     }}
                                     onStatusChange={(id, status) => quickStatusMutation.mutate({ id, status })}
                                     onShowQR={(t) => {
@@ -511,9 +536,15 @@ export default function FerramentasPage() {
                                                 variant="outline"
                                                 size="icon-xs"
                                                 onClick={() => {
-                                                    if (confirm(`Excluir "${tool.name}"?`)) {
-                                                        deleteMutation.mutate(tool.id);
-                                                    }
+                                                    setConfirmModal({
+                                                        isOpen: true,
+                                                        title: 'Excluir Equipamento',
+                                                        description: `Deseja excluir definitivamente "${tool.name}"? Esta ação não poderá ser desfeita.`,
+                                                        onConfirm: () => {
+                                                            deleteMutation.mutate(tool.id);
+                                                            setConfirmModal(prev => ({ ...prev, isOpen: false }));
+                                                        }
+                                                    });
                                                 }}
                                                 className="hover:text-red-500 hover:border-red-200 rounded-lg"
                                             >
@@ -639,9 +670,15 @@ export default function FerramentasPage() {
                                 size="sm"
                                 className="bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white border border-red-500/20 text-[10px] font-bold uppercase tracking-widest px-6 h-10 rounded-xl transition-all"
                                 onClick={() => {
-                                    if (confirm(`Deseja excluir ${selectedIds.length} equipamentos?`)) {
-                                        bulkDeleteMutation.mutate(selectedIds);
-                                    }
+                                    setConfirmModal({
+                                        isOpen: true,
+                                        title: 'Excluir em Massa',
+                                        description: `Deseja excluir definitivamente ${selectedIds.length} equipamentos selecionados? Esta ação não poderá ser desfeita.`,
+                                        onConfirm: () => {
+                                            bulkDeleteMutation.mutate(selectedIds);
+                                            setConfirmModal(prev => ({ ...prev, isOpen: false }));
+                                        }
+                                    });
                                 }}
                                 disabled={bulkDeleteMutation.isPending}
                             >
@@ -652,6 +689,16 @@ export default function FerramentasPage() {
                     </motion.div>
                 )}
             </AnimatePresence>
+
+            <ConfirmModal
+                isOpen={confirmModal.isOpen}
+                onClose={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}
+                onConfirm={confirmModal.onConfirm}
+                title={confirmModal.title}
+                description={confirmModal.description}
+                variant={confirmModal.variant}
+                isLoading={deleteMutation.isPending || bulkDeleteMutation.isPending || deleteCategoryMutation.isPending}
+            />
         </div >
     );
 }

@@ -9,10 +9,22 @@ import { cn } from '@/lib/utils';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { EmptyState } from '@/components/shared/EmptyState';
+import { ConfirmModal } from '@/components/shared/ConfirmModal';
 
 export default function TemplatesPage() {
     const [isEditorOpen, setIsEditorOpen] = useState(false);
     const [selectedTemplate, setSelectedTemplate] = useState<any>(null);
+    const [confirmModal, setConfirmModal] = useState<{
+        isOpen: boolean;
+        title: string;
+        description: string;
+        onConfirm: () => void;
+    }>({
+        isOpen: false,
+        title: '',
+        description: '',
+        onConfirm: () => { },
+    });
     const queryClient = useQueryClient();
 
     const { data: templates, isLoading } = useQuery({
@@ -114,7 +126,17 @@ export default function TemplatesPage() {
                                 </button>
                                 {!template.isDefault && (
                                     <button
-                                        onClick={() => { if (confirm('Excluir este template?')) deleteMutation.mutate(template.id); }}
+                                        onClick={() => {
+                                            setConfirmModal({
+                                                isOpen: true,
+                                                title: 'Excluir Template',
+                                                description: `Deseja excluir o template "${template.name}"? Esta ação não pode ser desfeita.`,
+                                                onConfirm: () => {
+                                                    deleteMutation.mutate(template.id);
+                                                    setConfirmModal(prev => ({ ...prev, isOpen: false }));
+                                                }
+                                            });
+                                        }}
                                         className="w-11 h-11 bg-white border border-red-50 text-red-400 hover:bg-red-50 hover:text-red-600 rounded-xl flex items-center justify-center transition-all"
                                     >
                                         <Trash2 className="w-4 h-4" />
@@ -216,6 +238,15 @@ export default function TemplatesPage() {
                     </form>
                 </SheetContent>
             </Sheet>
+
+            <ConfirmModal
+                isOpen={confirmModal.isOpen}
+                onClose={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}
+                onConfirm={confirmModal.onConfirm}
+                title={confirmModal.title}
+                description={confirmModal.description}
+                isLoading={deleteMutation.isPending}
+            />
         </div>
     );
 }

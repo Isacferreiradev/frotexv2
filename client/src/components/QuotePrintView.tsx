@@ -66,6 +66,10 @@ export function QuotePrintView({ quote, tenant }: QuotePrintViewProps) {
                             <span className="text-zinc-500">Retorno Previsto:</span>
                             <span className="font-bold text-zinc-900">{format(new Date(quote.endDateExpected), "dd/MM/yyyy")}</span>
                         </div>
+                        <div className="flex justify-between text-sm">
+                            <span className="text-zinc-500">Modalidade:</span>
+                            <span className="font-bold text-zinc-900 uppercase text-[10px] tracking-widest">{quote.rentalType || 'diário'}</span>
+                        </div>
                         {quote.validUntil && (
                             <div className="flex justify-between text-sm">
                                 <span className="text-violet-600 font-bold">Válido até:</span>
@@ -110,7 +114,7 @@ export function QuotePrintView({ quote, tenant }: QuotePrintViewProps) {
                     </div>
                     {discount > 0 && (
                         <div className="flex justify-between text-sm">
-                            <span className="text-zinc-500 font-medium">Desconto Global</span>
+                            <span className="text-zinc-500 font-medium italic">Descontos Consolidados</span>
                             <span className="font-bold text-emerald-600">-{formatCurrency(discount)}</span>
                         </div>
                     )}

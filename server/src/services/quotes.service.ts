@@ -110,12 +110,12 @@ export const getQuote = async (tenantId: string, id: string) => {
 };
 
 export const deleteQuote = async (tenantId: string, id: string) => {
-    const [quote] = await db
-        .update(quotes)
-        .set({ status: 'expired', updatedAt: new Date() })
+    // Physical delete (cascades to quoteItems)
+    const [deleted] = await db.delete(quotes)
         .where(and(eq(quotes.id, id), eq(quotes.tenantId, tenantId)))
         .returning();
-    if (!quote) throw new AppError(404, 'Orçamento não encontrado');
+
+    if (!deleted) throw new AppError(404, 'Orçamento não encontrado');
     return { success: true };
 };
 

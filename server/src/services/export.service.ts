@@ -1,0 +1,165 @@
+import { db } from '../db';
+import { tools, customers, rentals, payments, expenses, otherRevenues, toolCategories } from '../db/schema';
+import { eq, and, gte, lte, sql, desc } from 'drizzle-orm';
+
+export interface ExportFilters {
+    startDate?: string;
+    endDate?: string;
+    categoryId?: string;
+    status?: string;
+}
+
+export async function getToolsData(tenantId: string, filters: ExportFilters) {
+    const whereConditions = [eq(tools.tenantId, tenantId)];
+
+    if (filters.categoryId) whereConditions.push(eq(tools.categoryId, filters.categoryId));
+    if (filters.status) whereConditions.push(eq(tools.status, filters.status as any));
+
+    const data = await db.query.tools.findMany({
+        where: and(...whereConditions),
+        with: {
+            category: true
+        },
+        orderBy: [desc(tools.createdAt)]
+    });
+
+    return data.map(t => ({
+        id: t.id,
+        "Nome": t.name,
+        "Marca": t.brand || '-',
+        "Modelo": t.model || '-',
+        "Série": t.serialNumber || '-',
+        "Patrimônio": t.assetTag || '-',
+        "Categoria": t.category?.name || '-',
+        "Valor Diária": parseFloat(t.dailyRate).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
+        "Status": t.status,
+        "Última Manut.": t.lastMaintenanceAt ? new Date(t.lastMaintenanceAt).toLocaleDateString('pt-BR') : '-'
+    }));
+}
+
+export async function getCustomersData(tenantId: string) {
+    const data = await db.query.customers.findMany({
+        where: eq(customers.tenantId, tenantId),
+        orderBy: [desc(customers.createdAt)]
+    });
+
+    return data.map(c => ({
+        "Nome": c.fullName,
+        "Documento": `${c.documentType}: ${c.documentNumber}`,
+        "Email": c.email || '-',
+        "Telefone": c.phoneNumber,
+        "Cidade/UF": `${c.addressCity || '-'}/${c.addressState || '-'}`,
+        "Classificação": c.classification,
+        "Status": c.isBlocked ? 'Bloqueado' : 'Ativo',
+        "Criado em": new Date(c.createdAt).toLocaleDateString('pt-BR')
+    }));
+}
+
+export async function getRentalsData(tenantId: string, filters: ExportFilters) {
+    const whereConditions = [eq(rentals.tenantId, tenantId)];
+
+    if (filters.startDate) whereConditions.push(gte(rentals.startDate, new Date(filters.startDate)));
+    if (filters.endDate) whereConditions.push(lte(rentals.startDate, new Date(filters.endDate)));
+    if (filters.status) whereConditions.push(eq(rentals.status, filters.status as any));
+
+    const data = await db.query.rentals.findMany({
+        where: and(...whereConditions),
+        with: {
+            tool: true,
+            customer: true
+        },
+        orderBy: [desc(rentals.startDate)]
+    });
+
+    return data.map(r => ({
+        "Código": r.rentalCode,
+        "Cliente": r.customer?.fullName || 'Excluído',
+        "Equipamento": r.tool?.name || 'Excluído',
+        "Início": new Date(r.startDate).toLocaleDateString('pt-BR'),
+        "Fim Previsto": new Date(r.endDateExpected).toLocaleDateString('pt-BR'),
+        "Valor Acordado": parseFloat(r.dailyRateAgreed).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
+        "Total Estimado": parseFloat(r.totalAmountExpected).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
+        "Status": r.status
+    }));
+}
+
+export async function getFinanceData(tenantId: string, filters: ExportFilters) {
+    const start = filters.startDate ? new Date(filters.startDate) : new Date(Date.now() - 30 * 86400000);
+    const end = filters.endDate ? new Date(filters.endDate) : new Date();
+
+    // Queries para as três frentes financeiras
+    const payData = await db.query.payments.findMany({
+        where: and(
+            eq(payments.tenantId, tenantId),
+            gte(payments.paymentDate, start),
+            lte(payments.paymentDate, end)
+        ),
+        with: {
+            rental: true
+        }
+    });
+
+    const expData = await db.query.expenses.findMany({
+        where: and(
+            eq(expenses.tenantId, tenantId),
+            gte(expenses.date, start),
+            lte(expenses.date, end)
+        )
+    });
+
+    const revData = await db.query.otherRevenues.findMany({
+        where: and(
+            eq(otherRevenues.tenantId, tenantId),
+            gte(otherRevenues.date, start),
+            lte(otherRevenues.date, end)
+        )
+    });
+
+    // Unificar para exportação tabular
+    const unified = [
+        ...payData.map(p => ({
+            "Data": new Date(p.paymentDate).toLocaleDateString('pt-BR'),
+            "Tipo": 'Receita (Locação)',
+            "Categoria": 'Locação',
+            "Descrição": `Pagamento ref. ${p.rental?.rentalCode || 'Locação'}`,
+            "Valor": parseFloat(p.amount),
+            "Status": p.status
+        })),
+        ...revData.map(r => ({
+            "Data": new Date(r.date).toLocaleDateString('pt-BR'),
+            "Tipo": 'Outra Receita',
+            "Categoria": r.category,
+            "Descrição": r.description,
+            "Valor": parseFloat(r.amount),
+            "Status": 'Concluído'
+        })),
+        ...expData.map(e => ({
+            "Data": new Date(e.date).toLocaleDateString('pt-BR'),
+            "Tipo": 'Despesa',
+            "Categoria": e.category,
+            "Descrição": e.description,
+            "Valor": -parseFloat(e.amount),
+            "Status": 'Concluído'
+        }))
+    ];
+
+    return unified.sort((a, b) => new Date(b.Data).getTime() - new Date(a.Data).getTime());
+}
+
+export function jsonToCsv(data: any[]) {
+    if (data.length === 0) return "";
+
+    const headers = Object.keys(data[0]);
+    const csvRows = [
+        headers.join(','),
+        ...data.map(row =>
+            headers.map(fieldName => {
+                const value = row[fieldName];
+                const escaped = ('' + value).replace(/"/g, '""');
+                return `"${escaped}"`;
+            }).join(',')
+        )
+    ];
+
+    return csvRows.join('\n');
+}

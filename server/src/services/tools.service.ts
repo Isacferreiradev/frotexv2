@@ -1,6 +1,6 @@
 import { eq, and, ilike, or, SQL, desc, isNull, inArray } from 'drizzle-orm';
 import { db } from '../db';
-import { tools, toolCategories } from '../db/schema';
+import { tools, toolCategories, rentals, customers } from '../db/schema';
 import { AppError } from '../middleware/error.middleware';
 import { z } from 'zod';
 
@@ -164,20 +164,47 @@ export async function updateTool(tenantId: string, id: string, data: Partial<z.i
 }
 
 export async function deleteTool(tenantId: string, id: string) {
-    const [tool] = await db
-        .update(tools)
-        .set({ status: 'unavailable', updatedAt: new Date() })
+    // Safety check: Cannot delete if tool has active rentals
+    const activeRental = await db.query.rentals.findFirst({
+        where: and(
+            eq(rentals.tenantId, tenantId),
+            eq(rentals.toolId, id),
+            or(eq(rentals.status, 'active'), eq(rentals.status, 'overdue'))
+        )
+    });
+
+    if (activeRental) {
+        throw new AppError(400, 'Não é possível excluir uma ferramenta com locação ativa. Finalize a locação primeiro.');
+    }
+
+    // Perform physical delete
+    const [deletedTool] = await db
+        .delete(tools)
         .where(and(eq(tools.tenantId, tenantId), eq(tools.id, id)))
         .returning();
-    if (!tool) throw new AppError(404, 'Ferramenta não encontrada');
+
+    if (!deletedTool) throw new AppError(404, 'Ferramenta não encontrada');
     return { success: true };
 }
 
 export async function bulkDeleteTools(tenantId: string, ids: string[]) {
+    // Check if any of these tools have active rentals
+    const activeRentals = await db.query.rentals.findMany({
+        where: and(
+            eq(rentals.tenantId, tenantId),
+            inArray(rentals.toolId, ids),
+            or(eq(rentals.status, 'active'), eq(rentals.status, 'overdue'))
+        )
+    });
+
+    if (activeRentals.length > 0) {
+        throw new AppError(400, 'Algumas das ferramentas selecionadas possuem locações ativas e não podem ser excluídas.');
+    }
+
     await db
-        .update(tools)
-        .set({ status: 'unavailable', updatedAt: new Date() })
+        .delete(tools)
         .where(and(eq(tools.tenantId, tenantId), inArray(tools.id, ids)));
+
     return { success: true };
 }
 

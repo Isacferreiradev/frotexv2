@@ -9,6 +9,7 @@ import { useAuthStore } from '@/store/authStore';
 import { formatCurrency, formatDate, cn, downloadFile } from '@/lib/utils';
 import api from '@/lib/api';
 import { toast } from 'sonner';
+import { ConfirmModal } from '@/components/shared/ConfirmModal';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import { RentalCheckout } from '@/components/forms/RentalCheckout';
@@ -37,6 +38,17 @@ export default function LocacoesPage() {
     const [condition, setCondition] = useState('good');
     const [usageHours, setUsageHours] = useState('');
     const [damageNotes, setDamageNotes] = useState('');
+    const [confirmModal, setConfirmModal] = useState<{
+        isOpen: boolean;
+        title: string;
+        description: string;
+        onConfirm: () => void;
+    }>({
+        isOpen: false,
+        title: '',
+        description: '',
+        onConfirm: () => { },
+    });
     const queryClient = useQueryClient();
 
     const { data, isLoading } = useQuery({
@@ -398,7 +410,17 @@ export default function LocacoesPage() {
                                 setSelectedRental(r);
                                 setIsReturnOpen(true);
                             }}
-                            onCancel={(id) => { if (confirm('Cancelar esta locação?')) cancelMutation.mutate(id); }}
+                            onCancel={(id) => {
+                                setConfirmModal({
+                                    isOpen: true,
+                                    title: 'Cancelar Locação',
+                                    description: 'Deseja realmente cancelar esta locação? Esta ação não pode ser desfeita.',
+                                    onConfirm: () => {
+                                        cancelMutation.mutate(id);
+                                        setConfirmModal(prev => ({ ...prev, isOpen: false }));
+                                    }
+                                });
+                            }}
                             onDetail={(r) => {
                                 setDetailRental(r);
                                 setIsDetailOpen(true);
@@ -484,7 +506,15 @@ export default function LocacoesPage() {
                                                             <button
                                                                 onClick={(e) => {
                                                                     e.stopPropagation();
-                                                                    if (confirm('Cancelar esta locação?')) cancelMutation.mutate(rental.id);
+                                                                    setConfirmModal({
+                                                                        isOpen: true,
+                                                                        title: 'Cancelar Locação',
+                                                                        description: 'Deseja realmente cancelar esta locação? Esta ação não pode ser desfeita.',
+                                                                        onConfirm: () => {
+                                                                            cancelMutation.mutate(rental.id);
+                                                                            setConfirmModal(prev => ({ ...prev, isOpen: false }));
+                                                                        }
+                                                                    });
                                                                 }}
                                                                 className="w-10 h-10 flex items-center justify-center bg-white rounded-xl border border-border/40 text-muted-foreground hover:text-red-500 hover:border-red-100 hover:shadow-premium transition-all"
                                                                 title="Cancelar"
@@ -508,6 +538,15 @@ export default function LocacoesPage() {
                 rental={detailRental}
                 isOpen={isDetailOpen}
                 onClose={() => setIsDetailOpen(false)}
+            />
+
+            <ConfirmModal
+                isOpen={confirmModal.isOpen}
+                onClose={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}
+                onConfirm={confirmModal.onConfirm}
+                title={confirmModal.title}
+                description={confirmModal.description}
+                isLoading={cancelMutation.isPending}
             />
         </div>
     );

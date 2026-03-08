@@ -8,6 +8,7 @@ import api from '@/lib/api';
 import { toast } from 'sonner';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { cn } from '@/lib/utils';
+import { ConfirmModal } from '@/components/shared/ConfirmModal';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import { CustomerForm } from '@/components/forms/CustomerForm';
@@ -32,6 +33,17 @@ export default function ClientesPage() {
     const [isCreateOpen, setIsCreateOpen] = useState(false);
     const [editingCustomer, setEditingCustomer] = useState<any>(null);
     const [isSheetOpen, setIsSheetOpen] = useState(false);
+    const [confirmModal, setConfirmModal] = useState<{
+        isOpen: boolean;
+        title: string;
+        description: string;
+        onConfirm: () => void;
+    }>({
+        isOpen: false,
+        title: '',
+        description: '',
+        onConfirm: () => { },
+    });
 
     const queryClient = useQueryClient();
 
@@ -309,7 +321,17 @@ export default function ClientesPage() {
                                                     <Pencil className="w-4 h-4" />
                                                 </button>
                                                 <button
-                                                    onClick={() => { if (confirm(`Excluir "${customer.fullName}"?`)) deleteMutation.mutate(customer.id); }}
+                                                    onClick={() => {
+                                                        setConfirmModal({
+                                                            isOpen: true,
+                                                            title: 'Excluir Cliente',
+                                                            description: `Deseja excluir definitivamente "${customer.fullName}"? Todos os dados associados serão removidos. Esta ação é irreversível.`,
+                                                            onConfirm: () => {
+                                                                deleteMutation.mutate(customer.id);
+                                                                setConfirmModal(prev => ({ ...prev, isOpen: false }));
+                                                            }
+                                                        });
+                                                    }}
                                                     className="w-10 h-10 flex items-center justify-center bg-white rounded-xl border border-violet-50 text-zinc-400 hover:text-red-500 hover:border-red-100 hover:shadow-sm transition-all"
                                                 >
                                                     <Trash2 className="w-4 h-4" />
@@ -323,6 +345,15 @@ export default function ClientesPage() {
                     </div>
                 </div>
             )}
+
+            <ConfirmModal
+                isOpen={confirmModal.isOpen}
+                onClose={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}
+                onConfirm={confirmModal.onConfirm}
+                title={confirmModal.title}
+                description={confirmModal.description}
+                isLoading={deleteMutation.isPending}
+            />
         </div>
     );
 }

@@ -13,6 +13,7 @@ import api from '@/lib/api';
 import { Skeleton } from '@/components/ui/Skeleton';
 import dynamic from 'next/dynamic';
 import { useState } from 'react';
+import { ExportModal } from '@/components/shared/ExportModal';
 
 const RevenueChart = dynamic(() => import("@/components/dashboard/RevenueChart").then(mod => mod.RevenueChart), {
     ssr: false,
@@ -21,6 +22,7 @@ const RevenueChart = dynamic(() => import("@/components/dashboard/RevenueChart")
 
 export default function ReportsPage() {
     const [timeRange, setTimeRange] = useState<'7d' | '30d' | 'all'>('30d');
+    const [isExportModalOpen, setIsExportModalOpen] = useState(false);
 
     const { data: stats, isLoading } = useQuery({
         queryKey: ['dashboard-stats', timeRange],
@@ -71,23 +73,10 @@ export default function ReportsPage() {
                         ))}
                     </div>
                     <Button
-                        onClick={() => {
-                            if (!stats) return;
-                            const csvHeader = "Nome,Categoria,Receita,Custo Manutencao,ROI %,Status\n";
-                            const csvRows = stats.topToolsByROI.map((t: any) =>
-                                `${t.name},${t.categoryName || 'Geral'},${t.revenue},${t.maintenance},${t.roi.toFixed(2)},${t.recommendation}`
-                            ).join("\n");
-                            const blob = new Blob([csvHeader + csvRows], { type: 'text/csv' });
-                            const url = window.URL.createObjectURL(blob);
-                            const a = document.createElement('a');
-                            a.href = url;
-                            a.download = `relatorio-frota-${new Date().toISOString().split('T')[0]}.csv`;
-                            a.click();
-                        }}
-                        variant="outline"
-                        className="rounded-xl h-11 px-5 text-[10px] font-extrabold uppercase tracking-widest border-border/40 hover:bg-white shadow-soft"
+                        onClick={() => setIsExportModalOpen(true)}
+                        className="rounded-2xl h-11 px-6 gap-3 bg-zinc-900 hover:bg-zinc-800 text-white font-bold text-[10px] uppercase tracking-widest shadow-xl shadow-zinc-200 transition-all hover:scale-105 active:scale-95"
                     >
-                        <Download className="w-4 h-4 mr-2" /> Exportar CSV
+                        <Download className="w-4 h-4" /> Centro de Exportação
                     </Button>
                 </div>
             </div>
@@ -275,6 +264,11 @@ export default function ReportsPage() {
                     </p>
                 </div>
             </div>
+
+            <ExportModal
+                isOpen={isExportModalOpen}
+                onClose={() => setIsExportModalOpen(false)}
+            />
         </div>
     );
 }

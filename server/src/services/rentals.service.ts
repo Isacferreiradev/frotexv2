@@ -365,12 +365,23 @@ export async function cancelRental(tenantId: string, id: string) {
 }
 
 export async function deleteRental(tenantId: string, id: string) {
-    const [rental] = await db
-        .update(rentals)
-        .set({ updatedAt: new Date(), status: 'cancelled' })
-        .where(and(eq(rentals.tenantId, tenantId), eq(rentals.id, id)))
-        .returning();
+    const rental = await db.query.rentals.findFirst({
+        where: and(eq(rentals.tenantId, tenantId), eq(rentals.id, id))
+    });
+
     if (!rental) throw new AppError(404, 'Locação não encontrada');
+
+    // If deleting an active/overdue rental, we must free the tool
+    if (rental.status === 'active' || rental.status === 'overdue') {
+        await db.update(tools)
+            .set({ status: 'available', updatedAt: new Date() })
+            .where(eq(tools.id, rental.toolId));
+    }
+
+    // Physical delete (cascades to payments/events)
+    await db.delete(rentals)
+        .where(and(eq(rentals.tenantId, tenantId), eq(rentals.id, id)));
+
     return { success: true };
 }
 

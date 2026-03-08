@@ -119,14 +119,18 @@ export const tools = pgTable(
         acquisitionCost: numeric('acquisition_cost', { precision: 10, scale: 2 }).default('0.00'),
         minRentalValue: numeric('min_rental_value', { precision: 10, scale: 2 }).default('0.00'),
         cleaningFee: numeric('cleaning_fee', { precision: 10, scale: 2 }).default('0.00'),
+        lastMaintenanceUsageHours: numeric('last_maintenance_usage_hours', { precision: 10, scale: 2 }).default('0.00'),
+        subcategoryId: uuid('subcategory_id'),
         images: jsonb('images').default([]), // Array of image URLs
         createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
         updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+        deletedAt: timestamp('deleted_at', { withTimezone: true }),
     },
     (t) => [
         index('idx_tools_tenant_id').on(t.tenantId),
         index('idx_tools_category_id').on(t.categoryId),
         index('idx_tools_status').on(t.status),
+        index('idx_tools_deleted_at').on(t.deletedAt),
     ]
 );
 
@@ -157,10 +161,12 @@ export const customers = pgTable(
         notes: text('notes'),
         createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
         updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+        deletedAt: timestamp('deleted_at', { withTimezone: true }),
     },
     (t) => [
         index('idx_customers_tenant_id').on(t.tenantId),
         index('idx_customers_document_number').on(t.documentNumber),
+        index('idx_customers_deleted_at').on(t.deletedAt),
         uniqueIndex('uq_customers_tenant_doc').on(t.tenantId, t.documentType, t.documentNumber),
     ]
 );
@@ -188,10 +194,12 @@ export const quotes = pgTable('quotes', {
     totalAmount: numeric('total_amount', { precision: 10, scale: 2 }).notNull().default('0.00'),
     totalDiscount: numeric('total_discount', { precision: 10, scale: 2 }).default('0.00'),
     validUntil: timestamp('valid_until', { withTimezone: true }),
+    rentalType: text('rental_type', { enum: ['daily', 'weekly', 'monthly', 'custom'] }).notNull().default('daily'),
     notes: text('notes'),
     termsAndConditions: text('terms_and_conditions'),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+    deletedAt: timestamp('deleted_at', { withTimezone: true }),
 });
 
 // ========== QUOTE ITEMS ==========
@@ -202,6 +210,8 @@ export const quoteItems = pgTable('quote_items', {
     toolId: uuid('tool_id').notNull().references(() => tools.id, { onDelete: 'cascade' }),
     quantity: integer('quantity').notNull().default(1),
     dailyRate: numeric('daily_rate', { precision: 10, scale: 2 }).notNull(),
+    discountType: text('discount_type', { enum: ['fixed', 'percentage'] }).default('fixed'),
+    discountValue: numeric('discount_value', { precision: 10, scale: 2 }).default('0.00'),
     totalAmount: numeric('total_amount', { precision: 10, scale: 2 }).notNull(),
     notes: text('notes'),
 });
@@ -245,6 +255,7 @@ export const rentals = pgTable(
         lastNotificationDate: timestamp('last_notification_date', { withTimezone: true }),
         createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
         updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+        deletedAt: timestamp('deleted_at', { withTimezone: true }),
     },
     (t) => [
         index('idx_rentals_tenant_id').on(t.tenantId),
@@ -252,6 +263,7 @@ export const rentals = pgTable(
         index('idx_rentals_customer_id').on(t.customerId),
         index('idx_rentals_status').on(t.status),
         index('idx_rentals_end_date_expected').on(t.endDateExpected),
+        index('idx_rentals_deleted_at').on(t.deletedAt),
         uniqueIndex('uq_rentals_tenant_code').on(t.tenantId, t.rentalCode),
     ]
 );

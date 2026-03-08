@@ -115,23 +115,23 @@ export function ToolCard({ tool, onEdit, onDelete, onStatusChange, onShowQR, onC
                     </div>
                 </div>
 
-                <div className="mt-8 pt-6 border-t border-violet-50/50 flex items-center justify-between gap-4">
+                <div className="mt-8 pt-6 border-t border-violet-50/50 flex flex-col items-stretch sm:flex-row sm:items-center justify-between gap-6">
                     <div className="space-y-1">
-                        <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.15em] leading-none">Investimento/Dia</p>
-                        <p className="text-[18px] font-bold text-zinc-900 tabular-nums tracking-tighter">{formatCurrency(tool.dailyRate)}</p>
+                        <p className="text-[9px] font-bold text-zinc-400 uppercase tracking-[0.2em] leading-none">Investimento/Dia</p>
+                        <p className="text-[20px] font-extrabold text-zinc-900 tabular-nums tracking-tighter">{formatCurrency(tool.dailyRate)}</p>
                     </div>
 
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-3">
                         {onCheckout && tool.status === 'available' && (
                             <button
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     onCheckout(tool);
                                 }}
-                                className="bg-violet-600 text-white rounded-[1.25rem] px-6 py-3.5 flex items-center justify-center gap-2.5 hover:bg-violet-700 transition-all duration-500 shadow-[0_10px_25px_rgba(124,58,237,0.25)] hover:shadow-[0_15px_30px_rgba(124,58,237,0.35)] hover:-translate-y-1 active:scale-95 group/btn"
+                                className="flex-1 sm:flex-none bg-violet-600 text-white rounded-[1.25rem] px-5 py-4 flex items-center justify-center gap-2.5 hover:bg-violet-700 transition-all duration-500 shadow-[0_10px_25px_rgba(124,58,237,0.25)] hover:shadow-[0_15px_30px_rgba(124,58,237,0.35)] hover:-translate-y-1 active:scale-95 group/btn"
                             >
                                 <Zap className="w-4 h-4 text-violet-200 fill-violet-200 transition-all duration-500 group-hover/btn:scale-110 group-hover/btn:text-white group-hover/btn:fill-white" />
-                                <span className="text-[11px] font-extrabold uppercase tracking-[0.15em] leading-none">Alugar Agora</span>
+                                <span className="text-[11px] font-extrabold uppercase tracking-[0.2em] leading-none whitespace-nowrap">Alugar</span>
                             </button>
                         )}
 
@@ -141,7 +141,7 @@ export function ToolCard({ tool, onEdit, onDelete, onStatusChange, onShowQR, onC
                                     e.stopPropagation();
                                     onStatusChange(tool.id, 'maintenance');
                                 }}
-                                className="bg-zinc-50 text-zinc-400 rounded-2xl w-12 h-12 flex items-center justify-center transition-all duration-500 hover:bg-violet-50 hover:text-violet-600 hover:shadow-inner"
+                                className="bg-zinc-50 text-zinc-400 rounded-2xl w-12 h-12 flex items-center justify-center transition-all duration-500 hover:bg-violet-50 hover:text-violet-600 hover:shadow-inner shrink-0"
                                 title="Enviar para Manutenção"
                             >
                                 <Wrench className="w-4 h-4" />

@@ -14,6 +14,10 @@ import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { QuotePrintView } from '@/components/QuotePrintView';
 import { Button } from '@/components/ui/button';
+import { DataTable } from '@/components/shared/DataTable';
+import { ConfirmModal } from '@/components/shared/ConfirmModal';
+import { StatusBadge } from '@/components/ui/StatusBadge';
+import { FileSignature, Filter, Trash2 as TrashIcon } from 'lucide-react';
 
 const STATUS_MAP: Record<string, { label: string; color: string }> = {
     draft: { label: 'Rascunho', color: 'bg-zinc-100 text-zinc-600' },
@@ -38,7 +42,17 @@ export default function OrcamentosPage() {
     const [search, setSearch] = useState('');
     const [isCreateOpen, setIsCreateOpen] = useState(false);
     const [previewQuote, setPreviewQuote] = useState<any>(null);
-
+    const [confirmModal, setConfirmModal] = useState<{
+        isOpen: boolean;
+        title: string;
+        description: string;
+        onConfirm: () => void;
+    }>({
+        isOpen: false,
+        title: '',
+        description: '',
+        onConfirm: () => { },
+    });
     const queryClient = useQueryClient();
 
     const { data: quotes, isLoading } = useQuery({
@@ -64,6 +78,15 @@ export default function OrcamentosPage() {
             toast.success('Conversão realizada! Locação ativa.');
         },
         onError: (err: any) => toast.error(err.response?.data?.message || 'Erro na conversão'),
+    });
+
+    const deleteMutation = useMutation({
+        mutationFn: (id: string) => api.delete(`/quotes/${id}`),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['quotes'] });
+            toast.success('Orçamento removido');
+        },
+        onError: () => toast.error('Erro ao remover orçamento'),
     });
 
     return (
@@ -96,10 +119,10 @@ export default function OrcamentosPage() {
                         </div>
                     </DialogContent>
                 </Dialog>
-            </div>
+            </div >
 
             {/* Dashboard Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 animate-in fade-in slide-in-from-top-4 duration-1000 delay-200">
+            < div className="grid grid-cols-1 md:grid-cols-4 gap-6 animate-in fade-in slide-in-from-top-4 duration-1000 delay-200" >
                 <div className="bg-white p-6 rounded-2xl border border-border/40 shadow-soft">
                     <p className="text-[10px] font-extrabold uppercase tracking-widest text-zinc-400 mb-2">Total em Aberto</p>
                     <div className="flex items-baseline gap-2">
@@ -139,94 +162,127 @@ export default function OrcamentosPage() {
                         </span>
                     </div>
                 </div>
-            </div>
+            </div >
 
             {/* List */}
-            <div className="bg-white rounded-2xl border border-border/40 shadow-soft overflow-hidden">
-                <div className="overflow-x-auto">
-                    <table className="w-full">
-                        <thead>
-                            <tr className="border-b border-border/40 bg-muted/10">
-                                <th className="px-8 py-6 text-left text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">Equipamento / Cliente</th>
-                                <th className="px-8 py-6 text-left text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">Período</th>
-                                <th className="px-8 py-6 text-left text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">Valor</th>
-                                <th className="px-8 py-6 text-left text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">Status</th>
-                                <th className="px-8 py-6 text-right text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">Ações</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-border/40">
-                            {isLoading ? (
-                                Array(5).fill(0).map((_, i) => (
-                                    <tr key={i}><td colSpan={5} className="px-8 py-4"><Skeleton className="h-12 w-full" /></td></tr>
-                                ))
-                            ) : (!quotes || quotes.length === 0) ? (
-                                <tr><td colSpan={5} className="py-20 text-center"><EmptyState icon={Calculator} title="Nenhum orçamento" description="Comece gerando um novo orçamento para seus clientes." /></td></tr>
-                            ) : (
-                                quotes.map((q: any) => (
-                                    <tr key={q.id} className="group hover:bg-muted/30 transition-all">
-                                        <td className="px-8 py-6">
-                                            <div className="flex flex-col gap-1">
-                                                {q.items?.map((item: any, idx: number) => (
-                                                    <div key={idx} className="flex items-center gap-2">
-                                                        <span className="font-bold text-sm text-zinc-900">{item.tool?.name}</span>
-                                                        <span className="text-[10px] bg-zinc-100 px-1.5 py-0.5 rounded font-bold">x{item.quantity}</span>
-                                                    </div>
-                                                ))}
-                                                <span className="text-[11px] text-zinc-400 font-medium">Ref: {q.quoteCode} • {q.customer?.fullName}</span>
+            <div className="mt-8">
+                <DataTable
+                    data={quotes || []}
+                    isLoading={isLoading}
+                    onSearchChange={(val) => setSearch(val)}
+                    columns={[
+                        {
+                            header: "Itens / Cliente",
+                            accessorKey: "quoteCode",
+                            cell: (q: any) => (
+                                <div className="flex flex-col gap-1">
+                                    <div className="flex flex-wrap gap-1.5">
+                                        {q.items?.map((item: any, idx: number) => (
+                                            <div key={idx} className="flex items-center gap-1.5 bg-zinc-50 border border-zinc-100 px-2 py-0.5 rounded-lg">
+                                                <span className="font-bold text-[11px] text-zinc-900">{item.tool?.name}</span>
+                                                <span className="text-[9px] text-primary font-bold">x{item.quantity}</span>
                                             </div>
-                                        </td>
-                                        <td className="px-8 py-6 text-xs font-bold text-zinc-700">
-                                            {safeFormatDate(q.startDate)} → {safeFormatDate(q.endDateExpected)}
-                                        </td>
-                                        <td className="px-8 py-6 text-sm font-extrabold text-violet-600">
-                                            {formatCurrency(q.totalAmount)}
-                                        </td>
-                                        <td className="px-8 py-6">
-                                            <span className={cn(
-                                                "px-3 py-1.5 rounded-full text-[9px] font-bold uppercase tracking-widest border text-center w-fit flex",
-                                                STATUS_MAP[q.status]?.color || 'bg-zinc-100 text-zinc-600'
-                                            )}>
-                                                {STATUS_MAP[q.status]?.label || q.status}
-                                            </span>
-                                        </td>
-                                        <td className="px-8 py-6 text-right">
-                                            <div className="flex items-center justify-end gap-2">
-                                                {q.status === 'accepted' && (
-                                                    <button
-                                                        onClick={() => convertMutation.mutate(q.id)}
-                                                        disabled={convertMutation.isPending}
-                                                        className="flex items-center gap-2 px-4 py-2 bg-violet-600 text-white rounded-xl hover:bg-violet-700 disabled:opacity-50 transition-all text-[10px] font-bold uppercase tracking-widest shadow-lg shadow-violet-200"
-                                                    >
-                                                        {convertMutation.isPending ? <Loader2 className="w-3 h-3 animate-spin" /> : <ArrowRightLeft className="w-3 h-3" />}
-                                                        <span>Ativar</span>
-                                                    </button>
-                                                )}
+                                        ))}
+                                    </div>
+                                    <span className="text-[10px] text-zinc-400 font-semibold uppercase tracking-tight mt-1">Ref: {q.quoteCode} • {q.customer?.fullName}</span>
+                                </div>
+                            )
+                        },
+                        {
+                            header: "Período",
+                            accessorKey: "startDate",
+                            cell: (q: any) => (
+                                <div className="flex flex-col">
+                                    <span className="text-xs font-bold text-zinc-700">{safeFormatDate(q.startDate)} → {safeFormatDate(q.endDateExpected)}</span>
+                                    <span className="text-[9px] text-zinc-400 uppercase font-bold tracking-widest mt-0.5">{q.rentalType || 'Diário'}</span>
+                                </div>
+                            )
+                        },
+                        {
+                            header: "Investimento",
+                            accessorKey: "totalAmount",
+                            cell: (q: any) => (
+                                <span className="font-extrabold text-violet-600 tracking-tight">
+                                    {formatCurrency(q.totalAmount)}
+                                </span>
+                            )
+                        },
+                        {
+                            header: "Status",
+                            accessorKey: "status",
+                            cell: (q: any) => (
+                                <span className={cn(
+                                    "px-3 py-1 rounded-full text-[9px] font-bold uppercase tracking-widest border border-transparent shadow-sm whitespace-nowrap",
+                                    STATUS_MAP[q.status]?.color || 'bg-zinc-100 text-zinc-600'
+                                )}>
+                                    {STATUS_MAP[q.status]?.label || q.status}
+                                </span>
+                            )
+                        },
+                        {
+                            header: "Ações",
+                            accessorKey: "id",
+                            className: "text-right",
+                            cell: (q: any) => (
+                                <div className="flex items-center justify-end gap-2">
+                                    {q.status === 'accepted' && (
+                                        <Button
+                                            onClick={() => convertMutation.mutate(q.id)}
+                                            disabled={convertMutation.isPending}
+                                            variant="default"
+                                            size="xs"
+                                            className="rounded-lg h-8 px-4 text-[9px] font-bold uppercase tracking-widest shadow-lg shadow-violet-100"
+                                        >
+                                            {convertMutation.isPending ? <Loader2 className="w-3 h-3 animate-spin" /> : <ArrowRightLeft className="w-3 h-3 mr-2" />}
+                                            Ativar
+                                        </Button>
+                                    )}
 
-                                                <button
-                                                    onClick={() => setPreviewQuote(q)}
-                                                    className="p-2 bg-zinc-50 text-zinc-400 rounded-lg hover:bg-zinc-100 transition-colors border border-transparent hover:border-zinc-200"
-                                                    title="Visualizar Orçamento"
-                                                >
-                                                    <FileText className="w-4 h-4" />
-                                                </button>
+                                    <Button
+                                        variant="outline"
+                                        size="icon-xs"
+                                        onClick={() => setPreviewQuote(q)}
+                                        className="rounded-lg"
+                                        title="Visualizar"
+                                    >
+                                        <FileText className="w-3.5 h-3.5" />
+                                    </Button>
 
-                                                <a
-                                                    href={`https://wa.me/${q.customer?.phone?.replace(/\D/g, '')}?text=Olá ${q.customer?.fullName}, segue o orçamento ${q.quoteCode}. Valor: ${formatCurrency(q.totalAmount)}`}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    className="p-2 bg-emerald-50 text-emerald-600 rounded-lg hover:bg-emerald-100 transition-colors border border-transparent hover:border-emerald-200"
-                                                >
-                                                    <Share2 className="w-4 h-4" />
-                                                </a>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))
-                            )}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+                                    <Button
+                                        variant="outline"
+                                        size="icon-xs"
+                                        onClick={() => window.open(`https://wa.me/${q.customer?.phone?.replace(/\D/g, '')}?text=Olá ${q.customer?.fullName}, segue o orçamento ${q.quoteCode}. Valor: ${formatCurrency(q.totalAmount)}`, '_blank')}
+                                        className="rounded-lg hover:border-emerald-200 hover:text-emerald-600"
+                                        title="Enviar WhatsApp"
+                                    >
+                                        <Share2 className="w-3.5 h-3.5" />
+                                    </Button>
+
+                                    <Button
+                                        variant="outline"
+                                        size="icon-xs"
+                                        onClick={() => {
+                                            setConfirmModal({
+                                                isOpen: true,
+                                                title: 'Excluir Orçamento',
+                                                description: `Deseja excluir o orçamento ${q.quoteCode}? Esta ação não pode ser desfeita.`,
+                                                onConfirm: () => {
+                                                    deleteMutation.mutate(q.id);
+                                                    setConfirmModal(prev => ({ ...prev, isOpen: false }));
+                                                }
+                                            });
+                                        }}
+                                        className="rounded-lg hover:border-red-200 hover:text-red-500"
+                                        title="Excluir"
+                                    >
+                                        <TrashIcon className="w-3.5 h-3.5" />
+                                    </Button>
+                                </div>
+                            )
+                        }
+                    ]}
+                />
+            </div >
 
             {/* Preview Modal */}
             <Dialog open={!!previewQuote} onOpenChange={() => setPreviewQuote(null)}>
@@ -266,7 +322,16 @@ export default function OrcamentosPage() {
                         </div>
                     </div>
                 </DialogContent>
-            </Dialog>
-        </div>
+            </Dialog >
+
+            <ConfirmModal
+                isOpen={confirmModal.isOpen}
+                onClose={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}
+                onConfirm={confirmModal.onConfirm}
+                title={confirmModal.title}
+                description={confirmModal.description}
+                isLoading={deleteMutation.isPending}
+            />
+        </div >
     );
 }

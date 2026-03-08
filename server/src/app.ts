@@ -29,6 +29,7 @@ import intelligenceRoutes from './routes/intelligence.routes';
 import stripeRoutes from './routes/stripe.routes';
 import automationRoutes from './routes/automation.routes';
 import onboardingRoutes from './routes/onboarding.routes';
+import exportRoutes from './routes/export.routes';
 
 
 import { globalLimiter } from './middleware/rate-limit.middleware';
@@ -174,6 +175,7 @@ app.use('/api/quotes', quotesRoutes);
 app.use('/api/intelligence', intelligenceRoutes);
 app.use('/api/automation', automationRoutes);
 app.use('/api/onboarding', onboardingRoutes);
+app.use('/api/export', exportRoutes);
 
 
 // Fallback for non-existent API routes

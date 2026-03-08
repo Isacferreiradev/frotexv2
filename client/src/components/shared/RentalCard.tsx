@@ -12,7 +12,7 @@ interface RentalCardProps {
     onDetail?: (rental: Rental) => void;
 }
 
-export function RentalCard({ rental, onReturn, onDetail }: RentalCardProps) {
+export function RentalCard({ rental, onReturn, onCancel, onDetail }: RentalCardProps) {
     const isOverdue = rental.status === 'active' && new Date(rental.endDateExpected) < new Date();
 
     return (
@@ -40,10 +40,19 @@ export function RentalCard({ rental, onReturn, onDetail }: RentalCardProps) {
                     </div>
                 </div>
 
-                <div className="ml-auto translate-x-4 opacity-0 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300">
-                    <button className="w-10 h-10 bg-white rounded-xl border border-border/40 flex items-center justify-center text-muted-foreground hover:text-primary transition-all shadow-sm">
-                        <MoreVertical className="w-4 h-4" />
-                    </button>
+                <div className="ml-auto flex gap-2">
+                    {rental.status === 'active' && (
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onCancel(rental.id);
+                            }}
+                            className="w-10 h-10 bg-white rounded-xl border border-red-100 flex items-center justify-center text-red-400 hover:text-red-600 hover:bg-red-50 transition-all shadow-sm translate-x-4 opacity-0 group-hover:opacity-100 group-hover:translate-x-0 group-hover:duration-300"
+                            title="Cancelar Locação"
+                        >
+                            <MoreVertical className="w-4 h-4" />
+                        </button>
+                    )}
                 </div>
             </div>
 
