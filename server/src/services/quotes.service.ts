@@ -12,8 +12,6 @@ export const createQuoteSchema = z.object({
         toolId: z.string().uuid(),
         quantity: z.number().int().min(1).default(1),
         dailyRate: z.coerce.number().min(0),
-        discountType: z.enum(['fixed', 'percentage']).default('fixed'),
-        discountValue: z.coerce.number().min(0).default(0),
     })).min(1),
     validUntil: z.string().pipe(z.coerce.date()).optional(),
     totalDiscount: z.coerce.number().min(0).default(0),
@@ -47,28 +45,13 @@ export const createQuote = async (tenantId: string, data: any) => {
     const validated = createQuoteSchema.parse(data);
     const quoteCode = await generateQuoteCode(tenantId);
 
-    // Calculate total days (aligned with QuoteForm.tsx)
-    const start = validated.startDate;
-    const end = validated.endDateExpected;
-    let days = 1;
-
-    if (end > start) {
-        const diffTime = Math.abs(end.getTime() - start.getTime());
-        days = Math.max(1, Math.ceil(diffTime / (1000 * 60 * 60 * 24)));
-    }
+    // Calculate total amount
+    const durationMs = validated.endDateExpected.getTime() - validated.startDate.getTime();
+    const days = Math.max(1, Math.ceil(durationMs / (1000 * 60 * 60 * 24)));
 
     let totalAmount = 0;
     const itemsWithTotals = validated.items.map(item => {
-        const itemBase = item.dailyRate * days * item.quantity;
-        let itemDiscount = 0;
-
-        if (item.discountType === 'percentage') {
-            itemDiscount = itemBase * (item.discountValue / 100);
-        } else {
-            itemDiscount = item.discountValue; // Fixed discount on total of the item
-        }
-
-        const itemTotal = Math.max(0, itemBase - itemDiscount);
+        const itemTotal = item.dailyRate * days * item.quantity;
         totalAmount += itemTotal;
         return { ...item, totalAmount: itemTotal };
     });
@@ -97,8 +80,6 @@ export const createQuote = async (tenantId: string, data: any) => {
                 toolId: item.toolId,
                 quantity: item.quantity,
                 dailyRate: String(item.dailyRate),
-                discountType: item.discountType,
-                discountValue: String(item.discountValue),
                 totalAmount: String(item.totalAmount),
             });
         }

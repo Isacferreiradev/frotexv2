@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
 import * as quotesService from '../services/quotes.service';
-import logger from '../utils/logger';
 
 export const list = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -45,8 +44,5 @@ export const convert = async (req: Request, res: Response, next: NextFunction) =
         const { id } = req.params;
         const data = await quotesService.convertToRental(tenantId, id, userId);
         res.json({ success: true, data });
-    } catch (err) {
-        logger.error(`[QUOTES] conversion failed for quote ${req.params.id}:`, err);
-        next(err);
-    }
+    } catch (err) { next(err); }
 };

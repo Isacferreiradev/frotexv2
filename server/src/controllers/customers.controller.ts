@@ -10,7 +10,7 @@ export async function list(req: Request, res: Response, next: NextFunction) {
         const data = await customersService.listCustomers(tenantId, { isBlocked, search });
         res.json({ success: true, data });
     } catch (err) {
-        logger.error(`[CUSTOMERS] delete failed for id ${req.params.id} (tenant ${req.user!.tenantId}):`, err);
+        logger.error(`[CUSTOMERS] list failed (tenant ${req.user!.tenantId}):`, err);
         next(err);
     }
 }
@@ -20,7 +20,7 @@ export async function get(req: Request, res: Response, next: NextFunction) {
         const data = await customersService.getCustomer(req.user!.tenantId, req.params.id);
         res.json({ success: true, data });
     } catch (err) {
-        logger.error(`[CUSTOMERS] delete failed for id ${req.params.id} (tenant ${req.user!.tenantId}):`, err);
+        logger.error(`[CUSTOMERS] get failed for id ${req.params.id} (tenant ${req.user!.tenantId}):`, err);
         next(err);
     }
 }
@@ -42,7 +42,7 @@ export async function create(req: Request, res: Response, next: NextFunction) {
         const data = await customersService.createCustomer(req.user!.tenantId, body);
         res.status(201).json({ success: true, data });
     } catch (err) {
-        logger.error(`[CUSTOMERS] delete failed for id ${req.params.id} (tenant ${req.user!.tenantId}):`, err);
+        logger.error(`[CUSTOMERS] create failed (tenant ${req.user!.tenantId}):`, err);
         next(err);
     }
 }
@@ -53,7 +53,7 @@ export async function update(req: Request, res: Response, next: NextFunction) {
         const data = await customersService.updateCustomer(req.user!.tenantId, req.params.id, body);
         res.json({ success: true, data });
     } catch (err) {
-        logger.error(`[CUSTOMERS] delete failed for id ${req.params.id} (tenant ${req.user!.tenantId}):`, err);
+        logger.error(`[CUSTOMERS] update failed for id ${req.params.id} (tenant ${req.user!.tenantId}):`, err);
         next(err);
     }
 }

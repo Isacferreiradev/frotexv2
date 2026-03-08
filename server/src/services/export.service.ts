@@ -51,26 +51,26 @@ export async function getCustomersData(tenantId: string) {
             "Email": c.email || '-',
             "Telefone": c.phoneNumber,
             "Cidade/UF": `${c.addressCity || '-'}/${c.addressState || '-'}`,
-            "Classificação": (c as any).classification || 'N/A',
+            "Classificação": (c as any).classification || 'new',
             "Status": c.isBlocked ? 'Bloqueado' : 'Ativo',
             "Criado em": new Date(c.createdAt).toLocaleDateString('pt-BR')
         }));
     } catch (err: any) {
         if (err.code === '42703') {
-            logger.warn(`[EXPORT] getCustomersData falling back to basic columns due to error 42703`);
-            // Attempt a more basic select for export
+            logger.warn(`[EXPORT] getCustomersData fallback`);
             const basicData = await db
                 .select({
                     fullName: customers.fullName,
                     documentType: customers.documentType,
                     documentNumber: customers.documentNumber,
-                    phoneNumber: customers.phoneNumber,
                     email: customers.email,
+                    phoneNumber: customers.phoneNumber,
                     isBlocked: customers.isBlocked,
                     createdAt: customers.createdAt
                 })
                 .from(customers)
-                .where(eq(customers.tenantId, tenantId));
+                .where(eq(customers.tenantId, tenantId))
+                .orderBy(desc(customers.createdAt));
 
             return basicData.map(c => ({
                 "Nome": c.fullName,
@@ -78,7 +78,7 @@ export async function getCustomersData(tenantId: string) {
                 "Email": c.email || '-',
                 "Telefone": c.phoneNumber,
                 "Cidade/UF": 'N/A',
-                "Classificação": 'N/A',
+                "Classificação": 'new',
                 "Status": c.isBlocked ? 'Bloqueado' : 'Ativo',
                 "Criado em": new Date(c.createdAt).toLocaleDateString('pt-BR')
             }));
@@ -94,25 +94,55 @@ export async function getRentalsData(tenantId: string, filters: ExportFilters) {
     if (filters.endDate) whereConditions.push(lte(rentals.startDate, new Date(filters.endDate)));
     if (filters.status) whereConditions.push(eq(rentals.status, filters.status as any));
 
-    const data = await db.query.rentals.findMany({
-        where: and(...whereConditions),
-        with: {
-            tool: true,
-            customer: true
-        },
-        orderBy: [desc(rentals.startDate)]
-    });
+    try {
+        const data = await db.query.rentals.findMany({
+            where: and(...whereConditions),
+            with: {
+                tool: true,
+                customer: true
+            },
+            orderBy: [desc(rentals.startDate)]
+        });
 
-    return data.map(r => ({
-        "Código": r.rentalCode,
-        "Cliente": r.customer?.fullName || 'Excluído',
-        "Equipamento": r.tool?.name || 'Excluído',
-        "Início": new Date(r.startDate).toLocaleDateString('pt-BR'),
-        "Fim Previsto": new Date(r.endDateExpected).toLocaleDateString('pt-BR'),
-        "Valor Acordado": parseFloat(r.dailyRateAgreed).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
-        "Total Estimado": parseFloat(r.totalAmountExpected).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
-        "Status": r.status
-    }));
+        return data.map(r => ({
+            "Código": r.rentalCode,
+            "Cliente": r.customer?.fullName || 'Excluído',
+            "Equipamento": r.tool?.name || 'Excluído',
+            "Início": new Date(r.startDate).toLocaleDateString('pt-BR'),
+            "Fim Previsto": new Date(r.endDateExpected).toLocaleDateString('pt-BR'),
+            "Valor Acordado": parseFloat(r.dailyRateAgreed).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
+            "Total Estimado": parseFloat(r.totalAmountExpected).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
+            "Status": r.status
+        }));
+    } catch (err: any) {
+        if (err.code === '42703') {
+            logger.warn(`[EXPORT] getRentalsData fallback`);
+            const basicData = await db
+                .select({
+                    rentalCode: rentals.rentalCode,
+                    startDate: rentals.startDate,
+                    endDateExpected: rentals.endDateExpected,
+                    dailyRateAgreed: rentals.dailyRateAgreed,
+                    totalAmountExpected: rentals.totalAmountExpected,
+                    status: rentals.status
+                })
+                .from(rentals)
+                .where(and(...whereConditions))
+                .orderBy(desc(rentals.startDate));
+
+            return basicData.map(r => ({
+                "Código": r.rentalCode,
+                "Cliente": 'N/A (Esquema Antigo)',
+                "Equipamento": 'N/A (Esquema Antigo)',
+                "Início": new Date(r.startDate).toLocaleDateString('pt-BR'),
+                "Fim Previsto": new Date(r.endDateExpected).toLocaleDateString('pt-BR'),
+                "Valor Acordado": parseFloat(r.dailyRateAgreed).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
+                "Total Estimado": parseFloat(r.totalAmountExpected).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
+                "Status": r.status
+            }));
+        }
+        throw err;
+    }
 }
 
 export async function getFinanceData(tenantId: string, filters: ExportFilters) {

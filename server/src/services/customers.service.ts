@@ -1,9 +1,28 @@
-import { eq, and, isNull, or, ilike, SQL, desc } from 'drizzle-orm';
 import { db } from '../db';
 import { customers } from '../db/schema';
+import { eq, and, or, ilike, SQL, desc, isNull } from 'drizzle-orm';
 import { AppError } from '../middleware/error.middleware';
-import logger from '../utils/logger';
 import { z } from 'zod';
+import logger from '../utils/logger';
+
+const SAFE_CUSTOMER_COLUMNS = {
+    id: customers.id,
+    tenantId: customers.tenantId,
+    fullName: customers.fullName,
+    documentType: customers.documentType,
+    documentNumber: customers.documentNumber,
+    phoneNumber: customers.phoneNumber,
+    email: customers.email,
+    addressStreet: customers.addressStreet,
+    addressNumber: customers.addressNumber,
+    addressCity: customers.addressCity,
+    addressState: customers.addressState,
+    isBlocked: customers.isBlocked,
+    creditLimit: customers.creditLimit,
+    allowLateRentals: customers.allowLateRentals,
+    createdAt: customers.createdAt,
+    updatedAt: customers.updatedAt,
+};
 
 export const customerSchema = z.object({
     fullName: z.string().min(2, 'Nome obrigatório'),
@@ -23,35 +42,31 @@ export const customerSchema = z.object({
     allowLateRentals: z.boolean().default(false),
     classification: z.enum(['vip', 'new', 'risk', 'inactive']).default('new'),
     source: z.string().optional(),
-    tags: z.array(z.string()).optional().default([]),
     notes: z.string().optional(),
 });
 
 export async function listCustomers(tenantId: string, filters: { isBlocked?: boolean; search?: string }) {
     let rows;
     try {
-        const query = db
-            .select() // Using select() will try all columns.
+        rows = await db
+            .select()
             .from(customers)
             .where(eq(customers.tenantId, tenantId))
             .orderBy(customers.fullName);
-
-        rows = await query;
     } catch (err: any) {
-        // Fallback for production if new columns (tags, classification, deletedAt) are missing
         if (err.code === '42703') {
-            console.warn(`[CUSTOMERS] list falling back to safe columns for tenant ${tenantId}. Missing column detected.`);
-            rows = await db.query.customers.findMany({
-                where: eq(customers.tenantId, tenantId),
-                // findMany with specific columns/relations might be safer or Drizzle-safe
-                orderBy: [customers.fullName]
-            });
+            logger.warn(`[CUSTOMERS] list falling back to safe columns for tenant ${tenantId}. Missing column detected.`);
+            rows = await db
+                .select(SAFE_CUSTOMER_COLUMNS)
+                .from(customers)
+                .where(eq(customers.tenantId, tenantId))
+                .orderBy(customers.fullName);
         } else {
             throw err;
         }
     }
 
-    let result = rows;
+    let result = (rows as any[]);
     if (filters.isBlocked !== undefined) {
         result = result.filter((c) => c.isBlocked === filters.isBlocked);
     }
@@ -70,17 +85,16 @@ export async function listCustomers(tenantId: string, filters: { isBlocked?: boo
 export async function getCustomer(tenantId: string, id: string) {
     let customer;
     try {
-        [customer] = await db
-            .select()
-            .from(customers)
-            .where(and(eq(customers.tenantId, tenantId), eq(customers.id, id)))
-            .limit(1);
+        const [row] = await db.select().from(customers).where(and(eq(customers.tenantId, tenantId), eq(customers.id, id)));
+        customer = row;
     } catch (err: any) {
         if (err.code === '42703') {
-            logger.warn(`[CUSTOMERS] get fallback for ${id}. Missing column detected.`);
-            customer = await db.query.customers.findFirst({
-                where: and(eq(customers.tenantId, tenantId), eq(customers.id, id))
-            });
+            logger.warn(`[CUSTOMERS] get falling back to safe columns for id ${id}.`);
+            const [row] = await db
+                .select(SAFE_CUSTOMER_COLUMNS)
+                .from(customers)
+                .where(and(eq(customers.tenantId, tenantId), eq(customers.id, id)));
+            customer = row;
         } else {
             throw err;
         }
@@ -90,20 +104,24 @@ export async function getCustomer(tenantId: string, id: string) {
 }
 
 export async function createCustomer(tenantId: string, data: z.infer<typeof customerSchema>) {
+    const safeReturning = {
+        id: customers.id,
+        fullName: customers.fullName,
+        documentNumber: customers.documentNumber,
+    };
+
     try {
         const [customer] = await db.insert(customers).values({
             tenantId,
             ...data,
             email: data.email || null,
-            tags: data.tags || [],
             creditLimit: String(data.creditLimit)
-        }).returning();
+        } as any).returning();
         return customer;
     } catch (err: any) {
         if (err.code === '42703') {
-            logger.error(`[CUSTOMERS] create failed due to missing columns. Data: ${JSON.stringify(data)}`);
-            // Try emergency insert without the likely culprits (tags, classification, notes)
-            const backupData: any = {
+            logger.warn(`[CUSTOMERS] create fallback for missing columns.`);
+            const basicData: any = {
                 tenantId,
                 fullName: data.fullName,
                 documentType: data.documentType,
@@ -114,41 +132,71 @@ export async function createCustomer(tenantId: string, data: z.infer<typeof cust
                 addressNumber: data.addressNumber,
                 addressCity: data.addressCity,
                 addressState: data.addressState,
+                isBlocked: data.isBlocked,
+                creditLimit: String(data.creditLimit || 0),
             };
-            try {
-                const [customer] = await db.insert(customers).values(backupData).returning();
-                return customer;
-            } catch (innerErr) {
-                throw new AppError(500, `Erro crítico ao criar cliente: Campo obrigatório faltando no banco. Por favor, execute as migrações no Railway.`);
-            }
+            const [customer] = await db.insert(customers).values(basicData).returning(safeReturning);
+            return customer;
         }
         throw err;
     }
 }
 
 export async function updateCustomer(tenantId: string, id: string, data: Partial<z.infer<typeof customerSchema>>) {
-    const [customer] = await db
-        .update(customers)
-        .set({
-            ...data,
-            email: data.email || null,
-            creditLimit: data.creditLimit !== undefined ? String(data.creditLimit) : undefined,
-            updatedAt: new Date()
-        })
-        .where(and(eq(customers.tenantId, tenantId), eq(customers.id, id)))
-        .returning();
-    if (!customer) throw new AppError(404, 'Cliente não encontrado');
-    return customer;
+    try {
+        const [customer] = await db
+            .update(customers)
+            .set({
+                ...data,
+                email: data.email || null,
+                creditLimit: data.creditLimit !== undefined ? String(data.creditLimit) : undefined,
+                updatedAt: new Date()
+            } as any)
+            .where(and(eq(customers.tenantId, tenantId), eq(customers.id, id)))
+            .returning();
+        if (!customer) throw new AppError(404, 'Cliente não encontrado');
+        return customer;
+    } catch (err: any) {
+        if (err.code === '42703') {
+            logger.warn(`[CUSTOMERS] update fallback for id ${id}`);
+            const [customer] = await db
+                .update(customers)
+                .set({
+                    fullName: data.fullName,
+                    phoneNumber: data.phoneNumber,
+                    email: data.email || null,
+                    updatedAt: new Date()
+                })
+                .where(and(eq(customers.tenantId, tenantId), eq(customers.id, id)))
+                .returning({ id: customers.id });
+            return customer;
+        }
+        throw err;
+    }
 }
 
 export async function deleteCustomer(tenantId: string, id: string) {
-    const [customer] = await db
-        .update(customers)
-        .set({ updatedAt: new Date(), isBlocked: true })
-        .where(and(eq(customers.tenantId, tenantId), eq(customers.id, id)))
-        .returning();
-    if (!customer) throw new AppError(404, 'Cliente não encontrado');
-    return { success: true };
+    try {
+        // Try soft delete update first if possible (though we don't use deleted_at here yet, just isBlocked)
+        const [customer] = await db
+            .update(customers)
+            .set({ updatedAt: new Date(), isBlocked: true })
+            .where(and(eq(customers.tenantId, tenantId), eq(customers.id, id)))
+            .returning();
+        if (!customer) throw new AppError(404, 'Cliente não encontrado');
+        return { success: true };
+    } catch (err: any) {
+        if (err.code === '42703') {
+            // If somehow deleted_at was being triggered by a default select in returning()
+            logger.warn(`[CUSTOMERS] delete fallback (hard blocked)`);
+            await db
+                .update(customers)
+                .set({ isBlocked: true })
+                .where(and(eq(customers.tenantId, tenantId), eq(customers.id, id)));
+            return { success: true };
+        }
+        throw err;
+    }
 }
 
 export async function getCustomer360(tenantId: string, id: string) {
@@ -197,12 +245,35 @@ export async function getCustomer360(tenantId: string, id: string) {
             },
         });
     } catch (queryError: any) {
-        console.error(`[SERVICE] getCustomer360 - Query failed for tenant ${tenantId} and id ${id}:`, queryError);
-        // If it's a "missing column" error, provide a more helpful message
         if (queryError.code === '42703') {
-            throw new AppError(500, `Erro de consistência de dados (coluna faltando). Por favor, execute as migrações mais recentes.`);
+            logger.warn(`[CUSTOMERS] get360 fallback (excluding missing columns)`);
+            customer = await db.query.customers.findFirst({
+                where: and(eq(customers.tenantId, tenantId), eq(customers.id, id)),
+                columns: {
+                    classification: false,
+                    tags: false,
+                    notes: false,
+                    deletedAt: false
+                },
+                with: {
+                    rentals: {
+                        with: { tool: true, payments: true },
+                        orderBy: (rentals, { desc }) => [desc(rentals.createdAt)],
+                    },
+                    quotes: {
+                        with: { items: { with: { tool: true } } },
+                        orderBy: (quotes, { desc }) => [desc(quotes.createdAt)],
+                    },
+                    clientCommunications: {
+                        with: { user: { columns: { fullName: true, avatarUrl: true } } },
+                        orderBy: (comm, { desc }) => [desc(comm.createdAt)],
+                    }
+                }
+            });
+        } else {
+            console.error(`[SERVICE] getCustomer360 - Query failed for tenant ${tenantId} and id ${id}:`, queryError);
+            throw queryError;
         }
-        throw queryError;
     }
 
     if (!customer) {
