@@ -1,9 +1,11 @@
 import axios from 'axios';
 
-// We connect directly to the backend.
-// The backend's CORS is configured to be permissive (allowing locattus.com),
-// so we don't need a Next.js proxy, which proved unreliable in the specific Docker container.
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
+// IMPORTANT: In production we ALWAYS use the Next.js proxy (/api → backend).
+// This prevents CORS errors entirely — the browser never makes cross-origin requests.
+// NEXT_PUBLIC_API_URL is intentionally ignored in production.
+const API_URL = process.env.NODE_ENV === 'production'
+    ? '/api'
+    : (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api');
 
 const api = axios.create({
     baseURL: API_URL,
