@@ -9,7 +9,13 @@ const defaultProxy = isDev
   ? 'http://localhost:4000/api'
   : 'https://alugafacil-server-production.up.railway.app/api';
 
-const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || defaultProxy;
+let backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || defaultProxy;
+
+// Vercel build fails if the URL doesn't have http:// or https://
+if (!backendUrl.startsWith('http://') && !backendUrl.startsWith('https://')) {
+  backendUrl = isDev ? `http://${backendUrl}` : `https://${backendUrl}`;
+}
+
 // Ensure we don't end up with /api/api if the URL already has /api
 const destination = backendUrl.endsWith('/api')
   ? `${backendUrl}/:path*`
