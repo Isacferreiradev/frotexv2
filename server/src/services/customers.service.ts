@@ -99,39 +99,49 @@ export async function getCustomer360(tenantId: string, id: string) {
         throw new AppError(400, 'ID de cliente inválido');
     }
 
-    const customer = await db.query.customers.findFirst({
-        where: and(eq(customers.tenantId, tenantId), eq(customers.id, id)),
-        with: {
-            rentals: {
-                with: {
-                    tool: true,
-                    payments: true,
+    let customer;
+    try {
+        customer = await db.query.customers.findFirst({
+            where: and(eq(customers.tenantId, tenantId), eq(customers.id, id)),
+            with: {
+                rentals: {
+                    with: {
+                        tool: true,
+                        payments: true,
+                    },
+                    orderBy: (rentals, { desc }) => [desc(rentals.createdAt)],
                 },
-                orderBy: (rentals, { desc }) => [desc(rentals.createdAt)],
-            },
-            quotes: {
-                with: {
-                    items: {
-                        with: {
-                            tool: true
+                quotes: {
+                    with: {
+                        items: {
+                            with: {
+                                tool: true
+                            }
+                        },
+                    },
+                    orderBy: (quotes, { desc }) => [desc(quotes.createdAt)],
+                },
+                clientCommunications: {
+                    with: {
+                        user: {
+                            columns: {
+                                fullName: true,
+                                avatarUrl: true
+                            }
                         }
                     },
-                },
-                orderBy: (quotes, { desc }) => [desc(quotes.createdAt)],
+                    orderBy: (comm, { desc }) => [desc(comm.createdAt)],
+                }
             },
-            clientCommunications: {
-                with: {
-                    user: {
-                        columns: {
-                            fullName: true,
-                            avatarUrl: true
-                        }
-                    }
-                },
-                orderBy: (comm, { desc }) => [desc(comm.createdAt)],
-            }
-        },
-    });
+        });
+    } catch (queryError: any) {
+        console.error(`[SERVICE] getCustomer360 - Query failed for tenant ${tenantId} and id ${id}:`, queryError);
+        // If it's a "missing column" error, provide a more helpful message
+        if (queryError.code === '42703') {
+            throw new AppError(500, `Erro de consistência de dados (coluna faltando). Por favor, execute as migrações mais recentes.`);
+        }
+        throw queryError;
+    }
 
     if (!customer) {
         console.warn(`[SERVICE] getCustomer360 - Customer not found for tenant ${tenantId} and id ${id}`);

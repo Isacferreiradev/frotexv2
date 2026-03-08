@@ -25,13 +25,17 @@ export function ToolCard({ tool, onEdit, onDelete, onStatusChange, onShowQR, onC
         <div
             onClick={() => router.push(`/ferramentas/${tool.id}`)}
             className={cn(
-                "group bg-white rounded-premium border border-border shadow-soft hover:shadow-premium transition-all duration-300 overflow-hidden flex flex-col h-full cursor-pointer hover:border-primary/20",
-                selected && "border-primary ring-2 ring-primary/20 bg-primary/5"
+                "group bg-white rounded-[2rem] border border-violet-100 shadow-[0_10px_40px_rgba(124,58,237,0.06)] hover:shadow-[0_20px_50px_rgba(124,58,237,0.12)] transition-all duration-500 overflow-hidden flex flex-col h-full cursor-pointer hover:-translate-y-1 relative",
+                selected && "border-primary ring-2 ring-primary/10 bg-violet-50/30"
             )}
         >
             {/* Header / Image Placeholder */}
-            <div className="relative h-32 sm:h-40 bg-muted/50 flex items-center justify-center border-b border-border overflow-hidden">
-                <div className="absolute top-4 left-4 z-10 flex gap-2">
+            <div className="relative h-40 sm:h-48 bg-gradient-to-br from-violet-50 to-white flex items-center justify-center border-b border-violet-50 overflow-hidden">
+                {/* Decorative background blobs */}
+                <div className="absolute top-0 right-0 w-32 h-32 bg-violet-200/20 blur-[40px] rounded-full -translate-y-1/2 translate-x-1/2 group-hover:bg-violet-400/20 transition-all duration-700" />
+                <div className="absolute bottom-0 left-0 w-24 h-24 bg-violet-100/30 blur-[30px] rounded-full translate-y-1/2 -translate-x-1/2 group-hover:bg-violet-300/30 transition-all duration-700" />
+
+                <div className="absolute top-5 left-5 z-10 flex gap-2">
                     {onSelect && (
                         <div
                             onClick={(e) => {
@@ -39,17 +43,17 @@ export function ToolCard({ tool, onEdit, onDelete, onStatusChange, onShowQR, onC
                                 onSelect(tool.id);
                             }}
                             className={cn(
-                                "w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all",
-                                selected ? "bg-primary border-primary text-white" : "bg-white/50 border-white/80"
+                                "w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all duration-300",
+                                selected ? "bg-violet-600 border-violet-600 text-white scale-110 shadow-lg shadow-violet-200" : "bg-white/40 backdrop-blur-md border-white/80"
                             )}
                         >
                             {selected && <div className="w-2 h-2 bg-white rounded-full" />}
                         </div>
                     )}
-                    <div className="bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-full border border-border flex items-center gap-2 shadow-sm">
+                    <div className="bg-white/60 backdrop-blur-xl px-4 py-2 rounded-2xl border border-white/80 flex items-center gap-2 shadow-[0_4px_20px_rgba(0,0,0,0.03)] border-violet-50/50">
                         <StatusPulse status={tool.status} />
-                        <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
-                            {tool.status === 'available' ? 'Livre' : tool.status === 'rented' ? 'Em Campo' : 'Manutenção'}
+                        <span className="text-[10px] font-extrabold uppercase tracking-[0.1em] text-zinc-600">
+                            {tool.status === 'available' ? 'Disponível' : tool.status === 'rented' ? 'Locado' : 'Manutenção'}
                         </span>
                     </div>
 
@@ -59,7 +63,7 @@ export function ToolCard({ tool, onEdit, onDelete, onStatusChange, onShowQR, onC
                                 e.stopPropagation();
                                 onShowQR(tool);
                             }}
-                            className="w-8 h-8 bg-white/90 backdrop-blur-md rounded-full border border-border flex items-center justify-center text-muted-foreground hover:text-primary hover:border-primary/20 hover:shadow-sm transition-all shadow-sm"
+                            className="w-9 h-9 bg-white/60 backdrop-blur-xl rounded-2xl border border-white/80 flex items-center justify-center text-zinc-500 hover:text-violet-600 hover:border-violet-200 hover:shadow-xl hover:-translate-y-0.5 transition-all shadow-[0_4px_20px_rgba(0,0,0,0.03)]"
                             title="Ver QR Code"
                         >
                             <QrCode className="w-4 h-4" />
@@ -67,15 +71,15 @@ export function ToolCard({ tool, onEdit, onDelete, onStatusChange, onShowQR, onC
                     )}
                 </div>
 
-                <Wrench className="w-10 h-10 text-primary/20 group-hover:scale-110 group-hover:text-primary/40 transition-all duration-500" />
+                <Wrench className="w-12 h-12 text-violet-200 group-hover:scale-110 group-hover:rotate-12 group-hover:text-violet-400 transition-all duration-700 ease-[0.34,1.56,0.64,1]" />
 
-                <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-all">
+                <div className="absolute top-5 right-5 flex gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-x-2 group-hover:translate-x-0">
                     <button
                         onClick={(e) => {
                             e.stopPropagation();
                             onEdit(tool);
                         }}
-                        className="w-8 h-8 bg-white rounded-xl border border-border flex items-center justify-center text-muted-foreground hover:text-primary hover:border-primary/20 hover:shadow-sm"
+                        className="w-9 h-9 bg-white/80 backdrop-blur-xl rounded-2xl border border-white flex items-center justify-center text-zinc-400 hover:text-violet-600 hover:border-violet-100 hover:shadow-premium transition-all"
                         title="Editar"
                     >
                         <Pencil className="w-3.5 h-3.5" />
@@ -86,7 +90,7 @@ export function ToolCard({ tool, onEdit, onDelete, onStatusChange, onShowQR, onC
                                 e.stopPropagation();
                                 onDelete(tool.id);
                             }}
-                            className="w-8 h-8 bg-white rounded-xl border border-border flex items-center justify-center text-muted-foreground hover:text-red-500 hover:border-red-200 hover:shadow-sm"
+                            className="w-9 h-9 bg-white/80 backdrop-blur-xl rounded-2xl border border-white flex items-center justify-center text-zinc-400 hover:text-red-500 hover:border-red-100 hover:shadow-premium transition-all"
                             title="Excluir"
                         >
                             <Trash2 className="w-3.5 h-3.5" />
@@ -96,21 +100,25 @@ export function ToolCard({ tool, onEdit, onDelete, onStatusChange, onShowQR, onC
             </div>
 
             {/* Content */}
-            <div className="p-4 sm:p-8 flex-1 flex flex-col">
+            <div className="p-6 sm:p-8 flex-1 flex flex-col">
                 <div className="flex-1">
-                    <p className="text-[10px] font-semibold text-primary uppercase tracking-[0.2em] mb-2">{tool.categoryName || 'Universal'}</p>
-                    <h4 className="font-semibold text-foreground text-[15px] tracking-tight leading-tight group-hover:text-primary transition-colors">
+                    <div className="flex items-center gap-2 mb-3">
+                        <span className="h-1 w-1 rounded-full bg-violet-400" />
+                        <p className="text-[10px] font-bold text-violet-600 uppercase tracking-[0.2em] leading-none">{tool.categoryName || 'Universal'}</p>
+                    </div>
+                    <h4 className="font-bold text-zinc-900 text-[17px] tracking-tight leading-tight group-hover:text-violet-600 transition-colors duration-300">
                         {tool.name}
                     </h4>
-                    <p className="text-[10px] font-medium text-muted-foreground mt-2 uppercase tracking-tight">
-                        {tool.brand} • {tool.assetTag || 'Sem Tag'}
-                    </p>
+                    <div className="mt-3 flex items-center gap-3">
+                        <span className="text-[11px] font-medium text-zinc-400 border border-zinc-100 px-2 py-0.5 rounded-lg">{tool.brand}</span>
+                        <span className="text-[11px] font-medium text-zinc-400 border border-zinc-100 px-2 py-0.5 rounded-lg">#{tool.assetTag || 'Sem Tag'}</span>
+                    </div>
                 </div>
 
-                <div className="mt-4 sm:mt-8 pt-4 sm:pt-6 border-t border-border/40 flex items-center justify-between gap-4">
+                <div className="mt-8 pt-6 border-t border-violet-50/50 flex items-center justify-between gap-4">
                     <div className="space-y-1">
-                        <p className="text-[9px] font-semibold text-muted-foreground uppercase tracking-[0.15em] leading-none">Diária</p>
-                        <p className="text-[15px] font-semibold text-foreground tabular-nums tracking-tight">{formatCurrency(tool.dailyRate)}</p>
+                        <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.15em] leading-none">Investimento/Dia</p>
+                        <p className="text-[18px] font-bold text-zinc-900 tabular-nums tracking-tighter">{formatCurrency(tool.dailyRate)}</p>
                     </div>
 
                     <div className="flex items-center gap-2">
@@ -120,10 +128,10 @@ export function ToolCard({ tool, onEdit, onDelete, onStatusChange, onShowQR, onC
                                     e.stopPropagation();
                                     onCheckout(tool);
                                 }}
-                                className="bg-primary text-white rounded-xl px-5 py-2.5 flex items-center justify-center gap-2 hover:bg-primary/90 transition-all duration-300 shadow-premium group/btn"
+                                className="bg-violet-600 text-white rounded-[1.25rem] px-6 py-3.5 flex items-center justify-center gap-2.5 hover:bg-violet-700 transition-all duration-500 shadow-[0_10px_25px_rgba(124,58,237,0.25)] hover:shadow-[0_15px_30px_rgba(124,58,237,0.35)] hover:-translate-y-1 active:scale-95 group/btn"
                             >
-                                <Zap className="w-3.5 h-3.5 fill-current transition-transform group-hover/btn:scale-110" />
-                                <span className="text-[10px] font-semibold uppercase tracking-widest leading-none">Alugar</span>
+                                <Zap className="w-4 h-4 text-violet-200 fill-violet-200 transition-all duration-500 group-hover/btn:scale-110 group-hover/btn:text-white group-hover/btn:fill-white" />
+                                <span className="text-[11px] font-extrabold uppercase tracking-[0.15em] leading-none">Alugar Agora</span>
                             </button>
                         )}
 
@@ -133,10 +141,10 @@ export function ToolCard({ tool, onEdit, onDelete, onStatusChange, onShowQR, onC
                                     e.stopPropagation();
                                     onStatusChange(tool.id, 'maintenance');
                                 }}
-                                className="bg-secondary/40 text-primary rounded-xl w-10 h-10 flex items-center justify-center transition-all duration-300 hover:bg-primary hover:text-white"
+                                className="bg-zinc-50 text-zinc-400 rounded-2xl w-12 h-12 flex items-center justify-center transition-all duration-500 hover:bg-violet-50 hover:text-violet-600 hover:shadow-inner"
                                 title="Enviar para Manutenção"
                             >
-                                <Wrench className="w-3.5 h-3.5" />
+                                <Wrench className="w-4 h-4" />
                             </button>
                         )}
                     </div>
