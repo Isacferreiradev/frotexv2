@@ -225,10 +225,24 @@ export default function RegisterPage() {
                                             <div className="space-y-1.5 col-span-2 sm:col-span-1">
                                                 <label className="text-[9px] uppercase font-extrabold text-slate-400 tracking-widest ml-1">CPF ou CNPJ</label>
                                                 <input {...register('documentNumber')} className="w-full h-12 px-5 bg-slate-50 border border-slate-100 rounded-xl text-sm font-medium focus:outline-none focus:ring-4 focus:ring-violet-500/5 focus:border-violet-600 transition-all" />
+                                                {errors.documentNumber && <p className="text-[8px] text-red-500 font-bold uppercase tracking-widest">{errors.documentNumber?.message}</p>}
                                             </div>
                                             <div className="space-y-1.5 col-span-2 sm:col-span-1">
                                                 <label className="text-[9px] uppercase font-extrabold text-slate-400 tracking-widest ml-1">WhatsApp</label>
                                                 <input {...register('phoneNumber')} className="w-full h-12 px-5 bg-slate-50 border border-slate-100 rounded-xl text-sm font-medium focus:outline-none focus:ring-4 focus:ring-violet-500/5 focus:border-violet-600 transition-all" />
+                                                {errors.phoneNumber && <p className="text-[8px] text-red-500 font-bold uppercase tracking-widest">{errors.phoneNumber?.message}</p>}
+                                            </div>
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div className="space-y-1.5 col-span-2 sm:col-span-1">
+                                                <label className="text-[9px] uppercase font-extrabold text-slate-400 tracking-widest ml-1">Cidade</label>
+                                                <input {...register('city')} placeholder="Ex: São Paulo" className="w-full h-12 px-5 bg-slate-50 border border-slate-100 rounded-xl text-sm font-medium focus:outline-none focus:ring-4 focus:ring-violet-500/5 focus:border-violet-600 transition-all" />
+                                                {errors.city && <p className="text-[8px] text-red-500 font-bold uppercase tracking-widest">{errors.city?.message}</p>}
+                                            </div>
+                                            <div className="space-y-1.5 col-span-2 sm:col-span-1">
+                                                <label className="text-[9px] uppercase font-extrabold text-slate-400 tracking-widest ml-1">Estado (UF)</label>
+                                                <input {...register('state')} placeholder="SP" maxLength={2} className="w-full h-12 px-5 bg-slate-50 border border-slate-100 rounded-xl text-sm font-medium focus:outline-none focus:ring-4 focus:ring-violet-500/5 focus:border-violet-600 transition-all uppercase" />
+                                                {errors.state && <p className="text-[8px] text-red-500 font-bold uppercase tracking-widest">{errors.state?.message}</p>}
                                             </div>
                                         </div>
                                     </div>
