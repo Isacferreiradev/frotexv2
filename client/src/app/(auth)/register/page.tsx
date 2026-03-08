@@ -33,7 +33,7 @@ const registerSchema = z.object({
     documentNumber: z.string().min(11, 'Documento inválido'),
     phoneNumber: z.string().min(10, 'Telefone inválido'),
     city: z.string().min(2, 'Cidade obrigatória'),
-    state: z.string().length(2, 'UF inválida (ex: SP)'),
+    state: z.string().min(2, 'UF inválida').max(2, 'UF inválida (ex: SP)'),
 
     // Step 3: Profile
     toolCountRange: z.string().optional(),
@@ -284,6 +284,11 @@ export default function RegisterPage() {
                                             {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : "Concluir Cadastro"}
                                         </button>
                                     </div>
+                                    {serverError && (
+                                        <div className="mt-3 px-4 py-3 bg-red-50 border border-red-100 rounded-xl text-xs text-red-600 font-bold text-center">
+                                            {serverError}
+                                        </div>
+                                    )}
                                 </motion.div>
                             )}
                         </AnimatePresence>
