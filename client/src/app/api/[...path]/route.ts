@@ -2,12 +2,15 @@ import { NextRequest, NextResponse } from 'next/server';
 
 // Frontend and backend run in the SAME Railway container via concurrently.
 // Backend always binds to port 4000 (INTERNAL_BACKEND_PORT=4000).
-// Do NOT set BACKEND_URL to the Railway public URL — that creates an infinite loop.
-// Leave BACKEND_URL unset to use the local backend on 127.0.0.1:4000.
-const BACKEND_URL = (process.env.BACKEND_URL
+let BACKEND_URL = (process.env.BACKEND_URL
     ? process.env.BACKEND_URL.replace(/\/$/, '')
     : 'http://127.0.0.1:4000'
 );
+
+// Prevent infinite loop if user accidentally sets BACKEND_URL to the external Railway domain
+if (BACKEND_URL.includes('railway.app') || BACKEND_URL.includes('locattus')) {
+    BACKEND_URL = 'http://127.0.0.1:4000';
+}
 
 export const dynamic = 'force-dynamic';
 
