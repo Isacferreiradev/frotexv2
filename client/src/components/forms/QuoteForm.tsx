@@ -17,6 +17,7 @@ import { useQuery } from '@tanstack/react-query';
 import api from '@/lib/api';
 import { formatCurrency, cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
+import { toast } from 'sonner';
 
 const quoteSchema = z.object({
     customerId: z.string().uuid('Selecione um cliente'),
