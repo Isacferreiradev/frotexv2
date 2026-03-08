@@ -32,13 +32,17 @@ export const checkinSchema = z.object({
 });
 
 function daysBetween(start: Date, end: Date): number {
-    const diff = end.getTime() - start.getTime();
-    return Math.max(1, Math.ceil(diff / (1000 * 60 * 60 * 24)));
+    // Treat as UTC midnights to ignore DST (Daylight Saving Time) shifts
+    const utc1 = Date.UTC(start.getFullYear(), start.getMonth(), start.getDate());
+    const utc2 = Date.UTC(end.getFullYear(), end.getMonth(), end.getDate());
+    const diff = utc2 - utc1;
+    return Math.max(1, Math.floor(diff / (1000 * 60 * 60 * 24)));
 }
 
-async function generateRentalCode(tenantId: string): Promise<string> {
-    const existingRentals = await db.select({ rentalCode: rentals.rentalCode }).from(rentals).where(eq(rentals.tenantId, tenantId));
-    const maxNum = existingRentals.reduce((max, r) => {
+async function generateRentalCode(tenantId: string, txContext?: any): Promise<string> {
+    const dbContext = txContext || db;
+    const existingRentals = await dbContext.select({ rentalCode: rentals.rentalCode }).from(rentals).where(eq(rentals.tenantId, tenantId));
+    const maxNum = existingRentals.reduce((max: number, r: { rentalCode: string }) => {
         const num = parseInt(r.rentalCode.slice(2)) || 0;
         return Math.max(max, num);
     }, 0);
@@ -83,16 +87,6 @@ export async function getRental(tenantId: string, id: string) {
 }
 
 export async function createRental(tenantId: string, userId: string, data: z.infer<typeof createRentalSchema>) {
-    // Check tool availability
-    const [tool] = await db.select().from(tools).where(and(eq(tools.tenantId, tenantId), eq(tools.id, data.toolId)));
-    if (!tool) throw new AppError(404, 'Ferramenta não encontrada');
-    if (tool.status !== 'available') throw new AppError(409, `Ferramenta não disponível (status: ${tool.status})`);
-
-    // Check customer not blocked
-    const [customer] = await db.select().from(customers).where(and(eq(customers.tenantId, tenantId), eq(customers.id, data.customerId)));
-    if (!customer) throw new AppError(404, 'Cliente não encontrado');
-    if (customer.isBlocked) throw new AppError(403, 'Cliente bloqueado por inadimplência');
-
     const startDate = new Date(data.startDate);
     const endDateExpected = new Date(data.endDateExpected);
     const totalDaysExpected = daysBetween(startDate, endDateExpected);
@@ -109,9 +103,58 @@ export async function createRental(tenantId: string, userId: string, data: z.inf
         }
     }
 
-    const rentalCode = await generateRentalCode(tenantId);
-
     const rental = await db.transaction(async (tx) => {
+        // 1. Lock tenant row to serialize creation and prevent duplicate rental codes globally
+        await tx.select({ id: tenants.id }).from(tenants).where(eq(tenants.id, tenantId)).for('update');
+
+        // 2. Generate rental code safely inside lock
+        const rentalCode = await generateRentalCode(tenantId, tx);
+
+        // 3. Lock the tool row to prevent Race Conditions (Double Booking)
+        const [tool] = await tx.select().from(tools)
+            .where(and(eq(tools.tenantId, tenantId), eq(tools.id, data.toolId)))
+            .for('update');
+
+        if (!tool) throw new AppError(404, 'Ferramenta não encontrada');
+        if (tool.status !== 'available') throw new AppError(409, `Ferramenta não disponível (status: ${tool.status})`);
+
+        // Check customer not blocked and advanced restrictions
+        const [customer] = await tx.select().from(customers).where(and(eq(customers.tenantId, tenantId), eq(customers.id, data.customerId)));
+        if (!customer) throw new AppError(404, 'Cliente não encontrado');
+        if (customer.isBlocked) throw new AppError(403, 'Cliente bloqueado por inadimplência');
+
+        if (!customer.allowLateRentals) {
+            const [hasOverdue] = await tx.select({ id: rentals.id }).from(rentals)
+                .where(and(
+                    eq(rentals.tenantId, tenantId),
+                    eq(rentals.customerId, data.customerId),
+                    or(
+                        eq(rentals.status, 'overdue'),
+                        and(eq(rentals.status, 'active'), sql`${rentals.endDateExpected} < NOW()`)
+                    )
+                )).limit(1);
+
+            if (hasOverdue) {
+                throw new AppError(403, 'Atenção: Este cliente possui locações em atraso e a permissão para novas locações está desativada no cadastro dele.');
+            }
+        }
+
+        if (customer.creditLimit && parseFloat(customer.creditLimit) > 0) {
+            const [pendingData] = await tx.select({ total: sql<number>`SUM(CAST(${payments.amount} AS NUMERIC))` })
+                .from(payments)
+                .innerJoin(rentals, eq(payments.rentalId, rentals.id))
+                .where(and(
+                    eq(rentals.customerId, data.customerId),
+                    eq(payments.status, 'pending')
+                    // Not checking tenantId here because customerId already scopes it, but it's safe to add
+                ));
+
+            const currentDebt = pendingData?.total || 0;
+            if (currentDebt + totalAmountExpected > parseFloat(customer.creditLimit)) {
+                throw new AppError(403, `Negado: O Limite de Crédito do cliente será excedido. (Limite: R$ ${customer.creditLimit} | Dívida atual: R$ ${currentDebt} | Nova Locação: R$ ${totalAmountExpected})`);
+            }
+        }
+
         const [insertedRental] = await tx.insert(rentals).values({
             tenantId,
             toolId: data.toolId,
@@ -171,9 +214,6 @@ export async function createRental(tenantId: string, userId: string, data: z.inf
 }
 
 export async function checkinRental(tenantId: string, id: string, userId: string, data: z.infer<typeof checkinSchema>) {
-    const rental = await getRental(tenantId, id);
-    if (rental.status === 'returned') throw new AppError(409, 'Locação já devolvida');
-    if (rental.status === 'cancelled') throw new AppError(409, 'Locação cancelada');
 
     // Get tenant settings for fine calculation
     const [tenant] = await db.select({ settings: tenants.settings }).from(tenants).where(eq(tenants.id, tenantId));
@@ -181,30 +221,38 @@ export async function checkinRental(tenantId: string, id: string, userId: string
     const finePercentage = settings.overdueFinePercentage ?? 10;
     const gracePeriodMinutes = settings.gracePeriodMinutes ?? 60;
 
-    const endDateActual = new Date(data.endDateActual);
-    const startDate = new Date(rental.startDate);
-    const endDateExpected = new Date(rental.endDateExpected);
-    const totalDaysActual = daysBetween(startDate, endDateActual);
-    const dailyRate = parseFloat(rental.dailyRateAgreed);
-
-    let overdueFineAmount = 0;
-
-    // Advanced Late Fee Logic with Grace Period
-    const diffMs = endDateActual.getTime() - endDateExpected.getTime();
-    const diffMinutes = Math.floor(diffMs / (1000 * 60));
-
-    if (diffMinutes > gracePeriodMinutes) {
-        const overdueDays = daysBetween(endDateExpected, endDateActual);
-        // Multa fixa + Diárias extras proporcionais
-        const fixedFine = (dailyRate * totalDaysActual) * (finePercentage / 100);
-        overdueFineAmount = fixedFine;
-
-        logger.info(`🚨 [LATE FEE] Applied for Rental ${rental.rentalCode}. Delay: ${diffMinutes}min. Fine: ${overdueFineAmount}`);
-    }
-
-    const totalAmountActual = totalDaysActual * dailyRate + overdueFineAmount;
-
     const updated = await db.transaction(async (tx) => {
+        // Lock the rental record
+        const [rental] = await tx.select().from(rentals)
+            .where(and(eq(rentals.tenantId, tenantId), eq(rentals.id, id)))
+            .for('update');
+
+        if (!rental) throw new AppError(404, 'Locação não encontrada');
+        if (rental.status === 'returned') throw new AppError(409, 'Locação já devolvida');
+        if (rental.status === 'cancelled') throw new AppError(409, 'Locação cancelada');
+
+        const endDateActual = new Date(data.endDateActual);
+        const startDate = new Date(rental.startDate);
+        const endDateExpected = new Date(rental.endDateExpected);
+        const totalDaysActual = daysBetween(startDate, endDateActual);
+        const dailyRate = parseFloat(rental.dailyRateAgreed);
+
+        let overdueFineAmount = 0;
+
+        // Advanced Late Fee Logic with Grace Period
+        const diffMs = endDateActual.getTime() - endDateExpected.getTime();
+        const diffMinutes = Math.floor(diffMs / (1000 * 60));
+
+        if (diffMinutes > gracePeriodMinutes) {
+            const overdueDays = daysBetween(endDateExpected, endDateActual);
+            // Multa fixa + Diárias extras proporcionais
+            const fixedFine = (dailyRate * totalDaysActual) * (finePercentage / 100);
+            overdueFineAmount = fixedFine;
+
+            logger.info(`🚨 [LATE FEE] Applied for Rental ${rental.rentalCode}. Delay: ${diffMinutes}min. Fine: ${overdueFineAmount}`);
+        }
+
+        const totalAmountActual = totalDaysActual * dailyRate + overdueFineAmount;
         const [updatedRental] = await tx
             .update(rentals)
             .set({
@@ -278,12 +326,15 @@ export async function checkinRental(tenantId: string, id: string, userId: string
 }
 
 export async function cancelRental(tenantId: string, id: string) {
-    const rental = await getRental(tenantId, id);
-    if (rental.status !== 'active' && rental.status !== 'overdue') {
-        throw new AppError(400, `Não é possível cancelar uma locação com status: ${rental.status}`);
-    }
-
     const updated = await db.transaction(async (tx) => {
+        const [rental] = await tx.select().from(rentals)
+            .where(and(eq(rentals.tenantId, tenantId), eq(rentals.id, id)))
+            .for('update');
+
+        if (!rental) throw new AppError(404, 'Locação não encontrada');
+        if (rental.status !== 'active' && rental.status !== 'overdue') {
+            throw new AppError(400, `Não é possível cancelar uma locação com status: ${rental.status}`);
+        }
         const [updatedRental] = await tx
             .update(rentals)
             .set({

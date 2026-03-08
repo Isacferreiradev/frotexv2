@@ -13,9 +13,8 @@ interface User {
 
 interface AuthState {
     user: User | null;
-    accessToken: string | null;
     isAuthenticated: boolean;
-    setAuth: (user: User, accessToken: string, refreshToken: string) => void;
+    setAuth: (user: User) => void;
     updateUser: (user: Partial<User>) => void;
     logout: () => void;
     hydrate: () => void;
@@ -23,18 +22,13 @@ interface AuthState {
 
 export const useAuthStore = create<AuthState>((set) => ({
     user: null,
-    accessToken: null,
     isAuthenticated: false,
 
-    setAuth: (user, accessToken, refreshToken) => {
+    setAuth: (user) => {
         if (typeof window !== 'undefined') {
-            localStorage.setItem('access_token', accessToken);
-            localStorage.setItem('refresh_token', refreshToken);
             localStorage.setItem('user', JSON.stringify(user));
-            // Sync with cookie for middleware protection
-            document.cookie = `access_token=${accessToken}; path=/; max-age=604800; SameSite=Lax${window.location.protocol === 'https:' ? '; Secure' : ''}`;
         }
-        set({ user, accessToken, isAuthenticated: true });
+        set({ user, isAuthenticated: true });
     },
 
     updateUser: (partialUser) => {
@@ -50,11 +44,15 @@ export const useAuthStore = create<AuthState>((set) => ({
 
     logout: () => {
         if (typeof window !== 'undefined') {
-            localStorage.removeItem('access_token');
-            localStorage.removeItem('refresh_token');
             localStorage.removeItem('user');
-            // Remove auth cookie
-            document.cookie = 'access_token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+
+            // Fire API call to clear HttpOnly cookies on the backend securely
+            try {
+                const api = require('@/lib/api').default;
+                api.post('/auth/logout').catch(console.error);
+            } catch (e) {
+                console.error('Failed to call logout API', e);
+            }
 
             // CRITICAL FIX: Flush React Query cache to prevent data bleeding between accounts
             try {
@@ -64,30 +62,25 @@ export const useAuthStore = create<AuthState>((set) => ({
                 console.error('Failed to clear query cache', e);
             }
         }
-        set({ user: null, accessToken: null, isAuthenticated: false });
+        set({ user: null, isAuthenticated: false });
     },
 
     hydrate: () => {
         if (typeof window !== 'undefined') {
-            const token = localStorage.getItem('access_token');
             const userStr = localStorage.getItem('user');
 
-            if (token && userStr) {
+            // HttpOnly cookies handle pure auth validity. Re-hydrate UI user data blindly
+            // since actual restricted API calls will 401 and redirect them if the cookie expired.
+            if (userStr) {
                 try {
                     const user = JSON.parse(userStr) as User;
-                    // Ensure cookie is in sync during hydration
-                    if (!document.cookie.includes('access_token=')) {
-                        document.cookie = `access_token=${token}; path=/; max-age=604800; SameSite=Lax`;
-                    }
-                    set({ user, accessToken: token, isAuthenticated: true });
+                    set({ user, isAuthenticated: true });
                 } catch {
-                    localStorage.removeItem('access_token');
                     localStorage.removeItem('user');
-                    document.cookie = 'access_token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
                 }
             } else {
                 // Clear state if storage is empty
-                set({ user: null, accessToken: null, isAuthenticated: false });
+                set({ user: null, isAuthenticated: false });
             }
         }
     },

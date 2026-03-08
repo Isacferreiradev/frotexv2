@@ -6,9 +6,10 @@ import { Search, Loader2, Check, Wrench } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { cn, formatCurrency } from '@/lib/utils';
 import api from '@/lib/api';
+import { Tool } from '@/types';
 
 interface ToolSearchProps {
-    onSelect: (tool: any) => void;
+    onSelect: (tool: Tool) => void;
     selectedId?: string;
 }
 
@@ -23,7 +24,7 @@ export function ToolSearch({ onSelect, selectedId }: ToolSearchProps) {
         },
     });
 
-    const filtered = (tools || []).filter((t: any) =>
+    const filtered = (tools || []).filter((t: Tool) =>
         !search || t.name.toLowerCase().includes(search.toLowerCase()) ||
         t.serialNumber?.toLowerCase().includes(search.toLowerCase())
     );
@@ -52,7 +53,7 @@ export function ToolSearch({ onSelect, selectedId }: ToolSearchProps) {
                         <p className="text-[10px] uppercase font-bold tracking-widest mt-1 opacity-50">Tente buscar por outro termo</p>
                     </div>
                 ) : (
-                    filtered.map((tool: any) => (
+                    filtered.map((tool: Tool) => (
                         <button
                             key={tool.id}
                             onClick={() => onSelect(tool)}

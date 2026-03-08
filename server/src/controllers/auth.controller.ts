@@ -4,6 +4,23 @@ import { AppError } from '../middleware/error.middleware';
 import logger from '../utils/logger';
 import fs from 'fs';
 
+const isProd = process.env.NODE_ENV === 'production';
+
+export function setAuthCookies(res: Response, accessToken: string, refreshToken: string) {
+    res.cookie('access_token', accessToken, {
+        httpOnly: true,
+        secure: isProd,
+        sameSite: 'lax',
+        maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+    });
+    res.cookie('refresh_token', refreshToken, {
+        httpOnly: true,
+        secure: isProd,
+        sameSite: 'lax',
+        maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days
+    });
+}
+
 // Local debug log removed for production compatibility
 
 export async function register(req: Request, res: Response, next: NextFunction) {
@@ -17,7 +34,7 @@ export async function register(req: Request, res: Response, next: NextFunction) 
         }
 
         const result = await authService.register(data);
-        res.status(201).json({ success: true, data: result });
+        res.status(201).json({ success: true, data: { user: result.user } });
     } catch (err: any) {
         next(err);
     }
@@ -27,23 +44,35 @@ export async function login(req: Request, res: Response, next: NextFunction) {
     try {
         const data = authService.loginSchema.parse(req.body);
         const result = await authService.login(data);
-        res.json({ success: true, data: result });
+        setAuthCookies(res, result.accessToken, result.refreshToken);
+        res.json({ success: true, data: { user: result.user } });
     } catch (err) { next(err); }
 }
 
 export async function refresh(req: Request, res: Response, next: NextFunction) {
     try {
-        const { refreshToken } = req.body;
+        let refreshToken = req.body.refreshToken;
+        if (!refreshToken && req.headers.cookie) {
+            const match = req.headers.cookie.match(/(?:^|; )refresh_token=([^;]*)/);
+            if (match) refreshToken = match[1];
+        }
         if (!refreshToken) {
-            return res.status(400).json({ success: false, message: 'refreshToken obrigatório' });
+            return res.status(401).json({ success: false, message: 'refreshToken obrigatório' });
         }
         const result = await authService.refreshTokens(refreshToken);
-        res.json({ success: true, data: result });
+        setAuthCookies(res, result.accessToken, result.refreshToken);
+        res.json({ success: true });
     } catch (err) { next(err); }
 }
 
 export async function me(req: Request, res: Response) {
     res.json({ success: true, data: req.user });
+}
+
+export async function logout(req: Request, res: Response) {
+    res.clearCookie('access_token');
+    res.clearCookie('refresh_token');
+    res.json({ success: true, message: 'Logout efetuado com segurança' });
 }
 
 export async function changePassword(req: Request, res: Response, next: NextFunction) {

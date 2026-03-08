@@ -12,7 +12,7 @@ import { useRouter } from 'next/navigation';
 import { RentalDetailSheet } from '@/components/shared/RentalDetailSheet';
 
 import { OnboardingChecklist } from '@/components/dashboard/OnboardingChecklist';
-import { memo, useState } from 'react';
+import { memo, useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 
 import { formatCurrency, cn } from '@/lib/utils';
@@ -215,6 +215,23 @@ export default function DashboardPage() {
         staleTime: 60_000,
     });
 
+    const averageROI = useMemo(() => {
+        if (!stats?.topToolsByROI || stats.topToolsByROI.length === 0 || stats.total === 0) return 0;
+        const sumVal = stats.topToolsByROI.reduce((sum: number, t: any) => sum + (t.roi || 0), 0);
+        return sumVal / stats.topToolsByROI.length;
+    }, [stats?.topToolsByROI, stats?.total]);
+
+    const riskCapital = useMemo(() => {
+        if (!stats?.zombieEquipment || stats.zombieEquipment.length === 0) return 0;
+        return stats.zombieEquipment.reduce((sum: number, t: any) => sum + parseFloat(t.acquisitionCost || t.acquisition || '0'), 0);
+    }, [stats?.zombieEquipment]);
+
+    const healthPercentage = useMemo(() => {
+        if (!stats?.total) return 100;
+        const healthy = stats.total - (stats.maintenanceAlertsCount || 0);
+        return Math.max(0, (healthy / stats.total) * 100);
+    }, [stats?.total, stats?.maintenanceAlertsCount]);
+
     const hour = new Date().getHours();
     const greeting = hour < 12 ? 'Bom dia' : hour < 18 ? 'Boa tarde' : 'Boa noite';
     const firstName = user?.fullName?.split(' ')[0] ?? '';
@@ -310,14 +327,14 @@ export default function DashboardPage() {
                         <div className="space-y-2">
                             <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">ROI MÉDIO REAL</p>
                             <p className="text-3xl sm:text-4xl font-extrabold font-jakarta text-emerald-400">
-                                {stats?.total > 0 ? (stats.topToolsByROI?.reduce((sum: number, t: any) => sum + t.roi, 0) / stats.topToolsByROI?.length || 0).toFixed(1) : 0}%
+                                {averageROI.toFixed(1)}%
                             </p>
                             <p className="text-[10px] text-zinc-500 leading-relaxed font-medium">Contabilizando depreciação de 20%/ano e custos de manutenção.</p>
                         </div>
                         <div className="space-y-2">
                             <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Capital em Risco</p>
                             <p className="text-4xl font-extrabold font-jakarta text-red-500">
-                                {formatCurrency(stats?.zombieEquipment?.reduce((sum: number, t: any) => sum + parseFloat(t.acquisition || '0'), 0) || 0)}
+                                {formatCurrency(riskCapital)}
                             </p>
                             <p className="text-[10px] text-zinc-500 leading-relaxed font-medium">Investimento em equipamentos com ROI negativo ou fim de vida.</p>
                         </div>
@@ -436,14 +453,14 @@ export default function DashboardPage() {
                             <div className="space-y-4">
                                 <div className="flex justify-between items-end">
                                     <span className="text-3xl sm:text-4xl font-bold font-jakarta tracking-tight leading-none">
-                                        {stats?.total > 0 ? (100 - (stats.maintenanceAlertsCount / stats.total * 100)).toFixed(0) : 100}%
+                                        {healthPercentage.toFixed(0)}%
                                     </span>
                                     <span className="text-[10px] font-bold text-primary uppercase tracking-widest leading-none pb-1">{stats?.maintenanceAlertsCount ?? 0} pendências</span>
                                 </div>
                                 <div className="h-2.5 bg-muted rounded-full overflow-hidden shadow-inner">
                                     <div
                                         className="h-full bg-primary shadow-[0_0_12px_rgba(109,40,217,0.4)] transition-all duration-1000"
-                                        style={{ width: `${stats?.total > 0 ? (100 - (stats.maintenanceAlertsCount / stats.total * 100)) : 100}%` }}
+                                        style={{ width: `${healthPercentage}%` }}
                                     />
                                 </div>
                             </div>
@@ -465,6 +482,6 @@ export default function DashboardPage() {
                 isOpen={isDetailOpen}
                 onClose={() => setIsDetailOpen(false)}
             />
-        </div>
+        </div >
     );
 }

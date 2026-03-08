@@ -3,12 +3,13 @@
 import { Calendar, User, Wrench, AlertTriangle, MoreVertical, CheckCircle2 } from 'lucide-react';
 import { cn, formatDate, formatCurrency } from '@/lib/utils';
 import { StatusPulse } from './StatusPulse';
+import { Rental } from '@/types';
 
 interface RentalCardProps {
-    rental: any;
-    onReturn: (rental: any) => void;
+    rental: Rental;
+    onReturn: (rental: Rental) => void;
     onCancel: (id: string) => void;
-    onDetail?: (rental: any) => void;
+    onDetail?: (rental: Rental) => void;
 }
 
 export function RentalCard({ rental, onReturn, onDetail }: RentalCardProps) {

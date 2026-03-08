@@ -6,9 +6,10 @@ import { Search, Loader2, Check, ShieldAlert, User } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import api from '@/lib/api';
+import { Customer } from '@/types';
 
 interface CustomerSearchProps {
-    onSelect: (customer: any) => void;
+    onSelect: (customer: Customer) => void;
     selectedId?: string;
 }
 
@@ -23,7 +24,7 @@ export function CustomerSearch({ onSelect, selectedId }: CustomerSearchProps) {
         },
     });
 
-    const filtered = (customers || []).filter((c: any) =>
+    const filtered = (customers || []).filter((c: Customer) =>
         !search || c.fullName.toLowerCase().includes(search.toLowerCase()) ||
         c.documentNumber.includes(search)
     ).slice(0, 50);
@@ -52,7 +53,7 @@ export function CustomerSearch({ onSelect, selectedId }: CustomerSearchProps) {
                         <p className="text-[10px] uppercase font-bold tracking-widest mt-1 opacity-50">Tente buscar por documento</p>
                     </div>
                 ) : (
-                    filtered.map((customer: any) => (
+                    filtered.map((customer: Customer) => (
                         <button
                             key={customer.id}
                             disabled={customer.isBlocked}

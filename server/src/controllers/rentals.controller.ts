@@ -50,16 +50,14 @@ export async function dashboardStats(req: Request, res: Response, next: NextFunc
         res.json({ success: true, data });
     } catch (err) { next(err); }
 }
-export const getAvailability = async (req: Request, res: Response) => {
+export const getAvailability = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { toolId } = req.params;
         const tenantId = (req as any).user.tenantId;
 
         const data = await rentalsService.getToolAvailability(tenantId, toolId);
         res.status(200).json({ success: true, data });
-    } catch (error: any) {
-        res.status(400).json({ success: false, message: error.message });
-    }
+    } catch (err) { next(err); }
 };
 
 export async function listExpiring(req: Request, res: Response, next: NextFunction) {

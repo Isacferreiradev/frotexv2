@@ -11,7 +11,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { ToolSearch } from '../shared/ToolSearch';
 import { CustomerSearch } from '../shared/CustomerSearch';
-import { formatCurrency } from '@/lib/utils';
+import { cn, formatCurrency } from '@/lib/utils';
+import { Tool, Customer } from '@/types';
 import { ArrowLeft, ArrowRight, CheckCircle2, Loader2, Zap } from 'lucide-react';
 
 const checkoutSchema = z.object({
@@ -33,8 +34,8 @@ interface RentalCheckoutProps {
 
 export function RentalCheckout({ onSubmit, isLoading, initialToolId, initialCustomerId }: RentalCheckoutProps) {
     const [step, setStep] = useState(initialToolId ? 2 : 1);
-    const [selectedTool, setSelectedTool] = useState<any>(null);
-    const [selectedCustomer, setSelectedCustomer] = useState<any>(null);
+    const [selectedTool, setSelectedTool] = useState<Tool | null>(null);
+    const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
 
     // Fetch initial tool if provided
     useQuery({
@@ -95,14 +96,14 @@ export function RentalCheckout({ onSubmit, isLoading, initialToolId, initialCust
 
     const prevStep = () => setStep(step - 1);
 
-    const handleToolSelect = (tool: any) => {
+    const handleToolSelect = (tool: Tool) => {
         setSelectedTool(tool);
         setValue('toolId', tool.id);
-        setValue('dailyRateAgreed', tool.dailyRate);
+        setValue('dailyRateAgreed', tool.dailyRate ? parseFloat(tool.dailyRate) : 0);
         setStep(2); // Auto-advance to customer selection
     };
 
-    const handleCustomerSelect = (customer: any) => {
+    const handleCustomerSelect = (customer: Customer) => {
         setSelectedCustomer(customer);
         setValue('customerId', customer.id);
         setStep(3); // Auto-advance to details
@@ -238,7 +239,3 @@ export function RentalCheckout({ onSubmit, isLoading, initialToolId, initialCust
         </div>
     );
 }
-
-const cn = (...inputs: any[]) => {
-    return inputs.filter(Boolean).join(' ');
-};

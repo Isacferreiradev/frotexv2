@@ -284,6 +284,7 @@ export const payments = pgTable(
     (t) => [
         index('idx_payments_tenant_id').on(t.tenantId),
         index('idx_payments_rental_id').on(t.rentalId),
+        index('idx_payments_status_date').on(t.status, t.paymentDate),
     ]
 );
 
@@ -339,6 +340,7 @@ export const expenses = pgTable(
     },
     (t) => [
         index('idx_expenses_tenant_id').on(t.tenantId),
+        index('idx_expenses_date').on(t.date),
     ]
 );
 
@@ -356,6 +358,7 @@ export const otherRevenues = pgTable(
     },
     (t) => [
         index('idx_other_revenues_tenant_id').on(t.tenantId),
+        index('idx_other_revenues_date').on(t.date),
     ]
 );
 

@@ -4,15 +4,15 @@ import { Wrench, MoreVertical, QrCode, Zap } from 'lucide-react';
 import { cn, formatCurrency } from '@/lib/utils';
 import { StatusPulse } from './StatusPulse';
 import { StatusBadge } from '@/components/ui/StatusBadge';
-
+import { Tool } from '@/types';
 import { useRouter } from 'next/navigation';
 
 interface ToolCardProps {
-    tool: any;
-    onEdit: (tool: any) => void;
+    tool: Tool;
+    onEdit: (tool: Tool) => void;
     onStatusChange?: (id: string, status: string) => void;
-    onShowQR?: (tool: any) => void;
-    onCheckout?: (tool: any) => void;
+    onShowQR?: (tool: Tool) => void;
+    onCheckout?: (tool: Tool) => void;
     selected?: boolean;
     onSelect?: (id: string) => void;
 }

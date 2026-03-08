@@ -65,7 +65,8 @@ const corsOptions: cors.CorsOptions = {
         const originHost = getCleanHost(origin);
         const isAllowed = allowedOrigins.some(a => getCleanHost(a) === originHost);
         if (!isAllowed) {
-            logger.warn(`⚠️ CORS from unlisted origin: ${origin} — allowed (JWT-secured)`);
+            logger.error(`⚠️ CORS BLOCK: unlisted origin tried to access API: ${origin}`);
+            return callback(new Error('CORS Blocking: Origin not allowed'), false);
         }
         callback(null, true);
     },

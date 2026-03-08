@@ -1,7 +1,7 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import * as intelligenceService from '../services/intelligence.service';
 
-export async function getRoiInsights(req: Request, res: Response) {
+export async function getRoiInsights(req: Request, res: Response, next: NextFunction) {
     try {
         const tenantId = req.user!.tenantId; // Set by middleware
         const insights = await intelligenceService.getRoiInsights(tenantId);
@@ -10,15 +10,10 @@ export async function getRoiInsights(req: Request, res: Response) {
             success: true,
             data: insights
         });
-    } catch (error: any) {
-        res.status(500).json({
-            success: false,
-            message: error.message || 'Erro ao buscar insights de inteligência'
-        });
-    }
+    } catch (err) { next(err); }
 }
 
-export async function getCashFlowIntelligence(req: Request, res: Response) {
+export async function getCashFlowIntelligence(req: Request, res: Response, next: NextFunction) {
     try {
         const tenantId = req.user!.tenantId;
         const insights = await intelligenceService.getCashFlowIntelligence(tenantId);
@@ -27,15 +22,10 @@ export async function getCashFlowIntelligence(req: Request, res: Response) {
             success: true,
             data: insights
         });
-    } catch (error: any) {
-        res.status(500).json({
-            success: false,
-            message: error.message || 'Erro ao buscar inteligência de fluxo de caixa'
-        });
-    }
+    } catch (err) { next(err); }
 }
 
-export async function getNewCustomers(req: Request, res: Response) {
+export async function getNewCustomers(req: Request, res: Response, next: NextFunction) {
     try {
         const { start, end } = req.query as Record<string, string>;
         const startDate = start ? new Date(start) : new Date(new Date().setDate(new Date().getDate() - 30));
@@ -43,12 +33,10 @@ export async function getNewCustomers(req: Request, res: Response) {
 
         const data = await intelligenceService.getNewCustomersReport(req.user!.tenantId, startDate, endDate);
         res.json({ success: true, data });
-    } catch (error: any) {
-        res.status(500).json({ success: false, message: error.message });
-    }
+    } catch (err) { next(err); }
 }
 
-export async function getOperationalSummary(req: Request, res: Response) {
+export async function getOperationalSummary(req: Request, res: Response, next: NextFunction) {
     try {
         const { start, end } = req.query as Record<string, string>;
         const startDate = start ? new Date(start) : new Date(new Date().setDate(new Date().getDate() - 30));
@@ -56,7 +44,5 @@ export async function getOperationalSummary(req: Request, res: Response) {
 
         const data = await intelligenceService.getOperationalSummary(req.user!.tenantId, startDate, endDate);
         res.json({ success: true, data });
-    } catch (error: any) {
-        res.status(500).json({ success: false, message: error.message });
-    }
+    } catch (err) { next(err); }
 }

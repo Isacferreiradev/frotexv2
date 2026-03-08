@@ -43,8 +43,8 @@ export default function LoginPage() {
         setServerError('');
         try {
             const res = await api.post('/auth/login', data);
-            const { accessToken, refreshToken, user } = res.data.data;
-            setAuth(user, accessToken, refreshToken);
+            const { user } = res.data.data;
+            setAuth(user);
 
             // CRITICAL FIX: Use window.location.href instead of router.push
             // This violently destroys the Next.js App Router Client-Side Cache (Route Cache)

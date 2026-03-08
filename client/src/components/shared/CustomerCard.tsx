@@ -4,10 +4,11 @@ import { User, Phone, Mail, FileText, MoreVertical, MessageSquare, ExternalLink 
 import { cn } from '@/lib/utils';
 import { StatusPulse } from './StatusPulse';
 import { useRouter } from 'next/navigation';
+import { Customer } from '@/types';
 
 interface CustomerCardProps {
-    customer: any;
-    onEdit: (customer: any) => void;
+    customer: Customer;
+    onEdit: (customer: Customer) => void;
     onToggleBlock: (id: string, isBlocked: boolean) => void;
 }
 

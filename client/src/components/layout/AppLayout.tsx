@@ -8,7 +8,7 @@ import { Navbar } from './Navbar';
 import { OnboardingTour } from '../shared/OnboardingTour';
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
-    const { isAuthenticated } = useAuthStore();
+    const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
     const router = useRouter();
     const [sidebarOpen, setSidebarOpen] = useState(false);
 
