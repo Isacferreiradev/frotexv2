@@ -40,64 +40,71 @@ export async function generateExport(req: Request, res: Response, next: NextFunc
 
         const filters = { startDate, endDate, categoryId, status };
 
-        switch (module) {
-            case 'tools':
-                data = await exportService.getToolsData(tenantId, filters);
-                title = "Relatório de Equipamentos (Ativos)";
-                columns = [
-                    { header: "Nome", key: "Nome", width: 120 },
-                    { header: "Marca", key: "Marca" },
-                    { header: "Modelo", key: "Modelo" },
-                    { header: "Patrimônio", key: "Patrimônio" },
-                    { header: "Categoria", key: "Categoria" },
-                    { header: "Diária", key: "Valor Diária", width: 70 },
-                    { header: "Status", key: "Status", width: 60 }
-                ];
-                break;
-            case 'customers':
-                data = await exportService.getCustomersData(tenantId);
-                title = "Relatório de Clientes";
-                columns = [
-                    { header: "Nome", key: "Nome", width: 150 },
-                    { header: "Documento", key: "Documento", width: 100 },
-                    { header: "Email", key: "Email", width: 130 },
-                    { header: "Telefone", key: "Telefone" },
-                    { header: "Cidade/UF", key: "Cidade/UF" },
-                    { header: "Status", key: "Status", width: 60 }
-                ];
-                break;
-            case 'rentals':
-                data = await exportService.getRentalsData(tenantId, filters);
-                title = "Relatório de Locações";
-                columns = [
-                    { header: "Código", key: "Código", width: 70 },
-                    { header: "Cliente", key: "Cliente", width: 140 },
-                    { header: "Equipamento", key: "Equipamento", width: 140 },
-                    { header: "Início", key: "Início" },
-                    { header: "Fim Prev.", key: "Fim Previsto" },
-                    { header: "Total Est.", key: "Total Estimado", width: 80 },
-                    { header: "Status", key: "Status", width: 70 }
-                ];
-                break;
-            case 'finance':
-                data = await exportService.getFinanceData(tenantId, filters);
-                title = "Extrato Financeiro Consolidado";
-                columns = [
-                    { header: "Data", key: "Data", width: 70 },
-                    { header: "Tipo", key: "Tipo", width: 90 },
-                    { header: "Categoria", key: "Categoria", width: 90 },
-                    { header: "Descrição", key: "Descrição", width: 180 },
-                    { header: "Valor", key: "Valor", width: 80 },
-                    { header: "Status", key: "Status", width: 70 }
-                ];
-                // Formatar valores para PDF do financeiro (os dados da service vêm como números crus no valor para ordenar)
-                data = data.map(item => ({
-                    ...item,
-                    Valor: item.Valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
-                }));
-                break;
-            default:
-                throw new AppError(400, 'Módulo inválido');
+        try {
+            switch (module) {
+                case 'tools':
+                    data = await exportService.getToolsData(tenantId, filters);
+                    title = "Relatório de Equipamentos (Ativos)";
+                    columns = [
+                        { header: "Nome", key: "Nome", width: 120 },
+                        { header: "Marca", key: "Marca" },
+                        { header: "Modelo", key: "Modelo" },
+                        { header: "Patrimônio", key: "Patrimônio" },
+                        { header: "Categoria", key: "Categoria" },
+                        { header: "Diária", key: "Valor Diária", width: 70 },
+                        { header: "Status", key: "Status", width: 60 }
+                    ];
+                    break;
+                case 'customers':
+                    data = await exportService.getCustomersData(tenantId);
+                    title = "Relatório de Clientes";
+                    columns = [
+                        { header: "Nome", key: "Nome", width: 150 },
+                        { header: "Documento", key: "Documento", width: 100 },
+                        { header: "Email", key: "Email", width: 130 },
+                        { header: "Telefone", key: "Telefone" },
+                        { header: "Cidade/UF", key: "Cidade/UF" },
+                        { header: "Status", key: "Status", width: 60 }
+                    ];
+                    break;
+                case 'rentals':
+                    data = await exportService.getRentalsData(tenantId, filters);
+                    title = "Relatório de Locações";
+                    columns = [
+                        { header: "Código", key: "Código", width: 70 },
+                        { header: "Cliente", key: "Cliente", width: 140 },
+                        { header: "Equipamento", key: "Equipamento", width: 140 },
+                        { header: "Início", key: "Início" },
+                        { header: "Fim Prev.", key: "Fim Previsto" },
+                        { header: "Total Est.", key: "Total Estimado", width: 80 },
+                        { header: "Status", key: "Status", width: 70 }
+                    ];
+                    break;
+                case 'finance':
+                    data = await exportService.getFinanceData(tenantId, filters);
+                    title = "Extrato Financeiro Consolidado";
+                    columns = [
+                        { header: "Data", key: "Data", width: 70 },
+                        { header: "Tipo", key: "Tipo", width: 90 },
+                        { header: "Categoria", key: "Categoria", width: 90 },
+                        { header: "Descrição", key: "Descrição", width: 180 },
+                        { header: "Valor", key: "Valor", width: 80 },
+                        { header: "Desconto", key: "Desconto", width: 80 },
+                        { header: "Status", key: "Status", width: 70 }
+                    ];
+                    // Formatar valores para PDF do financeiro (os dados da service vêm como números crus no valor para ordenar)
+                    data = data.map(item => ({
+                        ...item,
+                        Valor: item.Valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
+                        Desconto: item.Desconto.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+                    }));
+                    break;
+                default:
+                    throw new AppError(400, 'Módulo inválido');
+            }
+        } catch (fetchError: any) {
+            logger.error(`[EXPORT] Data fetching failed for module ${module} (tenant ${tenantId}):`, fetchError);
+            throw new AppError(500, `Erro ao buscar dados para exportação do módulo ${module}. Isso pode ocorrer por colunas faltando no banco de dados. Detalhe: ${fetchError.message}`);
         }
 
         const periodStr = startDate && endDate

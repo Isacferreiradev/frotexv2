@@ -91,19 +91,23 @@ export function QuoteForm({ initialData, onSubmit, isLoading }: QuoteFormProps) 
     const selectedCustomer = customers?.find((c: any) => c.id === customerId);
 
     const days = (() => {
-        if (!startDate || !endDateExpected) return 1;
+        if (!startDate || !endDateExpected) return 0;
         const start = new Date(startDate);
         const end = new Date(endDateExpected);
-        if (isNaN(start.getTime()) || isNaN(end.getTime())) return 1;
+        if (isNaN(start.getTime()) || isNaN(end.getTime())) return 0;
 
-        // Se a data de fim for igual ou menor que a de início, garantimos pelo menos 1 dia para cobrança
-        if (end <= start) return 1;
+        // Reset hours for accurate day-to-day comparison
+        const d1 = new Date(start.getFullYear(), start.getMonth(), start.getDate());
+        const d2 = new Date(end.getFullYear(), end.getMonth(), end.getDate());
 
-        const diffTime = Math.abs(end.getTime() - start.getTime());
-        return Math.max(1, Math.ceil(diffTime / (1000 * 60 * 60 * 24)));
+        const diffTime = d2.getTime() - d1.getTime();
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+        // At least 1 day for billing, unless it's a future draft
+        return Math.max(1, diffDays);
     })();
 
-    const subtotal = (watchedItems || []).reduce((acc, item) => {
+    const itemsCalculations = (watchedItems || []).map(item => {
         const itemDailyRate = parseFloat(item?.dailyRate?.toString() || '0');
         const itemQuantity = parseInt(item?.quantity?.toString() || '1');
         const itemBase = itemDailyRate * itemQuantity * days;
@@ -114,23 +118,31 @@ export function QuoteForm({ initialData, onSubmit, isLoading }: QuoteFormProps) 
         if (item.discountType === 'percentage') {
             itemDiscount = itemBase * (discountVal / 100);
         } else {
-            // Desconto fixo por UNIDADE e por DIA ou Desconto fixo TOTAL do item?
-            // Geralmente em locação o desconto é sobre o total do item
             itemDiscount = discountVal;
         }
 
-        return acc + Math.max(0, itemBase - itemDiscount);
-    }, 0);
+        const itemTotal = Math.max(0, itemBase - itemDiscount);
+        return {
+            base: itemBase,
+            discount: itemDiscount,
+            total: itemTotal
+        };
+    });
 
+    const subtotal = itemsCalculations.reduce((acc, curr) => acc + curr.total, 0);
     const total = Math.max(0, subtotal - parseFloat(totalDiscount?.toString() || '0'));
 
     const nextStep = async () => {
         let fieldsToValidate: any[] = [];
         if (step === 1) fieldsToValidate = ['customerId', 'startDate', 'endDateExpected', 'rentalType'];
-        if (step === 2) fieldsToValidate = ['items'];
+        if (step === 2) {
+            // Validate all items have toolId
+            fieldsToValidate = ['items'];
+        }
 
         const isValid = await trigger(fieldsToValidate);
         if (isValid) setStep(s => Math.min(s + 1, 3));
+        else toast.error('Preencha todos os campos obrigatórios corretamente');
     };
 
     const prevStep = () => setStep(s => Math.max(s - 1, 1));
@@ -340,43 +352,66 @@ export function QuoteForm({ initialData, onSubmit, isLoading }: QuoteFormProps) 
                                     </div>
                                 </div>
 
-                                <div className="bg-zinc-900 rounded-[40px] p-8 text-white relative overflow-hidden shadow-premium">
+                                <div className="bg-zinc-900 rounded-[40px] p-8 text-white relative overflow-hidden shadow-premium h-full flex flex-col justify-between">
                                     <div className="absolute top-0 right-0 w-48 h-48 bg-violet-500/10 blur-[90px] rounded-full -translate-y-1/2 translate-x-1/2" />
 
                                     <div className="space-y-6 relative z-10">
                                         <div className="flex justify-between items-center text-[10px] font-extrabold uppercase tracking-[0.2em] text-zinc-500">
-                                            <span>Consolidado Final</span>
+                                            <span>Consolidado da Proposta</span>
                                             <span className="text-primary">{days} {days === 1 ? 'DIA' : 'DIAS'}</span>
                                         </div>
 
-                                        <div className="space-y-3 bg-white/5 p-6 rounded-3xl border border-white/5 backdrop-blur-sm">
+                                        {/* Items Review List */}
+                                        <div className="space-y-3 max-h-[180px] overflow-y-auto pr-2 scrollbar-premium">
+                                            {watchedItems?.map((item, idx) => {
+                                                const tool = tools?.find((t: any) => t.id === item.toolId);
+                                                const calc = itemsCalculations[idx];
+                                                if (!tool) return null;
+                                                return (
+                                                    <div key={idx} className="flex justify-between items-center py-2 border-b border-white/5 last:border-0">
+                                                        <div className="flex flex-col">
+                                                            <span className="text-[11px] font-bold text-zinc-100">{tool.name}</span>
+                                                            <span className="text-[9px] text-zinc-500 font-bold uppercase">{item.quantity} un × {formatCurrency(item.dailyRate)}/dia</span>
+                                                        </div>
+                                                        <div className="text-right">
+                                                            {calc?.discount > 0 && (
+                                                                <span className="text-[9px] text-zinc-500 line-through block italic">{formatCurrency(calc.base)}</span>
+                                                            )}
+                                                            <span className="text-xs font-bold text-white tabular-nums">{formatCurrency(calc?.total || 0)}</span>
+                                                        </div>
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+
+                                        <div className="space-y-3 bg-white/5 p-6 rounded-3xl border border-white/5 backdrop-blur-sm mt-4">
                                             <div className="flex justify-between items-center text-xs text-zinc-400">
                                                 <span>Subtotal de Ativos</span>
                                                 <span className="font-bold tabular-nums text-white text-sm">{formatCurrency(subtotal)}</span>
                                             </div>
-                                            <div className="flex justify-between items-center text-xs text-zinc-400">
+                                            <div className="flex justify-between items-center text-xs text-zinc-400 pt-2 border-t border-white/5">
                                                 <span className="flex items-center gap-2">Desconto Global <Plus className="w-3 h-3 rotate-45" /></span>
                                                 <div className="flex items-center gap-2">
-                                                    <span className="text-[10px] font-bold">R$</span>
+                                                    <span className="text-[10px] font-bold text-zinc-600">BRL</span>
                                                     <input
                                                         type="number"
                                                         {...register('totalDiscount', { valueAsNumber: true })}
-                                                        className="w-24 bg-transparent border-b border-white/10 focus:border-primary focus:outline-none text-right font-extrabold text-white tabular-nums h-8"
+                                                        className="w-24 bg-transparent border-b border-white/10 focus:border-primary focus:outline-none text-right font-extrabold text-white tabular-nums h-8 text-sm"
                                                     />
                                                 </div>
                                             </div>
                                         </div>
+                                    </div>
 
-                                        <div className="pt-4 border-t border-white/5 flex justify-between items-end">
-                                            <div className="space-y-1">
-                                                <p className="text-[9px] font-extrabold text-primary uppercase tracking-[0.4em]">VALOR TOTAL</p>
-                                                <p className="text-[10px] text-zinc-500 italic">Pronto para envio</p>
-                                            </div>
-                                            <div className="text-right">
-                                                <span className="text-5xl font-black tracking-tighter bg-gradient-to-r from-white to-zinc-400 bg-clip-text text-transparent italic">
-                                                    {formatCurrency(total)}
-                                                </span>
-                                            </div>
+                                    <div className="pt-8 flex justify-between items-end border-t border-white/5 mt-4">
+                                        <div className="space-y-1">
+                                            <p className="text-[9px] font-extrabold text-primary uppercase tracking-[0.4em]">VALOR TOTAL</p>
+                                            <p className="text-[10px] text-zinc-500 italic">Pronto para envio</p>
+                                        </div>
+                                        <div className="text-right">
+                                            <span className="text-5xl font-black tracking-tighter bg-gradient-to-r from-white to-zinc-400 bg-clip-text text-transparent italic">
+                                                {formatCurrency(total)}
+                                            </span>
                                         </div>
                                     </div>
                                 </div>

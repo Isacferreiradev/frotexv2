@@ -1,6 +1,7 @@
 import { db } from '../db';
 import { tools, customers, rentals, payments, expenses, otherRevenues, toolCategories } from '../db/schema';
 import { eq, and, gte, lte, sql, desc } from 'drizzle-orm';
+import logger from '../utils/logger';
 
 export interface ExportFilters {
     startDate?: string;
@@ -38,21 +39,52 @@ export async function getToolsData(tenantId: string, filters: ExportFilters) {
 }
 
 export async function getCustomersData(tenantId: string) {
-    const data = await db.query.customers.findMany({
-        where: eq(customers.tenantId, tenantId),
-        orderBy: [desc(customers.createdAt)]
-    });
+    try {
+        const data = await db.query.customers.findMany({
+            where: eq(customers.tenantId, tenantId),
+            orderBy: [desc(customers.createdAt)]
+        });
 
-    return data.map(c => ({
-        "Nome": c.fullName,
-        "Documento": `${c.documentType}: ${c.documentNumber}`,
-        "Email": c.email || '-',
-        "Telefone": c.phoneNumber,
-        "Cidade/UF": `${c.addressCity || '-'}/${c.addressState || '-'}`,
-        "Classificação": c.classification,
-        "Status": c.isBlocked ? 'Bloqueado' : 'Ativo',
-        "Criado em": new Date(c.createdAt).toLocaleDateString('pt-BR')
-    }));
+        return data.map(c => ({
+            "Nome": c.fullName,
+            "Documento": `${c.documentType}: ${c.documentNumber}`,
+            "Email": c.email || '-',
+            "Telefone": c.phoneNumber,
+            "Cidade/UF": `${c.addressCity || '-'}/${c.addressState || '-'}`,
+            "Classificação": (c as any).classification || 'N/A',
+            "Status": c.isBlocked ? 'Bloqueado' : 'Ativo',
+            "Criado em": new Date(c.createdAt).toLocaleDateString('pt-BR')
+        }));
+    } catch (err: any) {
+        if (err.code === '42703') {
+            logger.warn(`[EXPORT] getCustomersData falling back to basic columns due to error 42703`);
+            // Attempt a more basic select for export
+            const basicData = await db
+                .select({
+                    fullName: customers.fullName,
+                    documentType: customers.documentType,
+                    documentNumber: customers.documentNumber,
+                    phoneNumber: customers.phoneNumber,
+                    email: customers.email,
+                    isBlocked: customers.isBlocked,
+                    createdAt: customers.createdAt
+                })
+                .from(customers)
+                .where(eq(customers.tenantId, tenantId));
+
+            return basicData.map(c => ({
+                "Nome": c.fullName,
+                "Documento": `${c.documentType}: ${c.documentNumber}`,
+                "Email": c.email || '-',
+                "Telefone": c.phoneNumber,
+                "Cidade/UF": 'N/A',
+                "Classificação": 'N/A',
+                "Status": c.isBlocked ? 'Bloqueado' : 'Ativo',
+                "Criado em": new Date(c.createdAt).toLocaleDateString('pt-BR')
+            }));
+        }
+        throw err;
+    }
 }
 
 export async function getRentalsData(tenantId: string, filters: ExportFilters) {

@@ -1,7 +1,8 @@
-import { eq, and, or, ilike, SQL, desc, isNull } from 'drizzle-orm';
+import { eq, and, isNull, or, ilike, SQL, desc } from 'drizzle-orm';
 import { db } from '../db';
 import { customers } from '../db/schema';
 import { AppError } from '../middleware/error.middleware';
+import logger from '../utils/logger';
 import { z } from 'zod';
 
 export const customerSchema = z.object({
@@ -22,15 +23,33 @@ export const customerSchema = z.object({
     allowLateRentals: z.boolean().default(false),
     classification: z.enum(['vip', 'new', 'risk', 'inactive']).default('new'),
     source: z.string().optional(),
+    tags: z.array(z.string()).optional().default([]),
     notes: z.string().optional(),
 });
 
 export async function listCustomers(tenantId: string, filters: { isBlocked?: boolean; search?: string }) {
-    const rows = await db
-        .select()
-        .from(customers)
-        .where(eq(customers.tenantId, tenantId))
-        .orderBy(customers.fullName);
+    let rows;
+    try {
+        const query = db
+            .select() // Using select() will try all columns.
+            .from(customers)
+            .where(eq(customers.tenantId, tenantId))
+            .orderBy(customers.fullName);
+
+        rows = await query;
+    } catch (err: any) {
+        // Fallback for production if new columns (tags, classification, deletedAt) are missing
+        if (err.code === '42703') {
+            console.warn(`[CUSTOMERS] list falling back to safe columns for tenant ${tenantId}. Missing column detected.`);
+            rows = await db.query.customers.findMany({
+                where: eq(customers.tenantId, tenantId),
+                // findMany with specific columns/relations might be safer or Drizzle-safe
+                orderBy: [customers.fullName]
+            });
+        } else {
+            throw err;
+        }
+    }
 
     let result = rows;
     if (filters.isBlocked !== undefined) {
@@ -49,19 +68,62 @@ export async function listCustomers(tenantId: string, filters: { isBlocked?: boo
 }
 
 export async function getCustomer(tenantId: string, id: string) {
-    const [customer] = await db.select().from(customers).where(and(eq(customers.tenantId, tenantId), eq(customers.id, id)));
+    let customer;
+    try {
+        [customer] = await db
+            .select()
+            .from(customers)
+            .where(and(eq(customers.tenantId, tenantId), eq(customers.id, id)))
+            .limit(1);
+    } catch (err: any) {
+        if (err.code === '42703') {
+            logger.warn(`[CUSTOMERS] get fallback for ${id}. Missing column detected.`);
+            customer = await db.query.customers.findFirst({
+                where: and(eq(customers.tenantId, tenantId), eq(customers.id, id))
+            });
+        } else {
+            throw err;
+        }
+    }
     if (!customer) throw new AppError(404, 'Cliente não encontrado');
     return customer;
 }
 
 export async function createCustomer(tenantId: string, data: z.infer<typeof customerSchema>) {
-    const [customer] = await db.insert(customers).values({
-        tenantId,
-        ...data,
-        email: data.email || null,
-        creditLimit: String(data.creditLimit)
-    }).returning();
-    return customer;
+    try {
+        const [customer] = await db.insert(customers).values({
+            tenantId,
+            ...data,
+            email: data.email || null,
+            tags: data.tags || [],
+            creditLimit: String(data.creditLimit)
+        }).returning();
+        return customer;
+    } catch (err: any) {
+        if (err.code === '42703') {
+            logger.error(`[CUSTOMERS] create failed due to missing columns. Data: ${JSON.stringify(data)}`);
+            // Try emergency insert without the likely culprits (tags, classification, notes)
+            const backupData: any = {
+                tenantId,
+                fullName: data.fullName,
+                documentType: data.documentType,
+                documentNumber: data.documentNumber,
+                phoneNumber: data.phoneNumber,
+                email: data.email || null,
+                addressStreet: data.addressStreet,
+                addressNumber: data.addressNumber,
+                addressCity: data.addressCity,
+                addressState: data.addressState,
+            };
+            try {
+                const [customer] = await db.insert(customers).values(backupData).returning();
+                return customer;
+            } catch (innerErr) {
+                throw new AppError(500, `Erro crítico ao criar cliente: Campo obrigatório faltando no banco. Por favor, execute as migrações no Railway.`);
+            }
+        }
+        throw err;
+    }
 }
 
 export async function updateCustomer(tenantId: string, id: string, data: Partial<z.infer<typeof customerSchema>>) {

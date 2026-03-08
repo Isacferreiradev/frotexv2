@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import * as customersService from '../services/customers.service';
+import logger from '../utils/logger';
 
 export async function list(req: Request, res: Response, next: NextFunction) {
     try {
@@ -8,14 +9,20 @@ export async function list(req: Request, res: Response, next: NextFunction) {
         const isBlocked = req.query.isBlocked !== undefined ? req.query.isBlocked === 'true' : undefined;
         const data = await customersService.listCustomers(tenantId, { isBlocked, search });
         res.json({ success: true, data });
-    } catch (err) { next(err); }
+    } catch (err) {
+        logger.error(`[CUSTOMERS] delete failed for id ${req.params.id} (tenant ${req.user!.tenantId}):`, err);
+        next(err);
+    }
 }
 
 export async function get(req: Request, res: Response, next: NextFunction) {
     try {
         const data = await customersService.getCustomer(req.user!.tenantId, req.params.id);
         res.json({ success: true, data });
-    } catch (err) { next(err); }
+    } catch (err) {
+        logger.error(`[CUSTOMERS] delete failed for id ${req.params.id} (tenant ${req.user!.tenantId}):`, err);
+        next(err);
+    }
 }
 
 export async function get360(req: Request, res: Response, next: NextFunction) {
@@ -24,7 +31,7 @@ export async function get360(req: Request, res: Response, next: NextFunction) {
         const data = await customersService.getCustomer360(req.user!.tenantId, req.params.id);
         res.json({ success: true, data });
     } catch (err) {
-        console.error(`[ERROR] get360 failed:`, err);
+        logger.error(`[CUSTOMERS] get360 failed for id ${req.params.id} (tenant ${req.user!.tenantId}):`, err);
         next(err);
     }
 }
@@ -34,7 +41,10 @@ export async function create(req: Request, res: Response, next: NextFunction) {
         const body = customersService.customerSchema.parse(req.body);
         const data = await customersService.createCustomer(req.user!.tenantId, body);
         res.status(201).json({ success: true, data });
-    } catch (err) { next(err); }
+    } catch (err) {
+        logger.error(`[CUSTOMERS] delete failed for id ${req.params.id} (tenant ${req.user!.tenantId}):`, err);
+        next(err);
+    }
 }
 
 export async function update(req: Request, res: Response, next: NextFunction) {
@@ -42,12 +52,18 @@ export async function update(req: Request, res: Response, next: NextFunction) {
         const body = customersService.customerSchema.partial().parse(req.body);
         const data = await customersService.updateCustomer(req.user!.tenantId, req.params.id, body);
         res.json({ success: true, data });
-    } catch (err) { next(err); }
+    } catch (err) {
+        logger.error(`[CUSTOMERS] delete failed for id ${req.params.id} (tenant ${req.user!.tenantId}):`, err);
+        next(err);
+    }
 }
 
 export async function remove(req: Request, res: Response, next: NextFunction) {
     try {
         await customersService.deleteCustomer(req.user!.tenantId, req.params.id);
         res.json({ success: true });
-    } catch (err) { next(err); }
+    } catch (err) {
+        logger.error(`[CUSTOMERS] delete failed for id ${req.params.id} (tenant ${req.user!.tenantId}):`, err);
+        next(err);
+    }
 }
