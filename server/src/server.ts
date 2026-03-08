@@ -4,6 +4,7 @@ import { pool } from './db';
 import logger from './utils/logger';
 import { runMigration } from './db/migrate';
 import { initCronJobs } from './utils/cron';
+import { withRetry } from './utils/retry';
 
 async function startServer() {
     logger.info(`📁 Working Directory: ${process.cwd()}`);
@@ -22,13 +23,15 @@ async function startServer() {
 
     try {
         if (env.NODE_ENV === 'production') {
-            logger.info('⏳ Production detected: Running migrations...');
-            await runMigration();
+            logger.info('⏳ Production detected: Checking DB and running migrations...');
+            await withRetry(async () => {
+                await runMigration();
+            }, { retries: 5, delay: 5000 });
         }
 
         initCronJobs();
 
-        // Check for optional services
+        // ... (rest of optional services logs)
         if (!env.STRIPE_SECRET_KEY) logger.warn('⚠️ STRIPE_SECRET_KEY missing. Payment features will be disabled.');
         if (!env.RESEND_API_KEY) logger.warn('⚠️ RESEND_API_KEY missing. Email features will be limited.');
 
@@ -40,9 +43,10 @@ async function startServer() {
                 process.exit(0);
             });
         });
-    } catch (error) {
-        logger.error('❌ Error during post-startup initialization:', error);
-        // We don't exit here to allow healthcheck debugging, unless it's fatal
+    } catch (error: any) {
+        logger.error('❌ FATAL: Database connectivity could not be established after retries:', error);
+        // Force exit on fatal DB failure so Railway can restart the container
+        process.exit(1);
     }
 }
 
