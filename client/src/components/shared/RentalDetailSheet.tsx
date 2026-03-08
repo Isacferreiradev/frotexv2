@@ -142,6 +142,12 @@ export function RentalDetailSheet({ rental, isOpen, onClose }: RentalDetailSheet
                                     <span>Base da Locação:</span>
                                     <span className="font-bold text-zinc-900">{formatCurrency(rental.totalAmountExpected)}</span>
                                 </div>
+                                {parseFloat(rental.securityDeposit || '0') > 0 && (
+                                    <div className="flex justify-between text-sm font-medium text-zinc-500">
+                                        <span>Caução Recebido:</span>
+                                        <span className="font-bold text-zinc-900">{formatCurrency(rental.securityDeposit)}</span>
+                                    </div>
+                                )}
                                 {parseFloat(rental.discountValue || '0') > 0 && (
                                     <div className="flex justify-between text-sm font-medium text-emerald-600 bg-emerald-50/50 p-2 rounded-lg">
                                         <span>Desconto (-):</span>
@@ -162,14 +168,31 @@ export function RentalDetailSheet({ rental, isOpen, onClose }: RentalDetailSheet
                         </div>
                     </div>
 
+                    {/* Operational Details */}
+                    <div className="space-y-6 pt-4">
+                        <h5 className="text-[10px] font-extrabold text-zinc-400 uppercase tracking-[0.2em] flex items-center gap-2">
+                            <Wrench className="w-3 h-3" /> Detalhes Técnicos
+                        </h5>
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="p-4 rounded-2xl bg-zinc-50 border border-zinc-100">
+                                <p className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest mb-1">Condição de Saída</p>
+                                <p className="text-sm font-bold text-zinc-900 capitalize">{rental.equipmentCondition || 'Não informada'}</p>
+                            </div>
+                            <div className="p-4 rounded-2xl bg-zinc-50 border border-zinc-100">
+                                <p className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest mb-1">Tipo de Locação</p>
+                                <p className="text-sm font-bold text-zinc-900 capitalize">{rental.rentalType}</p>
+                            </div>
+                        </div>
+                    </div>
+
                     {/* Internal Notes */}
-                    {(rental.internalNotes || rental.customerNotes) && (
+                    {(rental.internalNotes || rental.customerNotes || rental.notes) && (
                         <div className="space-y-6 pt-4">
                             <h5 className="text-[10px] font-extrabold text-zinc-400 uppercase tracking-[0.2em] flex items-center gap-2">
                                 <FileText className="w-3 h-3" /> Observações do Contrato
                             </h5>
                             <div className="p-6 rounded-3xl bg-amber-50 border border-amber-100 text-amber-900/80 text-xs italic leading-relaxed">
-                                {rental.internalNotes || rental.customerNotes}
+                                {rental.internalNotes || rental.customerNotes || rental.notes}
                             </div>
                         </div>
                     )}

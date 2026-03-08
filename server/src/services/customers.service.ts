@@ -90,6 +90,15 @@ export async function deleteCustomer(tenantId: string, id: string) {
 }
 
 export async function getCustomer360(tenantId: string, id: string) {
+    console.log(`[SERVICE] getCustomer360 - params:`, { tenantId, id });
+
+    // Validate UUID format to avoid Drizzle/PG potential errors
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(id)) {
+        console.warn(`[SERVICE] getCustomer360 - Invalid UUID format: ${id}`);
+        throw new AppError(400, 'ID de cliente inválido');
+    }
+
     const customer = await db.query.customers.findFirst({
         where: and(eq(customers.tenantId, tenantId), eq(customers.id, id)),
         with: {
@@ -124,7 +133,10 @@ export async function getCustomer360(tenantId: string, id: string) {
         },
     });
 
-    if (!customer) throw new AppError(404, 'Cliente não encontrado');
+    if (!customer) {
+        console.warn(`[SERVICE] getCustomer360 - Customer not found for tenant ${tenantId} and id ${id}`);
+        throw new AppError(404, 'Cliente não encontrado');
+    }
 
     // Calculate aggregated metrics
     const totalRentals = customer.rentals.length;

@@ -89,6 +89,11 @@ export async function getRental(tenantId: string, id: string) {
 export async function createRental(tenantId: string, userId: string, data: z.infer<typeof createRentalSchema>) {
     const startDate = new Date(data.startDate);
     const endDateExpected = new Date(data.endDateExpected);
+
+    if (endDateExpected <= startDate) {
+        throw new AppError(400, 'A data de devolução prevista deve ser após a data de início');
+    }
+
     const totalDaysExpected = daysBetween(startDate, endDateExpected);
 
     // Calculate total amount with discounts

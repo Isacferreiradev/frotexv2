@@ -405,6 +405,11 @@ export default function FerramentasPage() {
                                         setEditingTool(t);
                                         setIsSheetOpen(true);
                                     }}
+                                    onDelete={(id) => {
+                                        if (confirm(`Deseja excluir "${tool.name}"?`)) {
+                                            deleteMutation.mutate(id);
+                                        }
+                                    }}
                                     onStatusChange={(id, status) => quickStatusMutation.mutate({ id, status })}
                                     onShowQR={(t) => {
                                         setQrTool(t);

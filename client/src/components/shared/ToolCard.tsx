@@ -1,6 +1,6 @@
 'use client';
 
-import { Wrench, MoreVertical, QrCode, Zap } from 'lucide-react';
+import { Wrench, MoreVertical, QrCode, Zap, Trash2, Pencil } from 'lucide-react';
 import { cn, formatCurrency } from '@/lib/utils';
 import { StatusPulse } from './StatusPulse';
 import { StatusBadge } from '@/components/ui/StatusBadge';
@@ -10,6 +10,7 @@ import { useRouter } from 'next/navigation';
 interface ToolCardProps {
     tool: Tool;
     onEdit: (tool: Tool) => void;
+    onDelete?: (id: string) => void;
     onStatusChange?: (id: string, status: string) => void;
     onShowQR?: (tool: Tool) => void;
     onCheckout?: (tool: Tool) => void;
@@ -17,12 +18,12 @@ interface ToolCardProps {
     onSelect?: (id: string) => void;
 }
 
-export function ToolCard({ tool, onEdit, onStatusChange, onShowQR, onCheckout, selected, onSelect }: ToolCardProps) {
+export function ToolCard({ tool, onEdit, onDelete, onStatusChange, onShowQR, onCheckout, selected, onSelect }: ToolCardProps) {
     const router = useRouter();
 
     return (
         <div
-            onClick={() => onSelect ? onSelect(tool.id) : router.push(`/ferramentas/${tool.id}`)}
+            onClick={() => router.push(`/ferramentas/${tool.id}`)}
             className={cn(
                 "group bg-white rounded-premium border border-border shadow-soft hover:shadow-premium transition-all duration-300 overflow-hidden flex flex-col h-full cursor-pointer hover:border-primary/20",
                 selected && "border-primary ring-2 ring-primary/20 bg-primary/5"
@@ -33,6 +34,10 @@ export function ToolCard({ tool, onEdit, onStatusChange, onShowQR, onCheckout, s
                 <div className="absolute top-4 left-4 z-10 flex gap-2">
                     {onSelect && (
                         <div
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onSelect(tool.id);
+                            }}
                             className={cn(
                                 "w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all",
                                 selected ? "bg-primary border-primary text-white" : "bg-white/50 border-white/80"
@@ -64,15 +69,30 @@ export function ToolCard({ tool, onEdit, onStatusChange, onShowQR, onCheckout, s
 
                 <Wrench className="w-10 h-10 text-primary/20 group-hover:scale-110 group-hover:text-primary/40 transition-all duration-500" />
 
-                <button
-                    onClick={(e) => {
-                        e.stopPropagation();
-                        onEdit(tool);
-                    }}
-                    className="absolute top-4 right-4 w-8 h-8 bg-white rounded-button border border-border flex items-center justify-center text-muted-foreground hover:text-primary hover:border-primary/20 hover:shadow-sm transition-all opacity-0 group-hover:opacity-100"
-                >
-                    <MoreVertical className="w-4 h-4" />
-                </button>
+                <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-all">
+                    <button
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            onEdit(tool);
+                        }}
+                        className="w-8 h-8 bg-white rounded-xl border border-border flex items-center justify-center text-muted-foreground hover:text-primary hover:border-primary/20 hover:shadow-sm"
+                        title="Editar"
+                    >
+                        <Pencil className="w-3.5 h-3.5" />
+                    </button>
+                    {onDelete && (
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onDelete(tool.id);
+                            }}
+                            className="w-8 h-8 bg-white rounded-xl border border-border flex items-center justify-center text-muted-foreground hover:text-red-500 hover:border-red-200 hover:shadow-sm"
+                            title="Excluir"
+                        >
+                            <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                    )}
+                </div>
             </div>
 
             {/* Content */}

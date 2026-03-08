@@ -14,9 +14,11 @@ import { EmptyState } from '@/components/shared/EmptyState';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { StatusPulse } from '@/components/shared/StatusPulse';
 import { MaintenanceCard } from '@/components/shared/MaintenanceCard';
+import { Button } from '@/components/ui/button';
 
 export default function ManutencaoPage() {
     const [isSheetOpen, setIsSheetOpen] = useState(false);
+    const [finalizingTool, setFinalizingTool] = useState<{ id: string, name: string } | null>(null);
     const queryClient = useQueryClient();
 
     const { data: logsData, isLoading: logsLoading } = useQuery({
@@ -61,7 +63,10 @@ export default function ManutencaoPage() {
                 <div className="flex items-center gap-4">
                     <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
                         <button
-                            onClick={() => setIsSheetOpen(true)}
+                            onClick={() => {
+                                setFinalizingTool(null);
+                                setIsSheetOpen(true);
+                            }}
                             className="flex items-center gap-3 bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-xl font-semibold text-[11px] uppercase tracking-widest transition-all shadow-premium"
                         >
                             <PenToolIcon className="w-4.5 h-4.5" />
@@ -74,6 +79,9 @@ export default function ManutencaoPage() {
                             </div>
                             <div className="p-10">
                                 <MaintenanceForm
+                                    key={finalizingTool?.id || 'new'}
+                                    initialToolId={finalizingTool?.id}
+                                    initialToolName={finalizingTool?.name}
                                     onSubmit={(data) => logMutation.mutate(data)}
                                     isLoading={logMutation.isPending}
                                 />
@@ -114,8 +122,11 @@ export default function ManutencaoPage() {
                         <div className="space-y-6">
                             {dueTools.map((tool: any) => (
                                 <div key={tool.id} className="relative bg-white rounded-2xl p-6 border border-border/40 shadow-soft overflow-hidden group hover:border-amber-300 transition-all duration-300">
-                                    <div className="absolute top-0 right-0 p-4">
-                                        <StatusPulse status="pending" className="h-3 w-3" />
+                                    <div className="absolute top-0 right-0 p-4 flex gap-2 items-center">
+                                        <StatusPulse status={tool.status === 'maintenance' ? 'maintenance' : 'pending'} className="h-3 w-3" />
+                                        {tool.status === 'maintenance' && (
+                                            <span className="text-[8px] font-bold text-primary uppercase tracking-widest">Em Manutenção</span>
+                                        )}
                                     </div>
                                     <h4 className="font-semibold text-foreground text-[14px] tracking-tight">{tool.name}</h4>
                                     <p className="text-[10px] font-medium text-muted-foreground mt-1.5 uppercase tracking-tight">{tool.brand} • {tool.assetTag}</p>
@@ -136,6 +147,18 @@ export default function ManutencaoPage() {
                                             </div>
                                         </div>
                                     )}
+
+                                    <div className="mt-6 opacity-0 group-hover:opacity-100 transition-all">
+                                        <Button
+                                            onClick={() => {
+                                                setFinalizingTool({ id: tool.id, name: tool.name });
+                                                setIsSheetOpen(true);
+                                            }}
+                                            className="w-full bg-violet-50 text-violet-600 hover:bg-violet-600 hover:text-white border border-violet-100 font-bold text-[10px] uppercase tracking-widest h-10 rounded-xl"
+                                        >
+                                            {tool.status === 'maintenance' ? 'Finalizar Manutenção' : 'Iniciar Manutenção'}
+                                        </Button>
+                                    </div>
                                 </div>
                             ))}
                         </div>

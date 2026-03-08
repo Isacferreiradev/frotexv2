@@ -20,9 +20,13 @@ export async function get(req: Request, res: Response, next: NextFunction) {
 
 export async function get360(req: Request, res: Response, next: NextFunction) {
     try {
+        console.log(`[DEBUG] get360 - tenantId: ${req.user!.tenantId}, customerId: ${req.params.id}`);
         const data = await customersService.getCustomer360(req.user!.tenantId, req.params.id);
         res.json({ success: true, data });
-    } catch (err) { next(err); }
+    } catch (err) {
+        console.error(`[ERROR] get360 failed:`, err);
+        next(err);
+    }
 }
 
 export async function create(req: Request, res: Response, next: NextFunction) {

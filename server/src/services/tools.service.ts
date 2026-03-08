@@ -1,4 +1,4 @@
-import { eq, and, ilike, or, SQL, desc, isNull } from 'drizzle-orm';
+import { eq, and, ilike, or, SQL, desc, isNull, inArray } from 'drizzle-orm';
 import { db } from '../db';
 import { tools, toolCategories } from '../db/schema';
 import { AppError } from '../middleware/error.middleware';
@@ -177,7 +177,7 @@ export async function bulkDeleteTools(tenantId: string, ids: string[]) {
     await db
         .update(tools)
         .set({ status: 'unavailable', updatedAt: new Date() })
-        .where(and(eq(tools.tenantId, tenantId), sql`${tools.id} IN ${ids}`));
+        .where(and(eq(tools.tenantId, tenantId), inArray(tools.id, ids)));
     return { success: true };
 }
 
