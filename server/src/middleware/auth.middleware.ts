@@ -11,12 +11,19 @@ declare global {
 }
 
 export function authenticate(req: Request, _res: Response, next: NextFunction) {
+    let token = '';
     const authHeader = req.headers.authorization;
-    if (!authHeader?.startsWith('Bearer ')) {
+
+    if (authHeader?.startsWith('Bearer ')) {
+        token = authHeader.slice(7);
+    } else if (req.cookies?.access_token) {
+        token = req.cookies.access_token;
+    }
+
+    if (!token) {
         return next(new AppError(401, 'Token de autenticação não fornecido'));
     }
 
-    const token = authHeader.slice(7);
     try {
         const payload = verifyAccessToken(token);
         req.user = payload;

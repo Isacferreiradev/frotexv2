@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
+import cookieParser from 'cookie-parser';
 import rateLimit from 'express-rate-limit';
 import { env } from './config/env';
 import logger from './utils/logger';
@@ -105,6 +106,7 @@ app.use(hpp());
 app.use('/api/subscriptions', stripeRoutes);
 
 // General Parsing
+app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 if (env.NODE_ENV !== 'test') {
