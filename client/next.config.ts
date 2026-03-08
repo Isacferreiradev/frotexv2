@@ -1,5 +1,20 @@
 import type { NextConfig } from "next";
 
+// On Vercel, next.config.ts is evaluated at BUILD time. 
+// If the user forgot to add NEXT_PUBLIC_BACKEND_URL before deploying,
+// it might have baked in the wrong URL. We provide a strong default fallback
+// to the known Railway URL, or localhost in dev.
+const isDev = process.env.NODE_ENV !== 'production';
+const defaultProxy = isDev
+  ? 'http://localhost:4000/api'
+  : 'https://alugafacil-server-production.up.railway.app/api';
+
+const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || defaultProxy;
+// Ensure we don't end up with /api/api if the URL already has /api
+const destination = backendUrl.endsWith('/api')
+  ? `${backendUrl}/:path*`
+  : `${backendUrl}/api/:path*`;
+
 const nextConfig: NextConfig = {
   transpilePackages: ['recharts'],
   async headers() {
@@ -18,11 +33,7 @@ const nextConfig: NextConfig = {
     return [
       {
         source: '/api/:path*',
-        // IMPORTANT: proxy to the INTERNAL backend port (localhost:4000), NOT the external URL.
-        // Pointing to the external HTTPS URL caused HPE_HEADER_OVERFLOW because Node.js's HTTP
-        // parser couldn't handle the TLS-chunked responses from the external server over keep-alive.
-        // localhost:4000 is the Express backend running in the same Railway container.
-        destination: 'http://localhost:4000/api/:path*',
+        destination,
       },
     ];
   },
