@@ -1,11 +1,24 @@
 import axios from 'axios';
 
-// IMPORTANT: In production we ALWAYS use the Next.js proxy (/api → backend).
-// This prevents CORS errors entirely — the browser never makes cross-origin requests.
-// NEXT_PUBLIC_API_URL is intentionally ignored in production.
-const API_URL = process.env.NODE_ENV === 'production'
-    ? '/api'
-    : (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api');
+// ─── API Base URL Strategy ───────────────────────────────────────────────────
+//
+// We call the backend DIRECTLY from the browser to avoid HPE_HEADER_OVERFLOW
+// errors caused by the Next.js proxy reusing keep-alive connections with the
+// backend's chunked responses.
+//
+// The backend CORS policy already allows all origins (see server/src/app.ts),
+// so direct browser→backend calls are safe.
+//
+// In production:  NEXT_PUBLIC_BACKEND_URL is set in Railway to the backend URL
+//                 e.g. "https://alugafacil-server-production.up.railway.app/api"
+// In development: Falls back to localhost.
+// ---------------------------------------------------------------------------
+
+const API_URL =
+    process.env.NEXT_PUBLIC_BACKEND_URL ||
+    (process.env.NODE_ENV === 'production'
+        ? 'https://alugafacil-server-production.up.railway.app/api'
+        : 'http://localhost:4000/api');
 
 const api = axios.create({
     baseURL: API_URL,
