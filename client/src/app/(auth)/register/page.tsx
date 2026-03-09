@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useForm } from 'react-hook-form';
@@ -13,6 +13,7 @@ import {
     ArrowLeft,
     ChevronRight,
     Check,
+    CheckCircle2,
     Sparkles,
     Shield,
     Zap,
@@ -60,6 +61,7 @@ export default function RegisterPage() {
     const [step, setStep] = useState(1);
     const [serverError, setServerError] = useState('');
     const [showPassword, setShowPassword] = useState(false);
+    const [isVerifiedRemotely, setIsVerifiedRemotely] = useState(false);
 
     const { register, handleSubmit, trigger, watch, setValue, formState: { errors, isSubmitting } } = useForm<RegisterForm>({
         resolver: zodResolver(registerSchema),
@@ -80,18 +82,24 @@ export default function RegisterPage() {
     const onSubmit = async (data: RegisterForm) => {
         setServerError('');
         try {
+            console.log('[Register] Submitting form data', data);
             const res = await api.post('/auth/register', data);
             const responseData = res.data.data;
 
+            console.log('[Register] Response data:', responseData);
+
             if (responseData.requiresVerification) {
+                console.log('[Register] requiresVerification is true -> setStep(4)');
                 // Email confirmation is required, don't set auth
                 setStep(4);
             } else {
+                console.log('[Register] requiresVerification is false -> setAuth & redirect');
                 // Direct access allowed (test accounts)
                 setAuth(responseData.user);
                 window.location.href = '/dashboard';
             }
         } catch (err: any) {
+            console.error('[Register] Error:', err.response?.data || err);
             setServerError(err.response?.data?.message || 'Erro ao cadastrar. Tente novamente.');
         }
     };
@@ -104,6 +112,30 @@ export default function RegisterPage() {
     const [toolRange, setToolRange] = useState('');
     const [method, setMethod] = useState('');
     const [rentalRange, setRentalRange] = useState('');
+
+    // Polling for email verification status when on Step 4
+    useEffect(() => {
+        let interval: NodeJS.Timeout;
+        const currentEmail = watch('email');
+
+        if (step === 4 && !isVerifiedRemotely && currentEmail) {
+            interval = setInterval(async () => {
+                try {
+                    const res = await api.get(`/auth/check-verification?email=${encodeURIComponent(currentEmail)}`);
+                    if (res.data.success && res.data.data.isVerified) {
+                        setIsVerifiedRemotely(true);
+                        clearInterval(interval);
+                    }
+                } catch (err) {
+                    console.error('[Verification-Polling] Error checking status:', err);
+                }
+            }, 3000);
+        }
+
+        return () => {
+            if (interval) clearInterval(interval);
+        };
+    }, [step, isVerifiedRemotely, watch]);
 
     return (
         <div className="h-screen bg-[#FDFDFD] flex flex-col lg:flex-row font-inter selection:bg-violet-100 relative overflow-hidden">
@@ -306,19 +338,47 @@ export default function RegisterPage() {
 
                             {step === 4 && (
                                 <motion.div key="step4" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-6 flex-1 flex flex-col items-center justify-center text-center py-6">
-                                    <div className="w-16 h-16 bg-violet-100 rounded-full flex items-center justify-center mb-2">
-                                        <Check className="w-8 h-8 text-violet-600 stroke-[3px]" />
+                                    <div className={cn(
+                                        "w-16 h-16 rounded-full flex items-center justify-center mb-2 transition-all duration-500",
+                                        isVerifiedRemotely ? "bg-green-100 scale-110 shadow-lg shadow-green-100" : "bg-violet-100"
+                                    )}>
+                                        {isVerifiedRemotely ? (
+                                            <CheckCircle2 className="w-8 h-8 text-green-600 stroke-[3px] animate-in zoom-in duration-500" />
+                                        ) : (
+                                            <Check className="w-8 h-8 text-violet-600 stroke-[3px]" />
+                                        )}
                                     </div>
                                     <div>
-                                        <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-950 font-outfit tracking-tight leading-none mb-3">Verifique seu <span className="text-violet-600 italic">E-mail.</span></h2>
-                                        <p className="text-slate-500 font-medium text-xs sm:text-sm px-4">
-                                            Enviamos um link de confirmação para <strong className="text-slate-900">{watch('email')}</strong>.
-                                            Por favor, acesse sua caixa de entrada (ou pasta de spam) e clique no link para ativar sua conta e acessar seu Dashboard.
+                                        <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-950 font-outfit tracking-tight leading-none mb-3">
+                                            {isVerifiedRemotely ? (
+                                                <>Identidade <span className="text-green-600 italic">Confirmada.</span></>
+                                            ) : (
+                                                <>Verifique seu <span className="text-violet-600 italic">E-mail.</span></>
+                                            )}
+                                        </h2>
+                                        <p className="text-slate-500 font-medium text-xs sm:text-sm px-4 leading-relaxed">
+                                            {isVerifiedRemotely ? (
+                                                "Sua conta foi verificada com sucesso! Você já pode acessar todas as funcionalidades da plataforma."
+                                            ) : (
+                                                <>
+                                                    Enviamos um link de confirmação para <strong className="text-slate-900">{watch('email')}</strong>.
+                                                    Por favor, clique no link para ativar sua conta. <br />
+                                                    <span className="text-[10px] text-violet-400 font-bold block mt-2 animate-pulse">Aguardando confirmação em tempo real...</span>
+                                                </>
+                                            )}
                                         </p>
                                     </div>
                                     <div className="pt-4 w-full">
-                                        <Link href="/login" className="flex h-14 bg-slate-950 hover:bg-violet-700 text-white font-extrabold rounded-xl text-[10px] uppercase tracking-widest items-center justify-center w-full transition-all">
-                                            Ir para Login
+                                        <Link
+                                            href="/login"
+                                            className={cn(
+                                                "flex h-14 font-extrabold rounded-xl text-[10px] uppercase tracking-widest items-center justify-center w-full transition-all shadow-xl",
+                                                isVerifiedRemotely
+                                                    ? "bg-green-600 hover:bg-green-700 text-white shadow-green-100"
+                                                    : "bg-slate-950 hover:bg-violet-700 text-white shadow-slate-200"
+                                            )}
+                                        >
+                                            {isVerifiedRemotely ? "Acessar Dashboard" : "Ir para Login"}
                                         </Link>
                                     </div>
                                 </motion.div>
