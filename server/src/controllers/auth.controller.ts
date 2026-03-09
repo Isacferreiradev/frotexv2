@@ -117,8 +117,13 @@ export async function checkVerification(req: Request, res: Response, next: NextF
         if (!email || typeof email !== 'string') {
             throw new AppError(400, 'E-mail obrigatório');
         }
-        const isVerified = await authService.checkVerification(email);
-        res.json({ success: true, data: { isVerified } });
+        const result = await authService.checkVerification(email);
+
+        if (result.isVerified && result.accessToken) {
+            setAuthCookies(res, result.accessToken, result.refreshToken!);
+        }
+
+        res.json({ success: true, data: result });
     } catch (err) { next(err); }
 }
 

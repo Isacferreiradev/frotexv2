@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import api from '@/lib/api';
+import { toast } from 'sonner';
 import { useAuthStore } from '@/store/authStore';
 import { LocattusLogo } from '@/components/shared/LocattusLogo';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -62,6 +63,8 @@ export default function RegisterPage() {
     const [serverError, setServerError] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const [isVerifiedRemotely, setIsVerifiedRemotely] = useState(false);
+    const [resendCooldown, setResendCooldown] = useState(0);
+    const [isResending, setIsResending] = useState(false);
 
     const { register, handleSubmit, trigger, watch, setValue, formState: { errors, isSubmitting } } = useForm<RegisterForm>({
         resolver: zodResolver(registerSchema),
@@ -113,6 +116,28 @@ export default function RegisterPage() {
     const [method, setMethod] = useState('');
     const [rentalRange, setRentalRange] = useState('');
 
+    // Timer for resend email cooldown
+    useEffect(() => {
+        if (resendCooldown > 0) {
+            const timer = setTimeout(() => setResendCooldown(resendCooldown - 1), 1000);
+            return () => clearTimeout(timer);
+        }
+    }, [resendCooldown]);
+
+    const handleResendEmail = async () => {
+        if (resendCooldown > 0 || isResending) return;
+        setIsResending(true);
+        try {
+            await api.post('/auth/resend-verification', { email: watch('email') });
+            toast.success('E-mail de verificação reenviado!');
+            setResendCooldown(60);
+        } catch (err: any) {
+            toast.error(err.response?.data?.message || 'Erro ao reenviar e-mail.');
+        } finally {
+            setIsResending(false);
+        }
+    };
+
     // Polling for email verification status when on Step 4
     useEffect(() => {
         let interval: NodeJS.Timeout;
@@ -123,6 +148,9 @@ export default function RegisterPage() {
                 try {
                     const res = await api.get(`/auth/check-verification?email=${encodeURIComponent(currentEmail)}`);
                     if (res.data.success && res.data.data.isVerified) {
+                        const { user } = res.data.data;
+                        // Auto-login! Backend already set the cookies, now sync local storage
+                        if (user) setAuth(user);
                         setIsVerifiedRemotely(true);
                         clearInterval(interval);
                     }
@@ -135,7 +163,7 @@ export default function RegisterPage() {
         return () => {
             if (interval) clearInterval(interval);
         };
-    }, [step, isVerifiedRemotely, watch]);
+    }, [step, isVerifiedRemotely, watch, setAuth]);
 
     return (
         <div className="h-screen bg-[#FDFDFD] flex flex-col lg:flex-row font-inter selection:bg-violet-100 relative overflow-hidden">
@@ -362,15 +390,42 @@ export default function RegisterPage() {
                                             ) : (
                                                 <>
                                                     Enviamos um link de confirmação para <strong className="text-slate-900">{watch('email')}</strong>.
-                                                    Por favor, clique no link para ativar sua conta. <br />
-                                                    <span className="text-[10px] text-violet-400 font-bold block mt-2 animate-pulse">Aguardando confirmação em tempo real...</span>
+                                                    Por favor, clique no link para ativar sua conta.
                                                 </>
                                             )}
                                         </p>
                                     </div>
+
+                                    {!isVerifiedRemotely && (
+                                        <div className="flex flex-col items-center gap-3">
+                                            <button
+                                                type="button"
+                                                onClick={handleResendEmail}
+                                                disabled={resendCooldown > 0 || isResending}
+                                                className="text-[10px] font-bold text-violet-600 hover:text-violet-700 disabled:text-slate-400 flex items-center gap-2 transition-all uppercase tracking-widest"
+                                            >
+                                                {isResending ? (
+                                                    <Loader2 className="w-3 h-3 animate-spin" />
+                                                ) : resendCooldown > 0 ? (
+                                                    `Reenviar em ${resendCooldown}s`
+                                                ) : (
+                                                    "Não recebeu? Reenviar E-mail"
+                                                )}
+                                            </button>
+                                            <span className="text-[9px] text-slate-400 font-medium italic animate-pulse">Aguardando confirmação em tempo real...</span>
+                                        </div>
+                                    )}
+
                                     <div className="pt-4 w-full">
-                                        <Link
-                                            href="/login"
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                if (isVerifiedRemotely) {
+                                                    window.location.href = '/dashboard';
+                                                } else {
+                                                    router.push('/login');
+                                                }
+                                            }}
                                             className={cn(
                                                 "flex h-14 font-extrabold rounded-xl text-[10px] uppercase tracking-widest items-center justify-center w-full transition-all shadow-xl",
                                                 isVerifiedRemotely
@@ -378,8 +433,8 @@ export default function RegisterPage() {
                                                     : "bg-slate-950 hover:bg-violet-700 text-white shadow-slate-200"
                                             )}
                                         >
-                                            {isVerifiedRemotely ? "Acessar Dashboard" : "Ir para Login"}
-                                        </Link>
+                                            {isVerifiedRemotely ? "Finalizar e Acessar Plataforma" : "Ir para Login"}
+                                        </button>
                                     </div>
                                 </motion.div>
                             )}

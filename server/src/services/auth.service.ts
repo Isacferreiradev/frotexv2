@@ -137,11 +137,38 @@ export async function verifyEmail(token: string) {
 
 export async function checkVerification(email: string) {
     const userEmail = email.toLowerCase().trim();
-    const [user] = await db.select({ isVerified: users.isVerified }).from(users).where(sql`lower(${users.email}) = ${userEmail}`);
-    if (!user) {
-        return false; // Don't throw 404 to prevent enumeration
+    const [user] = await db.select().from(users).where(sql`lower(${users.email}) = ${userEmail}`);
+
+    if (user && user.isVerified) {
+        const accessToken = signAccessToken({
+            userId: user.id,
+            email: user.email,
+            role: user.role,
+            tenantId: user.tenantId,
+        });
+
+        const refreshToken = signRefreshToken({ userId: user.id, tenantId: user.tenantId });
+
+        await db.update(users)
+            .set({ lastLoginAt: new Date(), lastActiveAt: new Date() })
+            .where(eq(users.id, user.id));
+
+        return {
+            isVerified: true,
+            user: {
+                id: user.id,
+                email: user.email,
+                fullName: user.fullName,
+                role: user.role,
+                tenantId: user.tenantId,
+                hasOnboarded: user.hasOnboarded,
+            },
+            accessToken,
+            refreshToken
+        };
     }
-    return user.isVerified;
+
+    return { isVerified: false };
 }
 
 export async function resendVerification(email: string) {
