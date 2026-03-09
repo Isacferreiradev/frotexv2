@@ -93,10 +93,11 @@ export async function generateExport(req: Request, res: Response, next: NextFunc
                         { header: "Status", key: "Status", width: 70 }
                     ];
                     // Formatar valores para PDF do financeiro (os dados da service vêm como números crus no valor para ordenar)
+                    logger.debug(`[EXPORT] Formatting ${data.length} finance items`);
                     data = data.map(item => ({
                         ...item,
-                        Valor: item.Valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
-                        Desconto: item.Desconto.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+                        Valor: (item.Valor || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
+                        Desconto: (item.Desconto || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
                     }));
                     break;
                 default:

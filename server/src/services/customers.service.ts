@@ -210,7 +210,7 @@ export async function getCustomer360(tenantId: string, id: string) {
             with: {
                 rentals: {
                     with: { tool: true, payments: true },
-                    orderBy: (rentals, { desc }) => [desc(rentals.createdAt)],
+                    orderBy: (rentals, { desc }) => [desc(rentals.startDate)],
                 },
                 quotes: {
                     with: { items: { with: { tool: true } } },
@@ -236,7 +236,7 @@ export async function getCustomer360(tenantId: string, id: string) {
                 with: {
                     rentals: {
                         with: { tool: true, payments: true },
-                        orderBy: (rentals, { desc }) => [desc(rentals.createdAt)],
+                        orderBy: (rentals, { desc }) => [desc(rentals.startDate)],
                     },
                     quotes: {
                         with: { items: { with: { tool: true } } },
@@ -255,12 +255,18 @@ export async function getCustomer360(tenantId: string, id: string) {
 
     if (!customer) throw new AppError(404, 'Cliente não encontrado');
 
-    const totalRentals = customer.rentals.length;
-    const activeRentals = customer.rentals.filter(r => r.status === 'active' || r.status === 'overdue').length;
-    const totalSpent = customer.rentals.reduce((sum, r) => sum + parseFloat(r.totalAmountActual || r.totalAmountExpected || '0'), 0);
-    const hasOverdue = customer.rentals.some(r => r.status === 'overdue');
-    const daysSinceLastRental = customer.rentals[0]
-        ? Math.floor((new Date().getTime() - new Date(customer.rentals[0].startDate).getTime()) / (1000 * 60 * 60 * 24))
+    const totalRentals = customer.rentals?.length || 0;
+    const activeRentals = customer.rentals?.filter(r => r.status === 'active' || r.status === 'overdue').length || 0;
+    const totalSpent = customer.rentals?.reduce((sum, r) => sum + parseFloat(r.totalAmountActual || r.totalAmountExpected || '0'), 0) || 0;
+    const hasOverdue = customer.rentals?.some(r => r.status === 'overdue') || false;
+
+    // Sort rentals by date to ensure the first one is the latest
+    const sortedRentals = [...(customer.rentals || [])].sort((a, b) =>
+        new Date(b.startDate).getTime() - new Date(a.startDate).getTime()
+    );
+
+    const daysSinceLastRental = sortedRentals[0]
+        ? Math.floor((new Date().getTime() - new Date(sortedRentals[0].startDate).getTime()) / (1000 * 60 * 60 * 24))
         : 999;
 
     let classification: 'vip' | 'new' | 'risk' | 'inactive' = 'new';

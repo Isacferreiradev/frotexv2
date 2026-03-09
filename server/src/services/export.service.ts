@@ -161,7 +161,8 @@ export async function getFinanceData(tenantId: string, filters: ExportFilters) {
             "Tipo": 'Receita (Locação)',
             "Categoria": 'Locação',
             "Descrição": `Pagamento ref. ${p.rental?.rentalCode || 'Locação'}`,
-            "Valor": parseFloat(p.amount),
+            "Valor": parseFloat(p.amount) || 0,
+            "Desconto": 0,
             "Status": p.status
         })),
         ...revData.map(r => ({
@@ -169,7 +170,8 @@ export async function getFinanceData(tenantId: string, filters: ExportFilters) {
             "Tipo": 'Outra Receita',
             "Categoria": r.category,
             "Descrição": r.description,
-            "Valor": parseFloat(r.amount),
+            "Valor": parseFloat(r.amount) || 0,
+            "Desconto": 0,
             "Status": 'Concluído'
         })),
         ...expData.map(e => ({
@@ -177,12 +179,17 @@ export async function getFinanceData(tenantId: string, filters: ExportFilters) {
             "Tipo": 'Despesa',
             "Categoria": e.category,
             "Descrição": e.description,
-            "Valor": -parseFloat(e.amount),
+            "Valor": -parseFloat(e.amount) || 0,
+            "Desconto": 0,
             "Status": 'Concluído'
         }))
     ];
 
-    return unified.sort((a, b) => new Date(b.Data).getTime() - new Date(a.Data).getTime());
+    return unified.sort((a, b) => {
+        const dateA = new Date(a.Data.split('/').reverse().join('-')).getTime();
+        const dateB = new Date(b.Data.split('/').reverse().join('-')).getTime();
+        return dateB - dateA;
+    });
 }
 
 export function jsonToCsv(data: any[]) {
