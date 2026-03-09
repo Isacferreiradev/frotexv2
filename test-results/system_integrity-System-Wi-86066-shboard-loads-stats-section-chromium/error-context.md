@@ -1,0 +1,60 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - button "Open Next.js Dev Tools" [ref=e7] [cursor=pointer]:
+    - img [ref=e8]
+  - alert [ref=e11]
+  - generic [ref=e12]:
+    - generic [ref=e17]:
+      - link "Locattus Logo" [ref=e18] [cursor=pointer]:
+        - /url: /
+        - img "Locattus Logo" [ref=e20]
+      - generic [ref=e22]:
+        - generic [ref=e23]:
+          - heading "Escalar é o seu Destino." [level=1] [ref=e24]:
+            - text: Escalar é o seu
+            - text: Destino.
+          - paragraph [ref=e25]: O cockpit definitivo para locadoras que buscam alta performance e controle total.
+        - generic [ref=e26]:
+          - generic [ref=e27]:
+            - img [ref=e29]
+            - generic [ref=e31]:
+              - paragraph [ref=e32]: Gestão Ágil
+              - paragraph [ref=e33]: Interface desenhada para velocidade operacional.
+          - generic [ref=e34]:
+            - img [ref=e36]
+            - generic [ref=e38]:
+              - paragraph [ref=e39]: Segurança Elite
+              - paragraph [ref=e40]: Protocolos de criptografia de ponta a ponta.
+          - generic [ref=e41]:
+            - img [ref=e43]
+            - generic [ref=e46]:
+              - paragraph [ref=e47]: Foco em ROI
+              - paragraph [ref=e48]: Insights preditivos sobre o lucro da sua frota.
+      - paragraph [ref=e50]: LOCATTUS SECURITY PROTOCOLS © 2026
+    - generic [ref=e52]:
+      - generic [ref=e53]:
+        - heading "Bem-vindo de volta." [level=2] [ref=e54]
+        - paragraph [ref=e55]: Acesse seu cockpit administrativo.
+      - generic [ref=e56]:
+        - generic [ref=e57]:
+          - text: Email profissional
+          - textbox "seu@email.com" [ref=e58]
+        - generic [ref=e59]:
+          - generic [ref=e60]:
+            - generic [ref=e61]: Senha
+            - button "Esqueceu a senha?" [ref=e62]
+          - generic [ref=e63]:
+            - textbox "••••••••" [ref=e64]
+            - button [ref=e65]:
+              - img [ref=e66]
+        - button "Acessar Painel" [ref=e70]:
+          - text: Acessar Painel
+          - img [ref=e71]
+      - paragraph [ref=e74]:
+        - text: Novo por aqui?
+        - link "Criar conta gratuita" [ref=e75] [cursor=pointer]:
+          - /url: /register
+  - region "Notifications alt+T"
+```

@@ -1,0 +1,207 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - button "Open Next.js Dev Tools" [ref=e7] [cursor=pointer]:
+    - img [ref=e8]
+  - alert [ref=e11]
+  - generic [ref=e12]:
+    - complementary [ref=e13]:
+      - link "Locattus Symbol" [ref=e15] [cursor=pointer]:
+        - /url: /dashboard
+        - img "Locattus Symbol" [ref=e17]
+      - navigation [ref=e18]:
+        - link [ref=e19] [cursor=pointer]:
+          - /url: /dashboard
+          - img [ref=e20]
+        - link [ref=e26] [cursor=pointer]:
+          - /url: /ferramentas
+          - img [ref=e27]
+        - link [ref=e29] [cursor=pointer]:
+          - /url: /clientes
+          - img [ref=e30]
+        - link [ref=e35] [cursor=pointer]:
+          - /url: /locacoes
+          - img [ref=e36]
+        - link [ref=e39] [cursor=pointer]:
+          - /url: /orcamentos
+          - img [ref=e40]
+        - link [ref=e42] [cursor=pointer]:
+          - /url: /inteligencia
+          - img [ref=e43]
+        - link [ref=e51] [cursor=pointer]:
+          - /url: /manutencao
+          - img [ref=e52]
+        - link [ref=e57] [cursor=pointer]:
+          - /url: /relatorios
+          - img [ref=e58]
+        - link [ref=e60] [cursor=pointer]:
+          - /url: /financeiro
+          - img [ref=e61]
+        - link [ref=e63] [cursor=pointer]:
+          - /url: /configuracoes
+          - img [ref=e64]
+      - button [ref=e68]:
+        - img [ref=e69]
+      - button [ref=e72]:
+        - img [ref=e73]
+    - generic [ref=e75]:
+      - banner [ref=e76]:
+        - generic [ref=e77]:
+          - generic [ref=e78]:
+            - heading "Dashboard" [level=1] [ref=e79]
+            - paragraph [ref=e80]: domingo, 08 de março
+          - generic [ref=e82]:
+            - button "Buscar ferramentas, clientes... ⌘ K" [ref=e83]:
+              - img [ref=e84]
+              - generic [ref=e87]: Buscar ferramentas, clientes...
+              - generic:
+                - generic: ⌘
+                - text: K
+            - generic [ref=e88]:
+              - heading "Command Palette" [level=2] [ref=e89]
+              - paragraph [ref=e90]: Search for a command to run...
+        - generic [ref=e92]:
+          - generic [ref=e93]:
+            - paragraph [ref=e94]: Ops User 17730192979762359
+            - paragraph [ref=e95]: Proprietário
+          - generic [ref=e98]: O
+      - main [ref=e99]:
+        - generic [ref=e101]:
+          - generic [ref=e102]:
+            - generic [ref=e103]:
+              - heading "Boa noite, Ops" [level=1] [ref=e104]
+              - generic [ref=e105]:
+                - paragraph [ref=e106]: domingo, 8 de março
+                - paragraph [ref=e107]: Inteligência de Ativos v2.0
+            - generic [ref=e108]:
+              - button "Hoje" [ref=e109]
+              - button "7 dias" [ref=e110]
+              - button "30 dias" [ref=e111]
+          - generic [ref=e112]:
+            - generic [ref=e114]:
+              - generic [ref=e115]:
+                - generic [ref=e116]: Faturamento Bruto
+                - img [ref=e118]
+              - generic [ref=e120]:
+                - generic [ref=e121]: R$ 0,00
+                - generic [ref=e122]: Performance Financeira
+            - generic [ref=e125]:
+              - generic [ref=e126]:
+                - generic [ref=e127]: Lucro Líquido
+                - img [ref=e129]
+              - generic [ref=e132]:
+                - generic [ref=e133]: R$ 0,00
+                - generic [ref=e134]: Resultado Real (TCO)
+            - generic [ref=e137]:
+              - generic [ref=e138]:
+                - generic [ref=e139]: Locações Ativas
+                - img [ref=e141]
+              - generic [ref=e143]:
+                - generic [ref=e144]: "0"
+                - generic [ref=e145]: Volume Operacional
+            - generic [ref=e148] [cursor=pointer]:
+              - generic [ref=e149]:
+                - generic [ref=e150]: Atrasos Críticos
+                - img [ref=e152]
+              - generic [ref=e154]:
+                - generic [ref=e155]: "0"
+                - generic [ref=e156]: Recuperação de Ativos
+          - generic [ref=e158]:
+            - generic [ref=e159]:
+              - generic [ref=e161]:
+                - generic [ref=e162]:
+                  - img [ref=e163]
+                  - generic [ref=e165]: Pro Fleet Intelligence
+                - button "Relatório Completo" [ref=e166]:
+                  - text: Relatório Completo
+                  - img
+              - generic [ref=e167]:
+                - generic [ref=e168]:
+                  - paragraph [ref=e169]: ROI MÉDIO REAL
+                  - paragraph [ref=e170]: 0.0%
+                  - paragraph [ref=e171]: Contabilizando depreciação de 20%/ano e custos de manutenção.
+                - generic [ref=e172]:
+                  - paragraph [ref=e173]: Capital em Risco
+                  - paragraph [ref=e174]: R$ 0,00
+                  - paragraph [ref=e175]: Investimento em equipamentos com ROI negativo ou fim de vida.
+                - generic [ref=e176]:
+                  - paragraph [ref=e177]: Saúde da Operação
+                  - generic [ref=e178]:
+                    - paragraph [ref=e179]: 0.0%
+                    - generic [ref=e180]: Ocupação
+            - generic [ref=e182]:
+              - generic [ref=e184]:
+                - img [ref=e185]
+                - generic [ref=e189]: Fluxo de Demanda
+              - generic [ref=e190]:
+                - generic [ref=e191]:
+                  - generic [ref=e192]:
+                    - paragraph [ref=e193]: "0"
+                    - paragraph [ref=e194]: Orçamentos Pendentes
+                  - generic [ref=e195]:
+                    - paragraph [ref=e196]: R$ 0,00
+                    - paragraph [ref=e197]: Potencial Bruto
+                - button "Ver Todos os Orçamentos" [ref=e198]
+          - generic [ref=e199]:
+            - generic [ref=e200]:
+              - generic [ref=e202]:
+                - text: Fluxo de Faturamento
+                - generic [ref=e203]: Últimos 30 dias
+              - img [ref=e207]:
+                - generic [ref=e211]:
+                  - generic [ref=e213]: 08/02
+                  - generic [ref=e215]: 10/02
+                  - generic [ref=e217]: 11/02
+                  - generic [ref=e219]: 12/02
+                  - generic [ref=e221]: 13/02
+                  - generic [ref=e223]: 14/02
+                  - generic [ref=e225]: 15/02
+                  - generic [ref=e227]: 16/02
+                  - generic [ref=e229]: 17/02
+                  - generic [ref=e231]: 18/02
+                  - generic [ref=e233]: 20/02
+                  - generic [ref=e235]: 22/02
+                  - generic [ref=e237]: 24/02
+                  - generic [ref=e239]: 26/02
+                  - generic [ref=e241]: 28/02
+                  - generic [ref=e243]: 02/03
+                  - generic [ref=e245]: 04/03
+                  - generic [ref=e247]: 06/03
+                  - generic [ref=e249]: 08/03
+                - generic [ref=e251]:
+                  - generic [ref=e253]: R$ 0
+                  - generic [ref=e255]: R$ 1
+                  - generic [ref=e257]: R$ 2
+                  - generic [ref=e259]: R$ 3
+                  - generic [ref=e261]: R$ 4
+            - generic [ref=e262]:
+              - generic [ref=e264]: ROI por Categoria
+              - paragraph [ref=e267]: Sem dados no período
+          - generic [ref=e268]:
+            - generic [ref=e271]: Top 5 Rentabilidade
+            - generic [ref=e272]:
+              - generic [ref=e274]:
+                - img [ref=e275]
+                - generic [ref=e279]: Régua de Cobrança
+              - generic [ref=e281]:
+                - img [ref=e282]
+                - paragraph [ref=e286]: Tudo em dia
+            - generic [ref=e287]:
+              - generic [ref=e288]:
+                - generic [ref=e289]:
+                  - generic [ref=e290]: Equipamentos Zumbis
+                  - img [ref=e291]
+                - paragraph [ref=e297]: Frota Saudável
+              - generic [ref=e298]:
+                - generic [ref=e300]:
+                  - generic [ref=e301]:
+                    - img [ref=e302]
+                    - generic [ref=e304]: Saúde da Frota (Visão Geral)
+                  - img [ref=e305]
+                - generic [ref=e309]:
+                  - generic [ref=e310]: 100%
+                  - generic [ref=e311]: 0 pendências
+  - region "Notifications alt+T"
+  - generic [ref=e314]: R$ 0
+```

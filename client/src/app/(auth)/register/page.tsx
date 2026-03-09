@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import api from '@/lib/api';
+import { useAuthStore } from '@/store/authStore';
 import { LocattusLogo } from '@/components/shared/LocattusLogo';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -74,11 +75,17 @@ export default function RegisterPage() {
         if (isValid) setStep(s => s + 1);
     };
 
+    const setAuth = useAuthStore((s) => s.setAuth);
+
     const onSubmit = async (data: RegisterForm) => {
         setServerError('');
         try {
-            await api.post('/auth/register', data);
-            router.push(`/registration-success?email=${encodeURIComponent(data.email)}`);
+            const res = await api.post('/auth/register', data);
+            const { user } = res.data.data;
+            setAuth(user);
+
+            // Instant access logic - redirected to dashboard
+            window.location.href = '/dashboard';
         } catch (err: any) {
             setServerError(err.response?.data?.message || 'Erro ao cadastrar. Tente novamente.');
         }

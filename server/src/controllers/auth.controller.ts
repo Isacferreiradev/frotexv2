@@ -34,6 +34,7 @@ export async function register(req: Request, res: Response, next: NextFunction) 
         }
 
         const result = await authService.register(data);
+        setAuthCookies(res, result.accessToken, result.refreshToken);
         res.status(201).json({ success: true, data: { user: result.user } });
     } catch (err: any) {
         next(err);
@@ -51,13 +52,10 @@ export async function login(req: Request, res: Response, next: NextFunction) {
 
 export async function refresh(req: Request, res: Response, next: NextFunction) {
     try {
-        let refreshToken = req.body.refreshToken;
-        if (!refreshToken && req.headers.cookie) {
-            const match = req.headers.cookie.match(/(?:^|; )refresh_token=([^;]*)/);
-            if (match) refreshToken = match[1];
-        }
+        const refreshToken = req.body.refreshToken || req.cookies?.refresh_token;
+
         if (!refreshToken) {
-            return res.status(401).json({ success: false, message: 'refreshToken obrigatório' });
+            return res.status(401).json({ success: false, message: 'Falta o token de renovação (refresh token)' });
         }
         const result = await authService.refreshTokens(refreshToken);
         setAuthCookies(res, result.accessToken, result.refreshToken);

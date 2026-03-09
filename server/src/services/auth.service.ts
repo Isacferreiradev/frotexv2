@@ -71,16 +71,29 @@ export async function register(data: z.infer<typeof registerSchema>) {
                 passwordHash,
                 fullName: data.fullName,
                 role: 'owner',
-                isVerified: false,
-                verificationToken: verificationToken,
+                isVerified: true,
+                verificationToken: null,
             }).returning();
 
+            logger.info(`[AUTH] User created in DB: ${user.email} (ID: ${user.id})`);
             return { user, tenant };
         });
 
         // Send verification email
         sendVerificationEmail(result.user.email, result.user.fullName, result.user.verificationToken!)
             .catch(e => console.error('[AUTH-EMAIL-ERROR] Background email failed:', e));
+
+        const accessToken = signAccessToken({
+            userId: result.user.id,
+            email: result.user.email,
+            role: result.user.role,
+            tenantId: result.user.tenantId,
+        });
+
+        const refreshToken = signRefreshToken({
+            userId: result.user.id,
+            tenantId: result.user.tenantId
+        });
 
         return {
             user: {
@@ -91,7 +104,9 @@ export async function register(data: z.infer<typeof registerSchema>) {
                 tenantId: result.tenant.id,
                 isVerified: result.user.isVerified,
                 hasOnboarded: result.user.hasOnboarded,
-            }
+            },
+            accessToken,
+            refreshToken
         };
     } catch (error: any) {
         throw error;
@@ -158,15 +173,18 @@ export async function login(data: z.infer<typeof loginSchema>) {
         const [user] = await db.select().from(users).where(sql`lower(${users.email}) = ${email}`);
 
         if (!user) {
+            logger.warn(`[AUTH] Login failed: User not found with email ${email}`);
             throw new AppError(401, 'Credenciais inválidas');
         }
 
+        logger.info(`[AUTH] User found: ${user.email}. Comparing passwords...`);
         const isPasswordValid = await bcrypt.compare(data.password, user.passwordHash);
         if (!isPasswordValid) {
+            logger.warn(`[AUTH] Login failed: Password mismatch for ${email}`);
             throw new AppError(401, 'Credenciais inválidas');
         }
 
-        if (!user.isVerified) {
+        if (!user.isVerified && process.env.NODE_ENV !== 'development') {
             throw new AppError(403, 'Por favor, verifique seu e-mail antes de fazer login');
         }
         const accessToken = signAccessToken({
