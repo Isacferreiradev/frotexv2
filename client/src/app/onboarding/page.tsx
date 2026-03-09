@@ -393,15 +393,23 @@ export default function OnboardingPage() {
                                             </select>
 
                                             {isCreatingCategory && (
-                                                <div className="animate-in fade-in slide-in-from-top-2">
+                                                <div className="animate-in fade-in slide-in-from-top-2 relative">
                                                     <input
                                                         type="text"
                                                         value={newCategoryName}
                                                         onChange={(e) => setNewCategoryName(e.target.value)}
                                                         placeholder="Digite o nome da nova categoria"
                                                         autoFocus
-                                                        className="w-full bg-white border border-violet-200 rounded-xl px-4 py-3 text-zinc-900 placeholder:text-zinc-400 focus:border-violet-500 focus:ring-1 focus:ring-violet-500 outline-none transition-all font-medium text-sm shadow-sm shadow-violet-100"
+                                                        className="w-full bg-white border border-violet-200 rounded-xl px-4 py-3 pr-12 text-zinc-900 placeholder:text-zinc-400 focus:border-violet-500 focus:ring-1 focus:ring-violet-500 outline-none transition-all font-medium text-sm shadow-sm shadow-violet-100"
                                                     />
+                                                    {newCategoryName.length >= 3 && (
+                                                        <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-2">
+                                                            <div className="bg-emerald-500 rounded-full p-1 shadow-sm">
+                                                                <Check className="w-3 h-3 text-white" />
+                                                            </div>
+                                                            <span className="text-[9px] font-bold text-emerald-600 uppercase tracking-widest hidden sm:inline">Pronta!</span>
+                                                        </div>
+                                                    )}
                                                 </div>
                                             )}
                                         </div>

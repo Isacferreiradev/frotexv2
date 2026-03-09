@@ -328,40 +328,42 @@ export function QuoteForm({ initialData, onSubmit, isLoading }: QuoteFormProps) 
                                     </div>
                                 </div>
 
-                                <div className="bg-zinc-900 rounded-[40px] p-8 text-white relative overflow-hidden shadow-premium">
-                                    <div className="absolute top-0 right-0 w-48 h-48 bg-violet-500/10 blur-[90px] rounded-full -translate-y-1/2 translate-x-1/2" />
+                                <div className="bg-zinc-900 rounded-[40px] p-6 sm:p-10 text-white relative overflow-hidden shadow-2xl border border-white/5">
+                                    <div className="absolute top-0 right-0 w-64 h-64 bg-violet-500/10 blur-[100px] rounded-full -translate-y-1/2 translate-x-1/2" />
+                                    <div className="absolute bottom-0 left-0 w-48 h-48 bg-primary/5 blur-[80px] rounded-full translate-y-1/2 -translate-x-1/2" />
 
-                                    <div className="space-y-6 relative z-10">
-                                        <div className="flex justify-between items-center text-[10px] font-extrabold uppercase tracking-[0.2em] text-zinc-500">
-                                            <span>Consolidado Final</span>
-                                            <span className="text-primary">{days} {days === 1 ? 'DIA' : 'DIAS'}</span>
+                                    <div className="space-y-8 relative z-10">
+                                        <div className="flex justify-between items-center text-[10px] font-extrabold uppercase tracking-[0.3em] text-zinc-500">
+                                            <span className="flex items-center gap-2"><CheckCircle2 className="w-3 h-3" /> Resumo Estruturado</span>
+                                            <span className="bg-primary/20 text-primary px-3 py-1 rounded-full">{days} {days === 1 ? 'DIA' : 'DIAS'}</span>
                                         </div>
 
-                                        <div className="space-y-3 bg-white/5 p-6 rounded-3xl border border-white/5 backdrop-blur-sm">
+                                        <div className="space-y-4 bg-white/5 p-6 rounded-[2rem] border border-white/5 backdrop-blur-md">
                                             <div className="flex justify-between items-center text-xs text-zinc-400">
-                                                <span>Subtotal de Ativos</span>
-                                                <span className="font-bold tabular-nums text-white text-sm">{formatCurrency(subtotal)}</span>
+                                                <span className="font-medium">Subtotal de Ativos</span>
+                                                <span className="font-bold tabular-nums text-white text-base">{formatCurrency(subtotal)}</span>
                                             </div>
+                                            <div className="h-[1px] bg-white/5 w-full" />
                                             <div className="flex justify-between items-center text-xs text-zinc-400">
-                                                <span className="flex items-center gap-2">Desconto Global <Plus className="w-3 h-3 rotate-45" /></span>
-                                                <div className="flex items-center gap-2">
-                                                    <span className="text-[10px] font-bold">R$</span>
+                                                <span className="flex items-center gap-2 font-medium italic">Bonificação / Desconto <Plus className="w-3 h-3 rotate-45 text-red-400" /></span>
+                                                <div className="flex items-center gap-3">
+                                                    <span className="text-[11px] font-black text-white/40">R$</span>
                                                     <input
                                                         type="number"
                                                         {...register('totalDiscount', { valueAsNumber: true })}
-                                                        className="w-24 bg-transparent border-b border-white/10 focus:border-primary focus:outline-none text-right font-extrabold text-white tabular-nums h-8"
+                                                        className="w-28 bg-white/10 border-none rounded-xl focus:ring-2 focus:ring-primary/50 text-right font-black text-white tabular-nums h-10 px-4"
                                                     />
                                                 </div>
                                             </div>
                                         </div>
 
-                                        <div className="pt-4 border-t border-white/5 flex justify-between items-end">
-                                            <div className="space-y-1">
-                                                <p className="text-[9px] font-extrabold text-primary uppercase tracking-[0.4em]">VALOR TOTAL</p>
-                                                <p className="text-[10px] text-zinc-500 italic">Pronto para envio</p>
+                                        <div className="pt-6 border-t border-white/5 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6 sm:gap-2">
+                                            <div className="space-y-2">
+                                                <p className="text-[10px] font-extrabold text-primary uppercase tracking-[0.4em]">INVESTIMENTO FINAL</p>
+                                                <p className="text-[11px] text-zinc-500 font-medium italic leading-relaxed max-w-[200px]">Proposta válida por 5 dias úteis a partir desta data.</p>
                                             </div>
-                                            <div className="text-right">
-                                                <span className="text-5xl font-black tracking-tighter bg-gradient-to-r from-white to-zinc-400 bg-clip-text text-transparent italic">
+                                            <div className="text-right w-full sm:w-auto">
+                                                <span className="text-5xl sm:text-6xl font-black tracking-tighter bg-gradient-to-br from-white via-white to-zinc-600 bg-clip-text text-transparent italic drop-shadow-sm">
                                                     {formatCurrency(total)}
                                                 </span>
                                             </div>

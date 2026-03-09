@@ -30,6 +30,7 @@ import { StatusBadge } from '@/components/ui/StatusBadge';
 import { Skeleton } from '@/components/shared/SkeletonLoader';
 import { CommunicationTimeline } from '@/components/shared/CommunicationTimeline';
 import { RentalCheckout } from '@/components/forms/RentalCheckout';
+import { QuoteForm } from '@/components/forms/QuoteForm';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import { toast } from 'sonner';
 import { motion } from 'framer-motion';
@@ -40,6 +41,7 @@ export default function Customer360Page() {
     const router = useRouter();
     const queryClient = useQueryClient();
     const [isRentalOpen, setIsRentalOpen] = useState(false);
+    const [isQuoteOpen, setIsQuoteOpen] = useState(false);
 
     const { data: customer, isLoading } = useQuery({
         queryKey: ['customer-360', id],
@@ -57,6 +59,16 @@ export default function Customer360Page() {
             toast.success('Locação realizada com sucesso!');
         },
         onError: () => toast.error('Erro ao realizar locação'),
+    });
+
+    const createQuoteMutation = useMutation({
+        mutationFn: (data: any) => api.post('/quotes', data),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['customer-360', id] });
+            setIsQuoteOpen(false);
+            toast.success('Orçamento gerado com sucesso!');
+        },
+        onError: () => toast.error('Erro ao gerar orçamento'),
     });
 
     const logCommMutation = useMutation({
@@ -107,6 +119,13 @@ export default function Customer360Page() {
                         onClick={() => window.open(`https://wa.me/${customer.phoneNumber?.replace(/\D/g, '')}`, '_blank')}
                     >
                         <MessageSquare className="w-3.5 h-3.5 mr-2" /> Log WhatsApp
+                    </Button>
+                    <Button
+                        variant="outline"
+                        className="rounded-xl font-bold text-[10px] uppercase tracking-widest h-11 px-6 border-violet-100 text-violet-600 hover:bg-violet-50"
+                        onClick={() => setIsQuoteOpen(true)}
+                    >
+                        <FileText className="w-3.5 h-3.5 mr-2" /> Novo Orçamento
                     </Button>
                     <Button
                         className="rounded-xl font-bold text-[10px] uppercase tracking-widest h-11 px-6 shadow-premium"
@@ -301,6 +320,22 @@ export default function Customer360Page() {
                             initialCustomerId={customer.id as string}
                             onSubmit={(data) => createRentalMutation.mutate(data)}
                             isLoading={createRentalMutation.isPending}
+                        />
+                    </div>
+                </SheetContent>
+            </Sheet>
+
+            <Sheet open={isQuoteOpen} onOpenChange={setIsQuoteOpen}>
+                <SheetContent className="sm:max-w-4xl border-border/40 p-0 overflow-hidden bg-white shadow-float max-h-[100vh] overflow-y-auto scrollbar-hide">
+                    <div className="px-10 py-10 border-b border-border/40 bg-violet-50/20">
+                        <SheetTitle className="font-bold text-2xl tracking-tight text-foreground">Novo Orçamento & Reserva</SheetTitle>
+                        <SheetDescription className="text-violet-500 font-bold text-[10px] uppercase tracking-[0.2em] mt-2">Personalizado para {customer.fullName}</SheetDescription>
+                    </div>
+                    <div className="p-10">
+                        <QuoteForm
+                            initialData={{ customerId: customer.id }}
+                            onSubmit={(data: any) => createQuoteMutation.mutate(data)}
+                            isLoading={createQuoteMutation.isPending}
                         />
                     </div>
                 </SheetContent>

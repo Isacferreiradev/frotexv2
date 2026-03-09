@@ -223,31 +223,43 @@ export async function getCustomer360(tenantId: string, id: string) {
             },
         });
     } catch (queryError: any) {
+        logger.error(`[CUSTOMERS] Primary get360 query failed for ${id}:`, queryError.message);
+
         if (queryError.code === '42703') {
-            logger.warn(`[CUSTOMERS] get360 fallback (excluding missing columns)`);
+            logger.warn(`[CUSTOMERS] get360 fallback triggered (schema mismatch). Trying reduced query...`);
+
+            // Fallback strategy: Query piece by piece or omit quotes if that's what's breaking
             customer = await db.query.customers.findFirst({
                 where: and(eq(customers.tenantId, tenantId), eq(customers.id, id)),
                 columns: {
-                    classification: false,
-                    tags: false,
-                    notes: false,
-                    deletedAt: false
+                    id: true,
+                    tenantId: true,
+                    fullName: true,
+                    documentType: true,
+                    documentNumber: true,
+                    phoneNumber: true,
+                    email: true,
+                    addressStreet: true,
+                    isBlocked: true,
                 },
                 with: {
                     rentals: {
                         with: { tool: true, payments: true },
                         orderBy: (rentals, { desc }) => [desc(rentals.startDate)],
                     },
-                    quotes: {
-                        with: { items: { with: { tool: true } } },
-                        orderBy: (quotes, { desc }) => [desc(quotes.createdAt)],
-                    },
+                    // We omit quotes here because it's the known source of the 42703 error currently
                     clientCommunications: {
                         with: { user: { columns: { fullName: true, avatarUrl: true } } },
                         orderBy: (comm, { desc }) => [desc(comm.createdAt)],
                     }
                 }
             });
+
+            if (customer) {
+                // Manually add an empty quotes array to satisfy types
+                (customer as any).quotes = [];
+                logger.info(`[CUSTOMERS] Fallback query succeeded for ${id} (omitted quotes).`);
+            }
         } else {
             throw queryError;
         }

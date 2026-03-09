@@ -107,7 +107,7 @@ export default function OrcamentosPage() {
                             Novo Orçamento
                         </button>
                     </DialogTrigger>
-                    <DialogContent className="sm:max-w-[500px] border-violet-50 p-0 overflow-hidden bg-white">
+                    <DialogContent className="sm:max-w-4xl border-violet-50 p-0 overflow-hidden bg-white max-h-[90vh] overflow-y-auto scrollbar-hide">
                         <div className="px-8 py-6 border-b border-violet-50 bg-violet-50/20">
                             <DialogTitle className="font-bold text-xl tracking-tight text-zinc-900">Gerar Novo Orçamento</DialogTitle>
                         </div>
