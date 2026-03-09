@@ -81,11 +81,16 @@ export default function RegisterPage() {
         setServerError('');
         try {
             const res = await api.post('/auth/register', data);
-            const { user } = res.data.data;
-            setAuth(user);
+            const responseData = res.data.data;
 
-            // Instant access logic - redirected to dashboard
-            window.location.href = '/dashboard';
+            if (responseData.requiresVerification) {
+                // Email confirmation is required, don't set auth
+                setStep(4);
+            } else {
+                // Direct access allowed (test accounts)
+                setAuth(responseData.user);
+                window.location.href = '/dashboard';
+            }
         } catch (err: any) {
             setServerError(err.response?.data?.message || 'Erro ao cadastrar. Tente novamente.');
         }
@@ -296,6 +301,26 @@ export default function RegisterPage() {
                                             {serverError}
                                         </div>
                                     )}
+                                </motion.div>
+                            )}
+
+                            {step === 4 && (
+                                <motion.div key="step4" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-6 flex-1 flex flex-col items-center justify-center text-center py-6">
+                                    <div className="w-16 h-16 bg-violet-100 rounded-full flex items-center justify-center mb-2">
+                                        <Check className="w-8 h-8 text-violet-600 stroke-[3px]" />
+                                    </div>
+                                    <div>
+                                        <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-950 font-outfit tracking-tight leading-none mb-3">Verifique seu <span className="text-violet-600 italic">E-mail.</span></h2>
+                                        <p className="text-slate-500 font-medium text-xs sm:text-sm px-4">
+                                            Enviamos um link de confirmação para <strong className="text-slate-900">{watch('email')}</strong>.
+                                            Por favor, acesse sua caixa de entrada (ou pasta de spam) e clique no link para ativar sua conta e acessar seu Dashboard.
+                                        </p>
+                                    </div>
+                                    <div className="pt-4 w-full">
+                                        <Link href="/login" className="flex h-14 bg-slate-950 hover:bg-violet-700 text-white font-extrabold rounded-xl text-[10px] uppercase tracking-widest items-center justify-center w-full transition-all">
+                                            Ir para Login
+                                        </Link>
+                                    </div>
                                 </motion.div>
                             )}
                         </AnimatePresence>

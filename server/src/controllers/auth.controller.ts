@@ -34,8 +34,18 @@ export async function register(req: Request, res: Response, next: NextFunction) 
         }
 
         const result = await authService.register(data);
+
+        if (!result.user.isVerified) {
+            // Se o e-mail precisa ser verificado, não logamos o usuário
+            return res.status(201).json({
+                success: true,
+                data: { user: result.user, requiresVerification: true }
+            });
+        }
+
+        // Se já está verificado (e.g accounts de E2E bypass), loga direto
         setAuthCookies(res, result.accessToken, result.refreshToken);
-        res.status(201).json({ success: true, data: { user: result.user } });
+        res.status(201).json({ success: true, data: { user: result.user, requiresVerification: false } });
     } catch (err: any) {
         next(err);
     }
