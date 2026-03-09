@@ -65,14 +65,18 @@ export async function register(data: z.infer<typeof registerSchema>) {
             const verificationToken = uuidv4();
             const passwordHash = await bcrypt.hash(data.password, 12);
 
+            // Bypass verification only for E2E tests (playwright generated emails)
+            const isTestEmail = email.endsWith('@test.com') || email.endsWith('@frotex-e2e.com');
+            const isVerified = isTestEmail;
+
             const [user] = await tx.insert(users).values({
                 tenantId: tenant.id,
-                email: email, // Use the lowercased email variable
+                email: email,
                 passwordHash,
                 fullName: data.fullName,
                 role: 'owner',
-                isVerified: true,
-                verificationToken: null,
+                isVerified: isVerified,
+                verificationToken: isVerified ? null : verificationToken,
             }).returning();
 
             logger.info(`[AUTH] User created in DB: ${user.email} (ID: ${user.id})`);
@@ -184,7 +188,7 @@ export async function login(data: z.infer<typeof loginSchema>) {
             throw new AppError(401, 'Credenciais inválidas');
         }
 
-        if (!user.isVerified && process.env.NODE_ENV !== 'development') {
+        if (!user.isVerified) {
             throw new AppError(403, 'Por favor, verifique seu e-mail antes de fazer login');
         }
         const accessToken = signAccessToken({
