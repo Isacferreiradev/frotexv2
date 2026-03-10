@@ -36,9 +36,15 @@ export const tenants = pgTable('tenants', {
     asaasWalletId: text('asaas_wallet_id'),
     stripeSecretKey: text('stripe_secret_key'),
     stripeCustomerId: text('stripe_customer_id'),
-    stripeSubscriptionId: text('stripe_subscription_id'),
     paymentProvider: text('payment_provider', { enum: ['none', 'asaas', 'stripe'] }).default('none'),
-    plan: text('plan', { enum: ['free', 'pro', 'scale'] }).notNull().default('free'),
+    plan: text('plan', { enum: ['free', 'pro', 'scale', 'premium'] }).notNull().default('free'),
+    subscriptionStatus: text('subscription_status', {
+        enum: ['active', 'trialing', 'past_due', 'canceled', 'unpaid', 'paused']
+    }).notNull().default('active'),
+    trialEndsAt: timestamp('trial_ends_at', { withTimezone: true }),
+    subscriptionEndsAt: timestamp('subscription_ends_at', { withTimezone: true }),
+    isManualLock: boolean('is_manual_lock').notNull().default(false),
+    lockReason: text('lock_reason'),
     openingHours: jsonb('opening_hours').default({}), // e.g., { mon: { open: '08:00', close: '18:00' }, ... }
     nonWorkingDays: jsonb('non_working_days').default([]), // Array of dates or days of week
     themeConfig: jsonb('theme_config').default({ primaryColor: '#6d28d9', glassmorphism: true }),

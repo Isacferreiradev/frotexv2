@@ -113,15 +113,7 @@ export async function getTool(tenantId: string, id: string) {
 }
 
 export async function createTool(tenantId: string, data: z.infer<typeof toolSchema>) {
-    // Plan enforcement
-    const [tenant] = await db.select({ plan: tenants.plan }).from(tenants).where(eq(tenants.id, tenantId));
-    const limits = getPlanLimits(tenant?.plan);
-
-    const [toolCount] = await db.select({ count: sql`count(*)` }).from(tools).where(eq(tools.tenantId, tenantId));
-    if (Number((toolCount as any).count) >= limits.maxTools) {
-        throw new AppError(403, `Limite de ferramentas atingido para o plano ${tenant?.plan || 'Essencial'} (${limits.maxTools} itens). Faça upgrade para continuar.`);
-    }
-
+    // Limit enforcement is handled by the enforceLimit('tools') middleware in the router.
     const [tool] = await db.insert(tools).values({
         tenantId,
         categoryId: data.categoryId,

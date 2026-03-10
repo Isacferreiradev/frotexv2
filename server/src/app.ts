@@ -30,6 +30,7 @@ import stripeRoutes from './routes/stripe.routes';
 import automationRoutes from './routes/automation.routes';
 import onboardingRoutes from './routes/onboarding.routes';
 import exportRoutes from './routes/export.routes';
+import adminRoutes from './routes/admin.routes';
 
 
 import { globalLimiter } from './middleware/rate-limit.middleware';
@@ -125,7 +126,7 @@ app.get('/', (req, res) => {
     });
 });
 
-// Health check (Must be before general routes)
+// Health check
 app.get('/health', async (req, res) => {
     try {
         await pool.query('SELECT 1');
@@ -135,18 +136,11 @@ app.get('/health', async (req, res) => {
             timestamp: new Date().toISOString()
         });
     } catch (err: any) {
-        logger.error('❌ Healthcheck failed - Database connectivity issue:', {
-            message: err.message,
-            code: err.code,
-            database_url: env.DATABASE_URL.split('@')[1] || 'URL HIDDEN',
-            stack: err.stack
-        });
-        // We return 200 with 'degraded' status to let the deployment finish and show logs in Railway
+        logger.error('❌ Healthcheck failed:', err.message);
         res.status(200).json({
             status: 'degraded',
             database: 'disconnected',
-            message: 'Database unavailable',
-            error: env.NODE_ENV === 'development' ? err.message : 'Check server logs'
+            message: 'Database unavailable'
         });
     }
 });
@@ -154,28 +148,32 @@ app.get('/health', async (req, res) => {
 // Webhooks (Public)
 app.post('/api/webhooks/asaas', express.json(), webhooksCtrl.asaasWebhook);
 
-// Public routes
+// 1. Administrative API (Master Access via API Key)
+// Important: Mount BEFORE any other /api routes that might have global middleware
+app.use('/api/admin', adminRoutes);
+
+// 2. Public Auth API
 app.use('/api/auth', authRoutes);
 
-// Protected routes - all require authentication + tenant context
-app.use('/api', authenticate, tenantContext);
-app.use('/api/tools', toolsRoutes);
-app.use('/api/tool-categories', categoriesRoutes);
-app.use('/api/customers', customersRoutes);
-app.use('/api/rentals', rentalsRoutes);
-app.use('/api/payments', paymentsRoutes);
-app.use('/api/maintenance', maintenanceRoutes);
-app.use('/api/search', searchRoutes);
-app.use('/api/tenant', tenantRoutes);
-app.use('/api/activity', activityRoutes);
-app.use('/api/contract-templates', templatesRoutes);
-app.use('/api/finance', financeRoutes);
-app.use('/api/communications', communicationsRoutes);
-app.use('/api/quotes', quotesRoutes);
-app.use('/api/intelligence', intelligenceRoutes);
-app.use('/api/automation', automationRoutes);
-app.use('/api/onboarding', onboardingRoutes);
-app.use('/api/export', exportRoutes);
+// 3. Protected SaaS API (User Token + Tenant Context)
+// We apply authenticate and tenantContext ONLY to these routes
+app.use('/api/tools', authenticate, tenantContext, toolsRoutes);
+app.use('/api/tool-categories', authenticate, tenantContext, categoriesRoutes);
+app.use('/api/customers', authenticate, tenantContext, customersRoutes);
+app.use('/api/rentals', authenticate, tenantContext, rentalsRoutes);
+app.use('/api/payments', authenticate, tenantContext, paymentsRoutes);
+app.use('/api/maintenance', authenticate, tenantContext, maintenanceRoutes);
+app.use('/api/search', authenticate, tenantContext, searchRoutes);
+app.use('/api/tenant', authenticate, tenantContext, tenantRoutes);
+app.use('/api/activity', authenticate, tenantContext, activityRoutes);
+app.use('/api/contract-templates', authenticate, tenantContext, templatesRoutes);
+app.use('/api/finance', authenticate, tenantContext, financeRoutes);
+app.use('/api/communications', authenticate, tenantContext, communicationsRoutes);
+app.use('/api/quotes', authenticate, tenantContext, quotesRoutes);
+app.use('/api/intelligence', authenticate, tenantContext, intelligenceRoutes);
+app.use('/api/automation', authenticate, tenantContext, automationRoutes);
+app.use('/api/onboarding', authenticate, tenantContext, onboardingRoutes);
+app.use('/api/export', authenticate, tenantContext, exportRoutes);
 
 
 // Fallback for non-existent API routes
