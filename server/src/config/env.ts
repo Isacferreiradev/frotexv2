@@ -24,7 +24,7 @@ const envSchema = z.object({
     STRIPE_WEBHOOK_SECRET: z.string().optional(),
     RESEND_API_KEY: z.string().optional(),
     RESEND_FROM_EMAIL: z.string().email().optional(),
-    ADMIN_API_KEY: z.string().min(32),
+    ADMIN_API_KEY: z.string().min(1).default('CHANGE_ME_IN_RAILWAY_SETTINGS'),
 });
 
 const parsed = envSchema.safeParse(process.env);

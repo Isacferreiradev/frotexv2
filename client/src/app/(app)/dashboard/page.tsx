@@ -33,6 +33,11 @@ const ROIChart = dynamic(() => import("@/components/dashboard/ROIChart").then(mo
     loading: () => <div className="h-[300px] w-full bg-muted/20 animate-pulse rounded-2xl" />
 });
 
+const UsageDashboardWidget = dynamic(
+    () => import("@/components/dashboard/UsageDashboardWidget").then(mod => mod.UsageDashboardWidget),
+    { ssr: false, loading: () => <div className="h-[160px] w-full bg-muted/20 animate-pulse rounded-2xl" /> }
+);
+
 // ─── Metric Card (Premium & Refined) ─────────────────────────────────────────
 const MetricCard = memo(({
     title, value, icon: Icon, loading, variant = 'default', subtitle, onClick
@@ -386,6 +391,9 @@ export default function DashboardPage() {
                 <RevenueChart data={stats?.revenueHistory ?? []} loading={isLoading} />
                 <ROIChart data={stats?.categoryStats ?? []} loading={isLoading} />
             </div>
+
+            {/* ── Plan Usage Widget ── */}
+            <UsageDashboardWidget />
 
             {/* ── Secondary Insights ── */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
