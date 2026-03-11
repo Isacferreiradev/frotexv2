@@ -13,7 +13,8 @@ import {
     ChevronRight,
     ArrowUpRight,
     DollarSign,
-    Zap
+    Zap,
+    Building2
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useQuery } from '@tanstack/react-query';
