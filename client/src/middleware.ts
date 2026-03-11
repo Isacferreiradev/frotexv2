@@ -17,7 +17,7 @@ export function middleware(request: NextRequest) {
 
     if (!token) {
         // Protect all internal application routes
-        const protectedRoutes = ['/dashboard', '/ferramentas', '/clientes', '/locacoes', '/manutencao', '/configuracoes', '/financeiro'];
+        const protectedRoutes = ['/dashboard', '/ferramentas', '/clientes', '/locacoes', '/manutencao', '/configuracoes', '/financeiro', '/admin'];
         const isProtected = protectedRoutes.some(route => pathname.startsWith(route));
 
         if (isProtected) {
