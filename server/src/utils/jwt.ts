@@ -5,6 +5,7 @@ export interface JwtPayload {
     userId: string;
     tenantId: string;
     role: string;
+    systemRole: 'user' | 'admin';
     email: string;
 }
 

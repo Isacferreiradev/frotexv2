@@ -2,8 +2,9 @@
 
 import { useState } from 'react';
 import { useAuthStore } from '@/store/authStore';
-import { User, Building2, Shield, Loader2, KeyRound, BadgeCheck, Mail, Calendar, CreditCard, Check, Zap, RotateCcw } from 'lucide-react';
+import { User, Building2, Shield, Loader2, KeyRound, BadgeCheck, Mail, Calendar, CreditCard, Check, Zap, RotateCcw, ArrowRight } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { PIXPaymentModal } from '@/components/billing/PIXPaymentModal';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -454,114 +455,149 @@ export default function ConfiguracoesPage() {
                 )}
 
                 {activeTab === 'assinatura' && (
-                    <div className="p-10 space-y-10 animate-in fade-in slide-in-from-bottom-2 duration-500">
-                        <div className="flex items-center justify-between">
-                            <div className="space-y-2">
-                                <h3 className="text-lg font-bold text-zinc-900 tracking-tight">Gerenciar Assinatura</h3>
-                                <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Planos, Faturamento & Limites</p>
-                            </div>
-                            <div className="flex items-center gap-2 px-4 py-2 bg-violet-50 text-violet-600 rounded-xl text-[10px] font-bold uppercase tracking-widest border border-violet-100">
-                                <BadgeCheck className="w-3.5 h-3.5" />
-                                Plano Atual: {tenant?.plan === 'free' ? 'Gratuito' : tenant?.plan === 'pro' ? 'Profissional' : 'Escala'}
-                            </div>
+                    <AssinaturaTab tenant={tenant} />
+                )}
+            </div>
+        </div>
+    );
+}
+
+function AssinaturaTab({ tenant }: { tenant: any }) {
+    const [showPixModal, setShowPixModal] = useState(false);
+    const [pendingCharge, setPendingCharge] = useState<any>(null);
+    const { user } = useAuthStore();
+
+    const handleUpgrade = async (plan: string) => {
+        try {
+            toast.loading('Iniciando checkout seguro...', { id: 'billing-upgrade' });
+
+            const response = await api.post('/billing/upgrade', { planRequested: plan });
+
+            if (response.data?.success) {
+                setPendingCharge(response.data.data);
+                setShowPixModal(true);
+                toast.dismiss('billing-upgrade');
+            }
+        } catch (error: any) {
+            toast.error(error.response?.data?.message || 'Erro ao gerar cobrança. Tente novamente.', { id: 'billing-upgrade' });
+        }
+    };
+
+    const handleSuccess = () => {
+        setShowPixModal(false);
+        // Refresh page or user state to show new plan
+        window.location.reload();
+    };
+
+    return (
+        <div className="p-10 space-y-10 animate-in fade-in slide-in-from-bottom-2 duration-500">
+            {showPixModal && pendingCharge && (
+                <PIXPaymentModal
+                    charge={pendingCharge}
+                    onSuccess={handleSuccess}
+                    onClose={() => setShowPixModal(false)}
+                />
+            )}
+
+            <div className="flex items-center justify-between">
+                <div className="space-y-2">
+                    <h3 className="text-lg font-bold text-zinc-900 tracking-tight">Gerenciar Assinatura</h3>
+                    <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Planos, Faturamento & Limites</p>
+                </div>
+                <div className="flex items-center gap-2 px-4 py-2 bg-violet-50 text-violet-600 rounded-xl text-[10px] font-bold uppercase tracking-widest border border-violet-100">
+                    <BadgeCheck className="w-3.5 h-3.5" />
+                    Plano Atual: {tenant?.plan === 'free' ? 'Gratuito' : tenant?.plan === 'pro' ? 'Profissional' : 'Escala'}
+                </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {[
+                    {
+                        id: 'pro',
+                        name: 'Locattus Pro',
+                        price: '97',
+                        benefits: ['Equipamentos Ilimitados', 'ROI e Inteligência', '3 Usuários', 'Suporte Prioritário'],
+                        popular: true
+                    },
+                    {
+                        id: 'premium',
+                        name: 'Locattus Premium',
+                        price: '197',
+                        benefits: ['Tudo do Pro', 'Usuários Ilimitados', 'Multi-Unidade', 'WhatsApp Direto']
+                    }
+                ].map((p) => (
+                    <div
+                        key={p.id}
+                        className={cn(
+                            "relative group p-8 rounded-[32px] border transition-all duration-300",
+                            tenant?.plan === p.id
+                                ? "bg-violet-600 border-violet-600 text-white shadow-xl shadow-violet-200"
+                                : "bg-white border-zinc-100 hover:border-violet-200 hover:shadow-xl hover:shadow-zinc-100"
+                        )}
+                    >
+                        {p.popular && tenant?.plan !== p.id && (
+                            <span className="absolute -top-3 left-8 px-3 py-1 bg-violet-600 text-white text-[9px] font-bold uppercase tracking-widest rounded-full">
+                                Recomendado
+                            </span>
+                        )}
+                        <h4 className={cn("text-lg font-bold mb-1", tenant?.plan === p.id ? "text-white" : "text-zinc-900")}>
+                            {p.name}
+                        </h4>
+                        <div className="flex items-baseline gap-1 mb-6">
+                            <span className={cn("text-xs font-bold", tenant?.plan === p.id ? "text-white/60" : "text-zinc-400")}>R$</span>
+                            <span className={cn("text-3xl font-black", tenant?.plan === p.id ? "text-white" : "text-violet-600")}>
+                                {p.price}
+                            </span>
+                            <span className={cn("text-[10px] font-bold uppercase tracking-widest", tenant?.plan === p.id ? "text-white/60" : "text-zinc-400")}>
+                                /mês
+                            </span>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            {[
-                                {
-                                    id: 'pro',
-                                    name: 'Locattus Pro',
-                                    price: 'R$ 97/mês',
-                                    priceId: 'price_pro_id', // This should match process.env.STRIPE_PRICE_PRO_ID on server
-                                    benefits: ['Equipamentos Ilimitados', 'ROI e Inteligência', '3 Usuários', 'Suporte Prioritário'],
-                                    popular: true
-                                },
-                                {
-                                    id: 'scale',
-                                    name: 'Locattus Scale',
-                                    price: 'R$ 197/mês',
-                                    priceId: 'price_scale_id',
-                                    benefits: ['Tudo do Pro', 'Usuários Ilimitados', 'Multi-Unidade', 'WhatsApp Direto']
-                                }
-                            ].map((p) => (
-                                <div
-                                    key={p.id}
-                                    className={cn(
-                                        "relative group p-8 rounded-[32px] border transition-all duration-300",
-                                        tenant?.plan === p.id
-                                            ? "bg-violet-600 border-violet-600 text-white shadow-xl shadow-violet-200"
-                                            : "bg-white border-zinc-100 hover:border-violet-200 hover:shadow-xl hover:shadow-zinc-100"
-                                    )}
-                                >
-                                    {p.popular && tenant?.plan !== p.id && (
-                                        <span className="absolute -top-3 left-8 px-3 py-1 bg-violet-600 text-white text-[9px] font-bold uppercase tracking-widest rounded-full">
-                                            Recomendado
-                                        </span>
-                                    )}
-                                    <h4 className={cn("text-lg font-bold mb-1", tenant?.plan === p.id ? "text-white" : "text-zinc-900")}>
-                                        {p.name}
-                                    </h4>
-                                    <p className={cn("text-2xl font-extrabold mb-6", tenant?.plan === p.id ? "text-white" : "text-violet-600")}>
-                                        {p.price}
-                                    </p>
-
-                                    <div className="space-y-4 mb-8">
-                                        {p.benefits.map((b) => (
-                                            <div key={b} className="flex items-center gap-3">
-                                                <div className={cn("w-5 h-5 rounded-full flex items-center justify-center shrink-0", tenant?.plan === p.id ? "bg-white/20" : "bg-violet-50")}>
-                                                    <Check className={cn("w-3 h-3", tenant?.plan === p.id ? "text-white" : "text-violet-600")} />
-                                                </div>
-                                                <span className={cn("text-xs font-medium", tenant?.plan === p.id ? "text-violet-100" : "text-zinc-500")}>
-                                                    {b}
-                                                </span>
-                                            </div>
-                                        ))}
+                        <div className="space-y-4 mb-8">
+                            {p.benefits.map((b) => (
+                                <div key={b} className="flex items-center gap-3">
+                                    <div className={cn("w-5 h-5 rounded-full flex items-center justify-center shrink-0", tenant?.plan === p.id ? "bg-white/20" : "bg-violet-50")}>
+                                        <Check className={cn("w-3 h-3", tenant?.plan === p.id ? "text-white" : "text-violet-600")} />
                                     </div>
-
-                                    {tenant?.plan === p.id ? (
-                                        <button disabled className="w-full py-4 bg-white/20 text-white rounded-2xl text-[10px] font-bold uppercase tracking-widest cursor-default">
-                                            Assinatura Ativa
-                                        </button>
-                                    ) : (
-                                        <button
-                                            onClick={() => {
-                                                const id = p.id === 'pro' ? 'price_1R53w0RT8R7tLskmN1IEx0E2' : 'price_1R53wVRT8R7tLskmEunF0Iun'; // Real IDs should come from config
-                                                toast.promise(api.post('/stripe/checkout', { priceId: id }), {
-                                                    loading: 'Iniciando checkout seguro...',
-                                                    success: (res) => {
-                                                        window.location.href = res.data.data.url;
-                                                        return 'Redirecionando...';
-                                                    },
-                                                    error: 'Erro ao conectar com Stripe. Tente novamente.'
-                                                });
-                                            }}
-                                            className="w-full py-4 bg-violet-600 text-white rounded-2xl text-[10px] font-bold uppercase tracking-widest hover:bg-violet-700 transition-all shadow-lg shadow-violet-100 group-hover:scale-[1.02]"
-                                        >
-                                            Escolher este Plano
-                                        </button>
-                                    )}
+                                    <span className={cn("text-xs font-medium", tenant?.plan === p.id ? "text-violet-100" : "text-zinc-500")}>
+                                        {b}
+                                    </span>
                                 </div>
                             ))}
                         </div>
 
-                        <div className="p-8 rounded-[32px] bg-zinc-950 text-white overflow-hidden relative">
-                            <div className="relative z-10 space-y-4">
-                                <div className="flex items-center gap-2 text-violet-400">
-                                    <Zap className="w-4 h-4 fill-current" />
-                                    <span className="text-[10px] font-bold uppercase tracking-widest">Upgrade Automático</span>
-                                </div>
-                                <h4 className="text-xl font-bold tracking-tight">Precisa de algo mais robusto?</h4>
-                                <p className="text-sm text-zinc-400 max-w-md leading-relaxed">
-                                    Nossa equipe de especialistas pode desenhar um plano específico para locadoras com mais de 10 unidades ou necessidades customizadas.
-                                </p>
-                                <button className="px-6 py-3 bg-white text-zinc-950 rounded-2xl text-[10px] font-bold uppercase tracking-widest hover:bg-zinc-200 transition-all">
-                                    Falar com Consultor
-                                </button>
-                            </div>
-                            <div className="absolute -right-20 -bottom-20 w-80 h-80 bg-violet-600/20 blur-[100px] rounded-full" />
-                        </div>
+                        {tenant?.plan === p.id ? (
+                            <button disabled className="w-full py-4 bg-white/20 text-white rounded-2xl text-[10px] font-bold uppercase tracking-widest cursor-default">
+                                Assinatura Ativa
+                            </button>
+                        ) : (
+                            <button
+                                onClick={() => handleUpgrade(p.id)}
+                                className="w-full py-4 bg-violet-600 text-white rounded-2xl text-[10px] font-bold uppercase tracking-widest hover:bg-violet-700 transition-all shadow-lg shadow-violet-100 group-hover:scale-[1.02] flex items-center justify-center gap-2"
+                            >
+                                Escolher este Plano
+                                <ArrowRight className="w-3.5 h-3.5" />
+                            </button>
+                        )}
                     </div>
-                )}
+                ))}
+            </div>
+
+            <div className="p-8 rounded-[32px] bg-zinc-950 text-white overflow-hidden relative">
+                <div className="relative z-10 space-y-4">
+                    <div className="flex items-center gap-2 text-violet-400">
+                        <Zap className="w-4 h-4 fill-current" />
+                        <span className="text-[10px] font-bold uppercase tracking-widest">Upgrade Automático</span>
+                    </div>
+                    <h4 className="text-xl font-bold tracking-tight">Precisa de algo mais robusto?</h4>
+                    <p className="text-sm text-zinc-400 max-w-md leading-relaxed">
+                        Nossa equipe de especialistas pode desenhar um plano específico para locadoras com mais de 10 unidades ou necessidades customizadas.
+                    </p>
+                    <button className="px-6 py-3 bg-white text-zinc-950 rounded-2xl text-[10px] font-bold uppercase tracking-widest hover:bg-zinc-200 transition-all">
+                        Falar com Consultor
+                    </button>
+                </div>
+                <div className="absolute -right-20 -bottom-20 w-80 h-80 bg-violet-600/20 blur-[100px] rounded-full" />
             </div>
         </div>
     );

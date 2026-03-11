@@ -9,17 +9,13 @@ async function migrate() {
             BEGIN
                 IF NOT EXISTS (
                     SELECT 1 FROM information_schema.columns
-                    WHERE table_name = 'tenants' AND column_name = 'subscription_status'
+                    WHERE table_name = 'users' AND column_name = 'system_role'
                 ) THEN
-                    ALTER TABLE tenants
-                        ADD COLUMN subscription_status TEXT NOT NULL DEFAULT 'active',
-                        ADD COLUMN trial_ends_at TIMESTAMPTZ,
-                        ADD COLUMN subscription_ends_at TIMESTAMPTZ,
-                        ADD COLUMN is_manual_lock BOOLEAN NOT NULL DEFAULT FALSE,
-                        ADD COLUMN lock_reason TEXT;
-                    RAISE NOTICE 'Columns added successfully!';
+                    ALTER TABLE users
+                        ADD COLUMN system_role TEXT NOT NULL DEFAULT 'user';
+                    RAISE NOTICE 'system_role column added successfully!';
                 ELSE
-                    RAISE NOTICE 'Columns already exist, skipping.';
+                    RAISE NOTICE 'system_role column already exists, skipping.';
                 END IF;
             END $$;
         `);

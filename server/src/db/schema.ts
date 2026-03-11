@@ -79,6 +79,7 @@ export const users = pgTable('users', {
     resetTokenExpires: timestamp('reset_token_expires', { withTimezone: true }),
     lastLoginAt: timestamp('last_login_at', { withTimezone: true }),
     lastActiveAt: timestamp('last_active_at', { withTimezone: true }),
+    systemRole: text('system_role', { enum: ['user', 'admin'] }).notNull().default('user'),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 });
@@ -431,6 +432,27 @@ export const rentalEvents = pgTable(
     ]
 );
 
+// ========== BILLING CHARGES (AbacatePay) ==========
+export const billingCharges = pgTable('billing_charges', {
+    id: uuid('id').primaryKey().defaultRandom().notNull(),
+    tenantId: uuid('tenant_id').notNull().references(() => tenants.id, { onDelete: 'cascade' }),
+    userId: uuid('user_id').references(() => users.id, { onDelete: 'set null' }),
+    planRequested: text('plan_requested', { enum: ['free', 'pro', 'scale', 'premium'] }).notNull(),
+    amount: numeric('amount', { precision: 12, scale: 2 }).notNull(),
+    status: text('status', {
+        enum: ['pending', 'paid', 'expired', 'refunded', 'cancelled']
+    }).notNull().default('pending'),
+    abacatePayId: text('abacate_pay_id').unique(),
+    method: text('method').notNull().default('PIX_QRCODE'),
+    devMode: boolean('dev_mode').notNull().default(false),
+    brCode: text('br_code'), // PIX Copia e Cola
+    brCodeBase64: text('br_code_base64'), // QR Code image data
+    expiresAt: timestamp('expires_at', { withTimezone: true }),
+    metadata: jsonb('metadata').default({}),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+});
+
 // ========== RELATIONS ==========
 export const tenantsRelations = relations(tenants, ({ many }) => ({
     users: many(users),
@@ -448,6 +470,12 @@ export const tenantsRelations = relations(tenants, ({ many }) => ({
     clientCommunications: many(clientCommunications),
     storeAutomationSettings: many(storeAutomationSettings),
     rentalEvents: many(rentalEvents),
+    billingCharges: many(billingCharges),
+}));
+
+export const billingChargesRelations = relations(billingCharges, ({ one }) => ({
+    tenant: one(tenants, { fields: [billingCharges.tenantId], references: [tenants.id] }),
+    user: one(users, { fields: [billingCharges.userId], references: [users.id] }),
 }));
 
 export const usersRelations = relations(users, ({ one }) => ({

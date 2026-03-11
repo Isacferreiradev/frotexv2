@@ -7,6 +7,7 @@ interface User {
     role: 'owner' | 'employee';
     tenantId: string;
     avatarUrl?: string | null;
+    systemRole: 'user' | 'admin';
     hasOnboarded?: boolean;
     hasSeenTour?: boolean;
 }

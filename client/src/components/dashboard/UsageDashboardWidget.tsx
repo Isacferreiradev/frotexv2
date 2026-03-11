@@ -40,7 +40,7 @@ export function UsageDashboardWidget() {
             {subscription.needsUpgrade && (
                 <div className="rounded-xl bg-amber-50 border border-amber-200 px-4 py-3 text-xs text-amber-800">
                     ⚠️ Você atingiu o limite de um ou mais recursos.{' '}
-                    <a href="/settings/billing" className="font-semibold underline">
+                    <a href="/configuracoes?tab=assinatura" className="font-semibold underline">
                         Fazer upgrade
                     </a>
                 </div>

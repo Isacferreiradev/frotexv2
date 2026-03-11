@@ -26,11 +26,13 @@ import financeRoutes from './routes/finance.routes';
 import communicationsRoutes from './routes/communications.routes';
 import quotesRoutes from './routes/quotes.routes';
 import intelligenceRoutes from './routes/intelligence.routes';
-import stripeRoutes from './routes/stripe.routes';
+// import stripeRoutes from './routes/stripe.routes'; // REMOVED: Migrating to AbacatePay
 import automationRoutes from './routes/automation.routes';
 import onboardingRoutes from './routes/onboarding.routes';
 import exportRoutes from './routes/export.routes';
 import adminRoutes from './routes/admin.routes';
+import billingRoutes from './routes/billing.routes';
+import webhookRoutes from './routes/webhook.routes';
 
 
 import { globalLimiter } from './middleware/rate-limit.middleware';
@@ -104,8 +106,14 @@ app.use(helmet({
 }));
 app.use(hpp());
 
-// Stripe Webhooks & Routes (Handles raw body internally)
-app.use('/api/subscriptions', stripeRoutes);
+// Stripe Webhooks & Routes (DEPRECATED - Use /api/billing)
+app.use(['/api/subscriptions', '/api/stripe'], (req, res) => {
+    res.status(410).json({
+        status: 'error',
+        message: 'O sistema de pagamentos via Stripe foi desativado. Por favor, utilize a nova aba de Assinatura nas configurações.',
+        redirect: '/configuracoes?tab=assinatura'
+    });
+});
 
 // General Parsing
 app.use(cookieParser());
@@ -146,6 +154,7 @@ app.get('/health', async (req, res) => {
 });
 
 // Webhooks (Public)
+app.use('/api/webhooks', webhookRoutes);
 app.post('/api/webhooks/asaas', express.json(), webhooksCtrl.asaasWebhook);
 
 // 1. Administrative API (Master Access via API Key)
@@ -174,6 +183,7 @@ app.use('/api/intelligence', authenticate, tenantContext, intelligenceRoutes);
 app.use('/api/automation', authenticate, tenantContext, automationRoutes);
 app.use('/api/onboarding', authenticate, tenantContext, onboardingRoutes);
 app.use('/api/export', authenticate, tenantContext, exportRoutes);
+app.use('/api/billing', billingRoutes);
 
 
 // Fallback for non-existent API routes

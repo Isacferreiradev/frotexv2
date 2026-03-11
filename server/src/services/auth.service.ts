@@ -92,6 +92,7 @@ export async function register(data: z.infer<typeof registerSchema>) {
             email: result.user.email,
             role: result.user.role,
             tenantId: result.user.tenantId,
+            systemRole: result.user.systemRole as 'user' | 'admin',
         });
 
         const refreshToken = signRefreshToken({
@@ -145,6 +146,7 @@ export async function checkVerification(email: string) {
             email: user.email,
             role: user.role,
             tenantId: user.tenantId,
+            systemRole: user.systemRole as 'user' | 'admin',
         });
 
         const refreshToken = signRefreshToken({ userId: user.id, tenantId: user.tenantId });
@@ -223,6 +225,7 @@ export async function login(data: z.infer<typeof loginSchema>) {
             email: user.email,
             role: user.role,
             tenantId: user.tenantId,
+            systemRole: user.systemRole as 'user' | 'admin',
         });
 
         const refreshToken = signRefreshToken({ userId: user.id, tenantId: user.tenantId });
@@ -264,6 +267,7 @@ export async function refreshTokens(token: string) {
             email: user.email,
             role: user.role,
             tenantId: user.tenantId,
+            systemRole: user.systemRole as 'user' | 'admin',
         });
 
         const refreshToken = signRefreshToken({ userId: user.id, tenantId: user.tenantId });
