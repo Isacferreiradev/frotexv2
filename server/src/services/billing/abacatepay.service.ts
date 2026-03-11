@@ -30,14 +30,20 @@ export interface AbacatePayCheckoutResponse {
  */
 export class AbacatePayClient {
     private static readonly BASE_URL = 'https://api.abacatepay.com/v2';
-    private static readonly API_KEY = env.ABACATE_PAY_API_KEY;
 
     private static getHeaders() {
-        if (!this.API_KEY) {
+        const apiKey = env.ABACATE_PAY_API_KEY;
+
+        if (!apiKey) {
+            logger.error('[ABACATEPAY] ABACATE_PAY_API_KEY is undefined in env object');
             throw new AppError(500, 'ABACATE_PAY_API_KEY is not configured');
         }
+
+        // Log partial key for verification in dev
+        logger.info(`[ABACATEPAY] Using API Key: ${apiKey.substring(0, 8)}...`);
+
         return {
-            'Authorization': `Bearer ${this.API_KEY}`,
+            'Authorization': `Bearer ${apiKey}`,
             'Content-Type': 'application/json'
         };
     }
