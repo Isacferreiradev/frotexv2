@@ -13,7 +13,10 @@ export type SubscriptionStatus =
     | 'past_due'
     | 'canceled'
     | 'unpaid'
-    | 'paused';
+    | 'paused'
+    | 'expired'
+    | 'failed'
+    | 'pending_payment';
 
 export interface UsageStats {
     tools: { used: number; limit: number; pct: number };
@@ -84,6 +87,8 @@ export async function getSubscriptionState(tenantId: string): Promise<Subscripti
         tenant.isManualLock ||
         status === 'canceled' ||
         status === 'unpaid' ||
+        status === 'expired' ||
+        status === 'failed' ||
         (status === 'past_due' && planName !== 'free');
 
     // Usage counts in parallel

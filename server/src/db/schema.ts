@@ -39,7 +39,7 @@ export const tenants = pgTable('tenants', {
     paymentProvider: text('payment_provider', { enum: ['none', 'asaas', 'stripe'] }).default('none'),
     plan: text('plan', { enum: ['free', 'pro', 'scale', 'premium'] }).notNull().default('free'),
     subscriptionStatus: text('subscription_status', {
-        enum: ['active', 'trialing', 'past_due', 'canceled', 'unpaid', 'paused']
+        enum: ['active', 'trialing', 'past_due', 'canceled', 'unpaid', 'paused', 'expired', 'failed', 'pending_payment']
     }).notNull().default('active'),
     trialEndsAt: timestamp('trial_ends_at', { withTimezone: true }),
     subscriptionEndsAt: timestamp('subscription_ends_at', { withTimezone: true }),
@@ -432,15 +432,50 @@ export const rentalEvents = pgTable(
     ]
 );
 
+// ========== SUBSCRIPTIONS ==========
+export const subscriptions = pgTable('subscriptions', {
+    id: uuid('id').primaryKey().defaultRandom().notNull(),
+    tenantId: uuid('tenant_id').notNull().references(() => tenants.id, { onDelete: 'cascade' }),
+    plan: text('plan', { enum: ['pro', 'scale', 'premium'] }).notNull(),
+    status: text('status', {
+        enum: ['active', 'trialing', 'past_due', 'canceled', 'expired', 'failed']
+    }).notNull().default('trialing'),
+    amount: numeric('amount', { precision: 12, scale: 2 }).notNull(),
+    interval: text('interval', { enum: ['month', 'year'] }).notNull().default('month'),
+    currentPeriodStart: timestamp('current_period_start', { withTimezone: true }).notNull().defaultNow(),
+    currentPeriodEnd: timestamp('current_period_end', { withTimezone: true }).notNull(),
+    nextRenewalAt: timestamp('next_renewal_at', { withTimezone: true }),
+    trialStart: timestamp('trial_start', { withTimezone: true }),
+    trialEnd: timestamp('trial_end', { withTimezone: true }),
+    externalId: text('external_id'), // AbacatePay subscription ID if they add it later
+    cancelAtPeriodEnd: boolean('cancel_at_period_end').notNull().default(false),
+    canceledAt: timestamp('canceled_at', { withTimezone: true }),
+    metadata: jsonb('metadata').default({}),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+});
+
+// ========== BILLING EVENTS (Audit Trail) ==========
+export const billingEvents = pgTable('billing_events', {
+    id: uuid('id').primaryKey().defaultRandom().notNull(),
+    tenantId: uuid('tenant_id').notNull().references(() => tenants.id, { onDelete: 'cascade' }),
+    subscriptionId: uuid('subscription_id').references(() => subscriptions.id, { onDelete: 'set null' }),
+    chargeId: uuid('charge_id').references(() => billingCharges.id, { onDelete: 'set null' }),
+    type: text('type').notNull(), // e.g., 'CHARGE_CREATED', 'PAYMENT_RECEIVED', 'RENEWAL_FAILED'
+    payload: jsonb('payload').default({}),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+});
+
 // ========== BILLING CHARGES (AbacatePay) ==========
 export const billingCharges = pgTable('billing_charges', {
     id: uuid('id').primaryKey().defaultRandom().notNull(),
     tenantId: uuid('tenant_id').notNull().references(() => tenants.id, { onDelete: 'cascade' }),
     userId: uuid('user_id').references(() => users.id, { onDelete: 'set null' }),
+    subscriptionId: uuid('subscription_id').references(() => subscriptions.id, { onDelete: 'set null' }),
     planRequested: text('plan_requested', { enum: ['free', 'pro', 'scale', 'premium'] }).notNull(),
     amount: numeric('amount', { precision: 12, scale: 2 }).notNull(),
     status: text('status', {
-        enum: ['pending', 'paid', 'expired', 'refunded', 'cancelled']
+        enum: ['pending', 'paid', 'expired', 'refunded', 'cancelled', 'failed', 'disputed']
     }).notNull().default('pending'),
     abacatePayId: text('abacate_pay_id').unique(),
     method: text('method').notNull().default('PIX_QRCODE'),
@@ -471,11 +506,27 @@ export const tenantsRelations = relations(tenants, ({ many }) => ({
     storeAutomationSettings: many(storeAutomationSettings),
     rentalEvents: many(rentalEvents),
     billingCharges: many(billingCharges),
+    subscriptions: many(subscriptions),
+    billingEvents: many(billingEvents),
 }));
 
-export const billingChargesRelations = relations(billingCharges, ({ one }) => ({
+export const subscriptionsRelations = relations(subscriptions, ({ one, many }) => ({
+    tenant: one(tenants, { fields: [subscriptions.tenantId], references: [tenants.id] }),
+    charges: many(billingCharges),
+    events: many(billingEvents),
+}));
+
+export const billingEventsRelations = relations(billingEvents, ({ one }) => ({
+    tenant: one(tenants, { fields: [billingEvents.tenantId], references: [tenants.id] }),
+    subscription: one(subscriptions, { fields: [billingEvents.subscriptionId], references: [subscriptions.id] }),
+    charge: one(billingCharges, { fields: [billingEvents.chargeId], references: [billingCharges.id] }),
+}));
+
+export const billingChargesRelations = relations(billingCharges, ({ one, many }) => ({
     tenant: one(tenants, { fields: [billingCharges.tenantId], references: [tenants.id] }),
     user: one(users, { fields: [billingCharges.userId], references: [users.id] }),
+    subscription: one(subscriptions, { fields: [billingCharges.subscriptionId], references: [subscriptions.id] }),
+    events: many(billingEvents),
 }));
 
 export const usersRelations = relations(users, ({ one }) => ({
@@ -624,6 +675,12 @@ export type StoreAutomationSettings = typeof storeAutomationSettings.$inferSelec
 export type NewStoreAutomationSettings = typeof storeAutomationSettings.$inferInsert;
 export type RentalEvent = typeof rentalEvents.$inferSelect;
 export type NewRentalEvent = typeof rentalEvents.$inferInsert;
+export type Subscription = typeof subscriptions.$inferSelect;
+export type NewSubscription = typeof subscriptions.$inferInsert;
+export type BillingEvent = typeof billingEvents.$inferSelect;
+export type NewBillingEvent = typeof billingEvents.$inferInsert;
+export type BillingCharge = typeof billingCharges.$inferSelect;
+export type NewBillingCharge = typeof billingCharges.$inferInsert;
 
 
 // ========== DISMISSED ALERTS ==========

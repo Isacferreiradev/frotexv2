@@ -29,7 +29,7 @@ export interface SubscriptionFeatures {
 
 export interface SubscriptionState {
     plan: string;
-    status: 'active' | 'trialing' | 'past_due' | 'canceled' | 'unpaid' | 'paused';
+    status: 'active' | 'trialing' | 'past_due' | 'canceled' | 'unpaid' | 'paused' | 'expired' | 'failed' | 'pending_payment';
     isTrial: boolean;
     trialEndsAt: string | null;
     subscriptionEndsAt: string | null;

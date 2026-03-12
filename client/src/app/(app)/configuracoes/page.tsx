@@ -339,11 +339,6 @@ export default function ConfiguracoesPage() {
                             <BadgeCheck className="w-3 h-3" /> Gestão SaaS de Elite
                         </p>
                     </div>
-                    <div className="hidden sm:block">
-                        <div className="px-4 py-2 bg-emerald-50 text-emerald-600 rounded-xl text-[10px] font-bold uppercase tracking-widest border border-emerald-100">
-                            Plano Premium Ativo
-                        </div>
-                    </div>
                 </div>
 
                 <ConfigTabs activeTab={activeTab} onChange={setActiveTab} />
@@ -463,41 +458,16 @@ export default function ConfiguracoesPage() {
 }
 
 function AssinaturaTab({ tenant }: { tenant: any }) {
-    const [showPixModal, setShowPixModal] = useState(false);
-    const [pendingCharge, setPendingCharge] = useState<any>(null);
+    const router = useRouter();
     const { user } = useAuthStore();
 
-    const handleUpgrade = async (plan: string) => {
-        try {
-            toast.loading('Iniciando checkout seguro...', { id: 'billing-upgrade' });
-
-            const response = await api.post('/billing/upgrade', { planRequested: plan });
-
-            if (response.data?.success) {
-                setPendingCharge(response.data.data);
-                setShowPixModal(true);
-                toast.dismiss('billing-upgrade');
-            }
-        } catch (error: any) {
-            toast.error(error.response?.data?.message || 'Erro ao gerar cobrança. Tente novamente.', { id: 'billing-upgrade' });
-        }
-    };
-
-    const handleSuccess = () => {
-        setShowPixModal(false);
-        // Refresh page or user state to show new plan
-        window.location.reload();
+    const handleUpgrade = (plan: string) => {
+        router.push(`/checkout?plan=${plan}`);
     };
 
     return (
         <div className="p-10 space-y-10 animate-in fade-in slide-in-from-bottom-2 duration-500">
-            {showPixModal && pendingCharge && (
-                <PIXPaymentModal
-                    charge={pendingCharge}
-                    onSuccess={handleSuccess}
-                    onClose={() => setShowPixModal(false)}
-                />
-            )}
+
 
             <div className="flex items-center justify-between">
                 <div className="space-y-2">

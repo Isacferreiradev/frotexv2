@@ -5,10 +5,16 @@ import logger from '../../utils/logger';
 import { AppError } from '../../middleware/error.middleware';
 
 export interface AbacatePayCheckoutPayload {
-    amount: number;
-    method: 'PIX_QRCODE';
-    customerId?: string;
+    amount: number; // In cents
+    description?: string;
     externalId?: string;
+    customerId?: string;
+    customer?: {
+        name: string;
+        email: string;
+        taxId: string; // CPF or CNPJ
+        cellphone?: string;
+    };
 }
 
 export interface AbacatePayCheckoutResponse {
@@ -29,7 +35,7 @@ export interface AbacatePayCheckoutResponse {
  * Based on Version 2 of the API
  */
 export class AbacatePayClient {
-    private static readonly BASE_URL = 'https://api.abacatepay.com/v2';
+    private static readonly BASE_URL = 'https://api.abacatepay.com/v1';
 
     private static getHeaders() {
         const apiKey = env.ABACATE_PAY_API_KEY;
@@ -49,18 +55,20 @@ export class AbacatePayClient {
     }
 
     /**
-     * Create a transparent checkout for PIX
+     * Create a transparent checkout for PIX (V1)
      */
     static async createTransparentCheckout(payload: AbacatePayCheckoutPayload): Promise<AbacatePayCheckoutResponse> {
         try {
-            logger.info(`[ABACATEPAY] Creating transparent checkout for amount: ${payload.amount}`);
+            logger.info(`[ABACATEPAY] Creating V1 PIX Checkout for amount: ${payload.amount} cents`);
 
-            const response = await axios.post(`${this.BASE_URL}/transparents/create`, payload, {
+            // V1 uses flat payload (no 'data' wrapper and no 'method' field)
+            const response = await axios.post(`${this.BASE_URL}/pixQrCode/create`, payload, {
                 headers: this.getHeaders()
             });
 
             if (!response.data || !response.data.data) {
-                throw new Error('Invalid response from AbacatePay');
+                logger.error(`[ABACATEPAY] Invalid V1 response format: ${JSON.stringify(response.data)}`);
+                throw new Error('Invalid response structure from AbacatePay V1');
             }
 
             return response.data.data;
@@ -68,6 +76,24 @@ export class AbacatePayClient {
             const apiError = error.response?.data?.error || error.message;
             logger.error(`[ABACATEPAY] Create checkout failed: ${apiError}`);
             throw new AppError(500, `AbacatePay Error: ${apiError}`);
+        }
+    }
+
+    /**
+     * Check status of a PIX charge (V1)
+     */
+    static async checkChargeStatus(abacatePayId: string): Promise<string> {
+        try {
+            const response = await axios.get(`${this.BASE_URL}/pixQrCode/check`, {
+                params: { id: abacatePayId },
+                headers: this.getHeaders()
+            });
+
+            // V1 check endpoint returns { data: { status: '...' } }
+            return response.data?.data?.status;
+        } catch (error: any) {
+            logger.error(`[ABACATEPAY] Check status failed for ${abacatePayId}: ${error.message}`);
+            return 'pending'; // Fallback to pending if check fails
         }
     }
 

@@ -1,4 +1,7 @@
 import { Router } from 'express';
+import { db } from '../db';
+import { billingEvents, billingCharges } from '../db/schema';
+import { eq, and } from 'drizzle-orm';
 import { BillingService } from '../services/billing/billing.service';
 import { AbacatePayClient } from '../services/billing/abacatepay.service';
 import logger from '../utils/logger';
@@ -13,47 +16,62 @@ const router = Router();
 router.post('/abacatepay', async (req, res) => {
     try {
         const signature = req.headers['x-webhook-signature'] as string;
-        const querySecret = req.query.secret as string;
+        const rawBody = (req as any).rawBody
+            ? (req as any).rawBody.toString('utf8')
+            : JSON.stringify(req.body);
 
-        // 1. Basic Secret Check (from query)
-        if (querySecret !== env.ABACATE_PAY_WEBHOOK_SECRET) {
-            logger.warn(`[WEBHOOK] Unauthorized webhook attempt (invalid query secret).`);
-            return res.status(401).json({ error: 'Unauthorized' });
-        }
-
-        // 2. HMAC Signature Validation
-        const rawBody = JSON.stringify(req.body);
-        if (!AbacatePayClient.validateSignature(rawBody, signature)) {
-            logger.warn(`[WEBHOOK] Invalid HMAC signature detected.`);
-            return res.status(403).json({ error: 'Invalid signature' });
+        // 1. Strict Validation
+        if (!signature || !AbacatePayClient.validateSignature(rawBody, signature)) {
+            logger.warn('[WEBHOOK] Unauthorized or invalid signature from AbacatePay');
+            return res.status(403).json({ error: 'Unauthorized' });
         }
 
         const { event, data } = req.body;
-        logger.info(`[WEBHOOK] Received event: ${event} for ID: ${data?.id}`);
+        const abacateId = data?.id;
+
+        if (!abacateId) {
+            return res.status(400).json({ error: 'Missing data ID' });
+        }
+
+        // 2. Idempotency Check
+        // Check if the charge itself is already in the target status
+        const charge = await db.query.billingCharges.findFirst({
+            where: eq(billingCharges.abacatePayId, abacateId)
+        });
+
+        if (charge && ((event.includes('paid') && charge.status === 'paid') || (event.includes('refunded') && charge.status === 'refunded'))) {
+            logger.info(`[WEBHOOK] Event ${event} for ${abacateId} already processed. Skipping.`);
+            return res.status(200).json({ success: true, message: 'Already processed' });
+        }
+
+        logger.info(`[WEBHOOK] Verified & Processing: ${event} (${abacateId})`);
 
         // 3. Process Events
         switch (event) {
+            case 'billing.paid':
+            case 'checkout.completed':
             case 'transparent.completed':
-                await BillingService.confirmPayment(data.id);
+                await BillingService.confirmPayment(abacateId);
                 break;
 
+            case 'billing.failed':
+            case 'checkout.expired':
+            case 'checkout.cancelled':
             case 'transparent.expired':
-                await BillingService.failPayment(data.id, 'expired');
+                const status = event.includes('expired') ? 'expired' : 'cancelled';
+                await BillingService.failPayment(abacateId, status);
                 break;
 
-            case 'transparent.cancelled':
-                await BillingService.failPayment(data.id, 'cancelled');
-                break;
-
-            case 'transparent.refunded':
-                await BillingService.failPayment(data.id, 'refunded');
+            case 'billing.refunded':
+            case 'checkout.refunded':
+                await BillingService.failPayment(abacateId, 'refunded');
                 break;
 
             default:
-                logger.info(`[WEBHOOK] Unhandled event type: ${event}`);
+                logger.debug(`[WEBHOOK] Unhandled event type: ${event}`);
         }
 
-        res.status(200).json({ received: true });
+        res.status(200).json({ success: true });
     } catch (error: any) {
         logger.error(`[WEBHOOK] Error processing AbacatePay webhook: ${error.message}`);
         res.status(500).json({ error: 'Internal Server Error' });

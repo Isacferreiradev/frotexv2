@@ -14,7 +14,7 @@ const router = Router();
  */
 router.post('/upgrade', authenticate, async (req: any, res, next) => {
     try {
-        const { planRequested } = req.body;
+        const { planRequested, customer } = req.body;
         const tenantId = req.user.tenantId;
         const userId = req.user.id;
 
@@ -22,11 +22,36 @@ router.post('/upgrade', authenticate, async (req: any, res, next) => {
             throw new AppError(400, 'Plano inválido selecionado.');
         }
 
-        const charge = await BillingService.initiateUpgrade(tenantId, userId, planRequested);
+        const charge = await BillingService.initiateUpgrade(tenantId, userId, planRequested, customer);
 
         res.status(201).json({
             success: true,
             data: charge
+        });
+    } catch (error) {
+        next(error);
+    }
+});
+
+/**
+ * GET /api/billing/active
+ * Get the current pending charge for the tenant
+ */
+router.get('/active', authenticate, async (req: any, res, next) => {
+    try {
+        const tenantId = req.user.tenantId;
+
+        const charge = await db.query.billingCharges.findFirst({
+            where: (charges, { and, eq }) => and(
+                eq(charges.tenantId, tenantId),
+                eq(charges.status, 'pending')
+            ),
+            orderBy: (charges, { desc }) => [desc(charges.createdAt)]
+        });
+
+        res.json({
+            success: true,
+            data: charge || null
         });
     } catch (error) {
         next(error);
@@ -41,6 +66,10 @@ router.get('/charge/:id', authenticate, async (req: any, res, next) => {
     try {
         const { id } = req.params;
         const tenantId = req.user.tenantId;
+
+        console.log(`[POLLING] Syncing status for charge: ${id}`);
+        // Proactive sync if status might be outdated
+        await BillingService.syncChargeStatus(id);
 
         const charge = await db.query.billingCharges.findFirst({
             where: (charges, { and, eq }) => and(

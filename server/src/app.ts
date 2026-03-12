@@ -117,7 +117,11 @@ app.use(['/api/subscriptions', '/api/stripe'], (req, res) => {
 
 // General Parsing
 app.use(cookieParser());
-app.use(express.json());
+app.use(express.json({
+    verify: (req: any, res, buf) => {
+        req.rawBody = buf;
+    }
+}));
 app.use(express.urlencoded({ extended: true }));
 if (env.NODE_ENV !== 'test') {
     app.use(morgan('dev'));
@@ -185,9 +189,9 @@ app.use('/api/onboarding', authenticate, tenantContext, onboardingRoutes);
 app.use('/api/export', authenticate, tenantContext, exportRoutes);
 app.use('/api/billing', billingRoutes);
 
-
 // Fallback for non-existent API routes
 app.use('*', (req, res) => {
+    console.warn(`[SERVER] 404 Fallback triggered for: ${req.method} ${req.originalUrl}`);
     res.status(404).json({
         status: 'error',
         message: `Route ${req.originalUrl} not found`,
@@ -196,5 +200,7 @@ app.use('*', (req, res) => {
 });
 
 app.use(errorHandler);
+
+console.log('🚀 [FROTEX] Server initialized with latest Payment Sync & Routing v3');
 
 export default app;
